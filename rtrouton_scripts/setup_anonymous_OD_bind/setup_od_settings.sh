@@ -25,7 +25,7 @@ killall DirectoryService
 
 dsconfigldap -v -s -a od.server.name 
 dscl -q localhost -create /Search SearchPolicy dsAttrTypeStandard:CSPSearchPath
-dscl -q localhost -merge /Search CSPSearchPath /LDAPv3/nhgri-mcx.nih.gov
+dscl -q localhost -merge /Search CSPSearchPath /LDAPv3/od.server.name
 killall DirectoryService
 
 ################################ 
