@@ -1,0 +1,9 @@
+If you need to set a wireless network in Mac OS X from the command line or with a script, you can do so with the networksetup command. Networksetup has a few options that are specifically geared to working with wireless networks. For me, one of the more useful is the ability to set wireless networks, either manually via the command line or automating it with a script. You can set this using the -addpreferredwirelessnetworkatindex option, with the network port, wireless network name, the index number you want to assign it to (set it to 0 if you don’t know what to set it to, as that’ll bump it to the top of the list), and the security type of the wireless network (OPEN, WEP, WPA, WPA2, WPAE or WPA2E). You can also substitute NONE in place of OPEN in the security type.
+
+For example, you may have a wireless network named HomeNetwork that uses WPA2 encryption with the password of donthackme. It’s the only one in your environment and you want to set your Mac(s) to prefer this wireless network. To set your preferred wireless network, log into your Mac(s) with an admin account, open Terminal and run the following command:
+
+sudo networksetup -addpreferredwirelessnetworkatindex AirPort HomeNetwork 0 WPA2 donthackme
+
+Running this command will add it to the list of your preferred wireless networks in System Preferences: Network: Airport. It will also add a password item to the System keychain for the HomeNetwork wireless network, which will store the donthackme password.
+
+For greater flexibility, you can also script this so that all of the various values after -addpreferredwirelessnetworkatindex are variables which can be set as needed. See the accompanying script for an example how to do this.
