@@ -131,7 +131,7 @@ done
 defaults write /Library/Preferences/DirectoryService/DirectoryService "Active Directory" "Active"
 plutil -convert xml1 /Library/Preferences/DirectoryService/DirectoryService.plist
 
-# Binding to the correct NGHRI AD OU
+# Binding to the correct Active Directory OU
 echo "Is the Mac a laptop?"
 select yn in "Yes" "No"; do
     	case $yn in
