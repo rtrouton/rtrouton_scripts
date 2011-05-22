@@ -1,4 +1,9 @@
 #!/bin/sh
+
+# This script is designed to check for the settings of a OD
+# server that you're not using any more and remove the settings
+# from your Directory Service settings.
+
 oldDomain="old.odserver.here" # Enter the FQDN of your old OD
 oldODip="old.od.ip.here" # Enter the IP of your old OD
  
