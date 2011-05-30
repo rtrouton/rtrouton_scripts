@@ -4,4 +4,4 @@ Assumptions: In order to work correctly, the script needs for the Mac to be boun
 
 Using the script:
 
-Launch the script and provide the username in the blank provided, then click OK. It will confirm the username you want to look up, and then display the home folder.
+Launch the script and provide the username in the blank provided, then click OK. It will confirm the username you want to look up, and then display the AD user's home folder location (as defined in their AD account's profile.)
