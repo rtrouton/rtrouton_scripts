@@ -13,10 +13,10 @@
 # wireless network name should not contain spaces.
 
 # Set the WIRELESS variable to the wireless
-# network port you want to use. (leave it as
-# "AirPort" if you do not know what port to use.)
-
-WIRELESS=AirPort
+# network port you want to use. 
+# For 10.7, set WIRELESS=Wi-Fi
+# For 10.6 and 10.5, set WIRELESS=AirPort
+WIRELESS=
 
 # Set the SSID variable to your wireless network name
 # to set the network name you want to connect to.
