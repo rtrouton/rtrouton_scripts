@@ -1,11 +1,14 @@
 #!/bin/sh
-# Modified 8/7/2009
-
+# Modified 7/20/2011
+Version=1.2
 # MigrateUserHomeToDomainAcct.sh
 # Patrick Gallagher
 # Emory College
 #
 # Modified by Rich Trouton
+#
+# Version 1.2 - Added the ability to check if the OS is running on Mac OS X 10.7, and run "killall opendirectoryd"
+# instead of "killall DirectoryService" if it is.
 #
 
 
@@ -20,6 +23,7 @@ check4AD=`/usr/bin/dscl localhost -list . | grep "Active Directory"`
 osversionlong=`sw_vers -productVersion`
 osvers=${osversionlong:3:1}
 lookupAccount=helpdesk
+OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
 
 echo "********* Running $FullScriptName Version $Version *********"
 
@@ -65,11 +69,6 @@ until [ "$user" == "FINISHED" ]; do
         					No ) echo "It doesn't look like this Mac is communicating with AD correctly. Exiting the script."; exit 0;;
     					esac
 				done
-				# Refresh Directory Services
-				/usr/bin/killall DirectoryService
-				sleep 10
-			
-
 
 			# Determine location of the users home folder
 			userHome=`/usr/bin/dscl . read /Users/$user NFSHomeDirectory | cut -c 19-`
@@ -99,8 +98,12 @@ until [ "$user" == "FINISHED" ]; do
 			/bin/mv $userHome /Users/old_$user
 			/usr/bin/dscl . -delete "/Users/$user"
 
-			
-				/usr/bin/killall DirectoryService
+				# Refresh Directory Services
+				if [ "${OS}" = "10.7" ]; then
+					/usr/bin/killall opendirectoryd
+				else
+					/usr/bin/killall DirectoryService
+				fi
 				sleep 20
 				/usr/bin/id $netname
 				# Check if there's a home folder there already, if there is, exit before we wipe it
@@ -122,7 +125,12 @@ until [ "$user" == "FINISHED" ]; do
     					esac
 				done
 				# Refresh Directory Services
-				/usr/bin/killall DirectoryService
+				
+				if [ "${OS}" = "10.7" ]; then
+					/usr/bin/killall opendirectoryd
+				else
+					/usr/bin/killall DirectoryService
+				fi
 				sleep 20
 			break
 		else
