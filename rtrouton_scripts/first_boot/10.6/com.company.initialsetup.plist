@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>org.janelia.initialsetup</string>
+  <string>com.company.initialsetup</string>
   <key>ProgramArguments</key>
   <array>
     <string>/var/initialsetup.sh</string>
