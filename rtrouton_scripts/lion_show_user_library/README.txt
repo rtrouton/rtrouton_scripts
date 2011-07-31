@@ -1,0 +1,1 @@
+Show User Library - Uses a script named show_library.sh into /Library/Scripts and a LaunchAgent named com.company.show_library.plist into /Library/LaunchAgents that fixes 10.7's default behavior of making /Users/username/Library invisible to the user by making /Users/username/Library visible again.
