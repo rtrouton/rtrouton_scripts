@@ -121,7 +121,7 @@ defaults delete /Library/Preferences/com.apple.loginwindow StartupDelay
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/org.janelia.initialsetup.plist
+srm /Library/LaunchDaemons/com.company.initialsetup.plist
 
 # Make script self-destruct
 
