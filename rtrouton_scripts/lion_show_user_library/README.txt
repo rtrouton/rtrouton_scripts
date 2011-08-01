@@ -1,1 +1,3 @@
-Show User Library - Uses a script named show_library.sh into /Library/Scripts and a LaunchAgent named com.company.show_library.plist into /Library/LaunchAgents that fixes 10.7's default behavior of making /Users/username/Library invisible to the user by making /Users/username/Library visible again.
+Show User Library - Uses a script named show_library.sh that's put into /Library/Scripts and a LaunchAgent named com.company.show_library.plist that's put into /Library/LaunchAgents that fixes 10.7's default behavior of making /Users/username/Library invisible to the user by making /Users/username/Library visible again.
+
+The LaunchAgent runs the script on login to any user account with the logging-in user's privileges and permissions. That allows the visibility of ~/Library to be changed without changing the permissions on ~/Library. 
