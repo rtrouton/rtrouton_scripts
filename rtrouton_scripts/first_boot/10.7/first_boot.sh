@@ -129,7 +129,9 @@ defaults write /Library/Preferences/com.apple.loginwindow EnableExternalAccounts
 # The following are changes from the 10.6 initial setup script, to add customizations for 10.7.x
 # 
 # Set the ability to  view additional system info at the Login window
-# The following will be reported (click again to proceed to the next item):
+# The following will be reported when you click on the time display 
+# (click on the time again to proceed to the next item):
+#
 # Computer name
 # Version of OS X installed
 # IP address
