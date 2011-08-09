@@ -137,6 +137,11 @@ defaults write /Library/Preferences/com.apple.loginwindow EnableExternalAccounts
 
 defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
 
+# Sets the "Show scroll bars" setting (in System Preferences: General)
+# to "Always"
+  
+defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
+
 # Turn SSH on
 
 sudo systemsetup -setremotelogin on
