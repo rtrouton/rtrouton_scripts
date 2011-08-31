@@ -3,7 +3,7 @@
 #
 # Initial setup script for Mac OS X 10.7.x
 # Rich Trouton, created July 31, 2011
-# Last modified 7-31-2011
+# Last modified 8-31-2011
 #
 # Adapted from Initial setup script for Mac OS X 10.6.x
 # Rich Trouton, created September 18 2009
@@ -11,21 +11,22 @@
 #
 #
 
-# Delay the login window by three minutes to give all settings time to apply
+# Delay the 10.7 login window by unloading the com.apple.loginwindow
+# LaunchDaemon in /System/Library/LaunchDaemons/
 
-defaults write /Library/Preferences/com.apple.loginwindow StartupDelay -int 180
+launchctl unload /System/Library/LaunchDaemons/com.apple.loginwindow.plist
 
-# Sleeping for 10 seconds to allow the new default User Template folder to be moved into place
+# Sleeping for 30 seconds to allow the new default User Template folder to be moved into place
 
-sleep 10
+sleep 30
 
-# Get the system's MAC address to set ByHost prefs
-MACADD=`/sbin/ifconfig en0 | awk '/ether/ { gsub(":", ""); print $2 }'` 
-#Primary Time server for HHMI Macs
+# Get the system's UUID to set ByHost prefs
+MAC_UUID=$(system_profiler SPHardwareDataType | awk -F" " '/UUID/{print $3}')
+#Primary Time server for Company Macs
 TimeServer1=ns0.time.server
-#Secondary Time server for HHMI Macs
+#Secondary Time server for Company Macs
 TimeServer2=ns1.time.server
-#Tertiary Time Server for HHMI Macs, used outside of HHMI network
+#Tertiary Time Server for Company Macs, used outside of Company network
 TimeServer3=time.apple.com
 # Time zone for Macs
 TimeZone=America/New_York
@@ -58,14 +59,14 @@ mkdir /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost
 
 # Disabling screensaver password requirement by commenting out this line - can be re-enabled later.
 #
-# defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.${MACADD} "askForPassword" -int 1
+# defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.$MAC_UUID "askForPassword" -int 1
 #
 
-defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.${MACADD} "idleTime" -int 900
+defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.$MAC_UUID "idleTime" -int 900
 
-defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.${MACADD} "moduleName" -string "Flurry"
+defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.$MAC_UUID "moduleName" -string "Flurry"
 
-defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.${MACADD} "modulePath" -string "/System/Library/Screen Savers/Flurry.saver"
+defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.screensaver.$MAC_UUID "modulePath" -string "/System/Library/Screen Savers/Flurry.saver"
 
 # Turn off DS_Store file creation on network volumes
 
@@ -144,13 +145,19 @@ defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
   
 defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
 
+# Activates the "Enable applet plug-in and Web Start Applications" setting in Java Preferences
+
+/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled string" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
+/usr/libexec/PlistBuddy -c "Set :GeneralByTask:Any:WebComponentsEnabled true" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
+
 # Turn SSH on
 
 sudo systemsetup -setremotelogin on
 
-# Remove the loginwindow delay
+# Remove the loginwindow delay by loading the com.apple.loginwindow   
+# LaunchDaemon in /System/Library/LaunchDaemons/
 
-defaults delete /Library/Preferences/com.apple.loginwindow StartupDelay
+launchctl load /System/Library/LaunchDaemons/com.apple.loginwindow.plist
 
 # Remove setup LaunchDaemon item
 
