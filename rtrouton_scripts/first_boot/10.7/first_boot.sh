@@ -147,8 +147,7 @@ defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/
 
 # Activates the "Enable applet plug-in and Web Start Applications" setting in Java Preferences
 
-/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled string" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
-/usr/libexec/PlistBuddy -c "Set :GeneralByTask:Any:WebComponentsEnabled true" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
+/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
 
 # Turn SSH on
 
