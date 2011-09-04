@@ -1,0 +1,1 @@
+I’ve built this script to take care of uninstalling Retrospect 6.x clients. It should stop both older and newer Retrospect 6.x clients on both 10.5.x and 10.6.x and clean up all application, settings and receipts files.
