@@ -1,0 +1,3 @@
+This is a script for uninstalling Symantec's NetBackup Mac client. After reading through Symantec's article on it (http://www.symantec.com/business/support/index?page=content&id=HOWTO42245&actp=search&viewlocale=en_US&searchid=1314644392462), it inexplicably bugged me that they didn't provide a script for this. I wrote this one to fill that gap.
+
+Note: My shop does not use Symantec's NetBackup, so this script is untested. If you give this a try and it works correctly, please drop me a line at rtrouton (at) gmail.com
