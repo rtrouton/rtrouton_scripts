@@ -1,4 +1,4 @@
-#!/bin/
+#!/bin/sh
 
 sudo killall retroclient
 sudo killall pitond
