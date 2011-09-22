@@ -84,8 +84,21 @@ defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/
 
 # Configure network time server and region
 
+# Set the time zone
 /usr/sbin/systemsetup -settimezone $TimeZone
-/usr/sbin/systemsetup -setnetworktimeserver $TimeServer1,$TimeServer2,$TimeServer3
+
+# Set the primary network server with systemsetup -setnetworktimeserver
+# Using this command will clear /etc/ntp.conf of existing entries and
+# add the primary time server as the first line.
+/usr/sbin/systemsetup -setnetworktimeserver $TimeServer1
+
+# Add the secondary time server as the second line in /etc/ntp.conf
+echo "server $TimeServer2" >> /etc/ntp.conf 
+
+# Add the tertiary time server as the third line in /etc/ntp.conf
+echo "server $TimeServer3" >> /etc/ntp.conf
+
+# Enables the Mac to set its clock using the network time server(s) 
 /usr/sbin/systemsetup -setusingnetworktime on
 
 # Disable root login by setting root's shell to /usr/bin/false
