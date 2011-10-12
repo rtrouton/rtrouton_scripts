@@ -91,6 +91,17 @@ if [ "$OS" = "10.7" ]; then
       fi  
 fi
 fi
-rm $ENCRYPTDIRECTION
-rm $ENCRYPTSTATUS
-rm $CORESTORAGESTATUS
+
+# Remove the temp files created during the script
+
+if [ -f /private/tmp/corestorage.txt ]; then
+   srm /private/tmp/corestorage.txt
+fi
+
+if [ -f /private/tmp/encrypt_status.txt ]; then
+   srm /private/tmp/encrypt_status.txt
+fi
+
+if [ -f /private/tmp/encrypt_direction.txt ]; then
+   srm /private/tmp/encrypt_direction.txt
+fi
