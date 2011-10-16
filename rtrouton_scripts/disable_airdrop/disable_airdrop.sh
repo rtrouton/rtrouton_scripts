@@ -5,3 +5,6 @@
 # include the key "DisableAirDrop" with a value of YES
 
 defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/com.apple.NetworkBrowser.plist DisableAirDrop -bool YES
+
+
+disable_icloud_pop_up
