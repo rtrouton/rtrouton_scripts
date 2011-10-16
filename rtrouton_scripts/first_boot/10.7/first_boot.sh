@@ -162,6 +162,10 @@ defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/
 
 /usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
 
+# Disables iCloud pop-up on first login for Macs running 10.7.2 or higher
+
+defaults write /System/Library/User\ Template/Non_localized/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
+
 # Turn SSH on
 
 sudo systemsetup -setremotelogin on
