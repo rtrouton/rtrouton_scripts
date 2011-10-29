@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sudo chown -R user:group /path/to/VMs/
-sudo chmod -R ug+rwx /path/to/VMs/
+/usr/bin/find /path/to/VMs/ ! -user user -exec chown -R user:group {} \;
+/usr/bin/find /path/to/VMs/ ! -perm 775 -exec chmod -R ug+rwx {} \;
