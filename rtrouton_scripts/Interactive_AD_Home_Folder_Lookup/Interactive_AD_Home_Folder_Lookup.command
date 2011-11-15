@@ -45,7 +45,14 @@ echo ""         # force a carriage return to be output
 echo ""
 echo "Home folder is located at the following address:"
 echo ""
-/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/sed -e 's/\\\/\\//g' | /usr/bin/awk '{print $2}'
+if [ "${OS}" = "10.7" ]; then
+	#
+	# For your 10.7 and higher Macs, you'll need to replace DOMAIN with your own Active Directory domain name
+	#
+	/usr/bin/dscl localhost -read /Active\ Directory/DOMAIN/All\ Domains/Users/$udn SMBHome | /usr/bin/sed -e 's/\\\/\\//g' | /usr/bin/awk '{print $2}'                
+else
+	/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/sed -e 's/\\\/\\//g' | /usr/bin/awk '{print $2}'
+fi
 echo ""         # force a carriage return to be output
 echo ""
 
