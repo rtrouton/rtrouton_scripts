@@ -3,7 +3,7 @@
 #
 # Initial setup script for Mac OS X 10.7.x
 # Rich Trouton, created July 31, 2011
-# Last modified 8-31-2011
+# Last modified 11-17-2011
 #
 # Adapted from Initial setup script for Mac OS X 10.6.x
 # Rich Trouton, created September 18 2009
@@ -158,9 +158,62 @@ defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
   
 defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
 
-# Activates the "Enable applet plug-in and Web Start Applications" setting in Java Preferences
+# Set the the "Enable applet plug-in and Web Start Applications" setting for Java in your Mac's default user template and for all existing users.
+# Code adapted from DeployStudio's rc130 ds_finalize script, where it's disabling the iCloud and gestures demos
 
-/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /System/Library/User\ Template/English.lproj/Library/Preferences/ByHost/com.apple.java.JavaPreferences.$MAC_UUID.plist
+# Checks the system default user template for the presence of 
+# the Library/Preferences and Library/Preferences/ByHost directories.
+# If the directories are not found, they are created and then the
+# "Enable applet plug-in and Web Start Applications" setting for Java
+# setting is enabled.
+
+for USER_TEMPLATE in "/System/Library/User Template"/*
+  do
+     if [ ! -d "${USER_TEMPLATE}"/Library/Preferences ]
+      then
+        mkdir -p "${USER_TEMPLATE}"/Library/Preferences
+     fi
+     if [ ! -d "${USER_TEMPLATE}"/Library/Preferences/ByHost ]
+      then
+        mkdir -p "${USER_TEMPLATE}"/Library/Preferences/ByHost
+     fi
+     if [ -d "${USER_TEMPLATE}"/Library/Preferences/ByHost ]
+      then
+        defaults write "${USER_TEMPLATE}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID} '{ GeneralByTask = { Any = { PrefsVersion = 2; WebComponentsEnabled = true;};};}'
+     fi
+  done
+
+# Checks the existing user folders in /Users for the presence of 
+# the Library/Preferences and Library/Preferences/ByHost directories.
+# If the directories are not found, they are created and then the
+# "Enable applet plug-in and Web Start Applications" setting for Java
+# setting is enabled.
+
+for USER_HOME in /Users/*
+  do
+    USER_UID=`basename "${USER_HOME}"`
+    if [ ! "${USER_UID}" = "Shared" ] 
+     then 
+      if [ ! -d "${USER_HOME}"/Library/Preferences ]
+       then
+        mkdir -p "${USER_HOME}"/Library/Preferences
+        chown "${USER_UID}" "${USER_HOME}"/Library
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+      fi
+      if [ ! -d "${USER_HOME}"/Library/Preferences/ByHost ]
+       then
+        mkdir -p "${USER_HOME}"/Library/Preferences/ByHost
+        chown "${USER_UID}" "${USER_HOME}"/Library
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+	chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost
+      fi
+      if [ -d "${USER_HOME}"/Library/Preferences/ByHost ]
+       then
+        defaults write "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID} '{ GeneralByTask = { Any = { PrefsVersion = 2; WebComponentsEnabled = true;};};}'
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.*
+      fi
+    fi
+  done
 
 # Disables iCloud pop-up on first login for Macs running 10.7.2 or higher
 
