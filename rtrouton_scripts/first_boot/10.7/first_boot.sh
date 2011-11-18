@@ -154,9 +154,61 @@ defaults write /Library/Preferences/com.apple.loginwindow EnableExternalAccounts
 defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
 
 # Sets the "Show scroll bars" setting (in System Preferences: General)
-# to "Always"
-  
-defaults write /System/Library/User\ Template/English.lproj/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
+# to "Always" in your Mac's default user template and for all existing users.
+# Code adapted from DeployStudio's rc130 ds_finalize script, where it's 
+# disabling the iCloud and gestures demos
+
+# Checks the system default user template for the presence of 
+# the Library/Preferences directory. If the directory is not found, 
+# it is created and then the "Show scroll bars" setting (in System 
+# Preferences: General) is set to "Always".
+
+for USER_TEMPLATE in "/System/Library/User Template"/*
+  do
+     if [ ! -d "${USER_TEMPLATE}"/Library/Preferences ]
+      then
+        mkdir -p "${USER_TEMPLATE}"/Library/Preferences
+     fi
+     if [ ! -d "${USER_TEMPLATE}"/Library/Preferences/ByHost ]
+      then
+        mkdir -p "${USER_TEMPLATE}"/Library/Preferences/ByHost
+     fi
+     if [ -d "${USER_TEMPLATE}"/Library/Preferences/ByHost ]
+      then
+        defaults write "${USER_TEMPLATE}"/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
+     fi
+  done
+
+# Checks the existing user folders in /Users for the presence of
+# the Library/Preferences directory. If the directory is not found, 
+# it is created and then the "Show scroll bars" setting (in System 
+# Preferences: General) is set to "Always".
+
+for USER_HOME in /Users/*
+  do
+    USER_UID=`basename "${USER_HOME}"`
+    if [ ! "${USER_UID}" = "Shared" ] 
+     then 
+      if [ ! -d "${USER_HOME}"/Library/Preferences ]
+       then
+        mkdir -p "${USER_HOME}"/Library/Preferences
+        chown "${USER_UID}" "${USER_HOME}"/Library
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+      fi
+      if [ ! -d "${USER_HOME}"/Library/Preferences/ByHost ]
+       then
+        mkdir -p "${USER_HOME}"/Library/Preferences/ByHost
+        chown "${USER_UID}" "${USER_HOME}"/Library
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences
+	chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost
+      fi
+      if [ -d "${USER_HOME}"/Library/Preferences/ByHost ]
+       then
+        defaults write "${USER_HOME}"/Library/Preferences/.GlobalPreferences AppleShowScrollBars -string Always
+        chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/.GlobalPreferences.*
+      fi
+    fi
+  done
 
 # Set the the "Enable applet plug-in and Web Start Applications" setting for Java in your Mac's default user template and for all existing users.
 # Code adapted from DeployStudio's rc130 ds_finalize script, where it's disabling the iCloud and gestures demos
