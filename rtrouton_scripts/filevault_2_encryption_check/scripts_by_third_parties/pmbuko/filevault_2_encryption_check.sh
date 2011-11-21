@@ -4,10 +4,10 @@
 OS=$(/usr/bin/sw_vers -productVersion)
 if [[ "$OS" =~ "10.7" ]]; then
 
-	# Define temp file location
+	# Define temp file location and content. (multiple versions for troubleshooting)
 	CSSTATUS="/private/tmp/corestorage.txt"
 
-	# Write output of 'diskutil cs list' to temp file, overwriting if one exists.
+	#Write output of 'diskutil cs list' to temp file, overwriting if one exists.
 	diskutil cs list > $CSSTATUS
 	
 	# Ensure that a Logical Volume Family exists before continuing
@@ -21,9 +21,7 @@ if [[ "$OS" =~ "10.7" ]]; then
 		# results from only the first one using regex.
 
 		COUNTCHK=$(awk '/^\|[ \t]+=+/' $CSSTATUS)
-		echo "============DEBUGGING============"	# for troubleshooting
 		if [[ "$COUNTCHK" =~ "|" ]]; then
-			echo "Volume Groups:      Multiple"		# for troubleshooting
 			# Get values from first volume group using regex.
 			CONTEXT=$(awk '/^\|[ \t]+Encryption Context/{print $4}' $CSSTATUS)
 			ENCRYPTION=$(awk '/^\|[ \t]+Encryption Type/{print $4}' $CSSTATUS)
@@ -35,32 +33,22 @@ if [[ "$OS" =~ "10.7" ]]; then
 		# If a line containing "===..." doesn't begin with a pipe character, we know we
 		# have only one CoreStorage logical volume group, so no special regex is needed.
 		else
-			echo "Volume Groups:      Single"		# for troubleshooting
 			# Get values from volume group
 			CONTEXT=$(awk '/Encryption Context/{print $3}' $CSSTATUS)
 			ENCRYPTION=$(awk '/Encryption Type/{print $3}' $CSSTATUS)
 			ENCRYPTSTATUS=$(awk '/Conversion Status/{print $3}' $CSSTATUS)
 			ENCRYPTDIRECTION=$(awk '/Conversion Direction/{print $3}' $CSSTATUS)
-			CONVERTED=$(awk '/Size (Converted)/{print $5, $6}' $CSSTATUS)
-			SIZE=$(awk '/Size (Total)/{print $5, $6}' $CSSTATUS)
+			CONVERTED=$(awk '/Size \(Converted\)/{print $5, $6}' $CSSTATUS)
+			SIZE=$(awk '/Size \(Total\)/{print $5, $6}' $CSSTATUS)
 		fi
 		
-		# Echo the results of above if/else for troubleshooting:
-		echo "Encryption Context: $CONTEXT"			# for troubleshooting
-		echo "Encryption Type:    $ENCRYPTION"		# for troubleshooting
-		echo "Size Converted:     $CONVERTED"		# for troubleshooting
-		echo "Total Size:         $SIZE"			# for troubleshooting
-		echo "Conversion Status:  $ENCRYPTSTATUS"	# for troubleshooting
-		echo "================================="	# for troubleshooting
-		echo ""										# for troubleshooting
-
 		# Check if encrypted or encrypting
 		if [[ "$CONTEXT" =~ "Present" ]]; then
 			if [[ "$ENCRYPTION" =~ "AES-XTS" ]]; then
 				if [[ "$ENCRYPTSTATUS" =~ "Complete" ]]; then 
 					echo "FileVault 2 Encryption Complete"
 				elif [[ "$ENCRYPTSTATUS" =~ "Converting" ]]; then
-	                if [[ "$ENCRYPTDIRECTION" =~ "Forward" ]]; then
+	                if [[ "$ENCRYPTDIRECTION" =~ "forward" ]]; then
 	                    echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Remaining"
                     else
 	                    echo "FileVault 2 Encryption Status Unknown. Please check."
@@ -69,7 +57,7 @@ if [[ "$OS" =~ "10.7" ]]; then
 
             # Check if decrypted or decrypting
             elif [[ "$ENCRYPTION" =~ "None" ]]; then
-                if [[ "$ENCRYPTDIRECTION" =~ "Backward" ]]; then
+                if [[ "$ENCRYPTDIRECTION" =~ "backward" ]]; then
                     echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Remaining"
                 elif [[ "$ENCRYPTDIRECTION" =~ "none" ]]; then
                     echo "FileVault 2 Decryption Completed"
@@ -78,7 +66,7 @@ if [[ "$OS" =~ "10.7" ]]; then
         fi  
     fi
     
-    # Securely remove the temp file    
+    # Remove the temp file created during the script    
     if [ -f /private/tmp/corestorage.txt ]; then
         srm /private/tmp/corestorage.txt
     fi
@@ -87,3 +75,4 @@ else
     # Display this is OS version is not 10.7. 
     echo "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
 fi
+

@@ -43,7 +43,7 @@ if [ "$OS" = "10.7" ]; then
     # displayed without quotes:
     # "FileVault 2 Encryption Not Enabled"
     
-    if grep -iE 'No CoreStorage' $CORESTORAGESTATUS 1>/dev/null; then
+    if grep -iE 'No CoreStorage' $CORESTORAGESTATUS; then
        echo "FileVault 2 Encryption Not Enabled"
     fi
     
@@ -77,16 +77,16 @@ if [ "$OS" = "10.7" ]; then
     #
 
 
-    if grep -iE 'Logical Volume Family' $CORESTORAGESTATUS 1>/dev/null; then
+    if grep -iE 'Logical Volume Family' $CORESTORAGESTATUS; then
       if [ "$CONTEXT" = "Present" ]; then
         if [ "$ENCRYPTION" = "AES-XTS" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Conversion Status" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
-		    if grep -iE 'Complete' $ENCRYPTSTATUS 1>/dev/null; then 
+		    if grep -iE 'Complete' $ENCRYPTSTATUS; then 
 		      echo "FileVault 2 Encryption Complete"
             else
-		      if  grep -iE 'Converting' $ENCRYPTSTATUS 1>/dev/null; then
+		      if  grep -iE 'Converting' $ENCRYPTSTATUS; then
 		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-		          if grep -iE 'Forward' $ENCRYPTDIRECTION 1>/dev/null; then
+		          if grep -iE 'Forward' $ENCRYPTDIRECTION; then
 		            echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Remaining"
                   else
 		            echo "FileVault 2 Encryption Status Unknown. Please check."
@@ -96,9 +96,9 @@ if [ "$OS" = "10.7" ]; then
         else
             if [ "$ENCRYPTION" = "None" ]; then
               diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-                if grep -iE 'Backward' $ENCRYPTDIRECTION 1>/dev/null; then
+                if grep -iE 'Backward' $ENCRYPTDIRECTION; then
                   echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Remaining"
-                elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
+                elif grep -iE '-none-' $ENCRYPTDIRECTION; then
                   echo "FileVault 2 Decryption Completed"
                 fi
             fi 
