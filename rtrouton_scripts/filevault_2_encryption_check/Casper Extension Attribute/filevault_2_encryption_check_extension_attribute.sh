@@ -4,11 +4,22 @@ CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
 ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
 
+# Get number of CoreStorage devices. The egrep pattern used later in the script
+# uses this information to only report on the first encrypted drive, which should
+# be the boot drive.
+
+DEVICE_COUNT=`diskutil cs list | grep -E "^CoreStorage logical volume groups" | awk '{print $5}' | sed -e's/(//'`
+
+EGREP_STRING=""
+if [ "$DEVICE_COUNT" != "1" ]; then
+  EGREP_STRING="^\| *"
+fi
+
 OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
-CONTEXT=`diskutil cs list | grep -E "Encryption Context" | awk '{print $3}'`
-ENCRYPTION=`diskutil cs list | grep -E "Encryption Type" | awk '{print $3}'`
-CONVERTED=`diskutil cs list | grep "Size (Converted)" | awk '{print $5, $6}'`
-SIZE=`diskutil cs list | grep "Size (Total)" | awk '{print $5, $6}'`
+CONTEXT=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}'`
+ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
+CONVERTED=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}'`
+SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}'`
 
 # Checks to see if the OS on the Mac is 10.7 or not.
 # If it is not, the following message is displayed without quotes:
@@ -65,13 +76,13 @@ if [ "$OS" = "10.7" ]; then
     if grep -iE 'Logical Volume Family' $CORESTORAGESTATUS; then
       if [ "$CONTEXT" = "Present" ]; then
         if [ "$ENCRYPTION" = "AES-XTS" ]; then
-	      diskutil cs list | grep -E "Conversion Status" | awk '{print $3}' >> $ENCRYPTSTATUS
+	      diskutil cs list | grep -E "$EGREP_STRING\Conversion Status" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Complete' $ENCRYPTSTATUS; then 
 		      echo '<result>'FileVault 2 Encryption Complete'</result>'
             else
 		      if  grep -iE 'Converting' $ENCRYPTSTATUS; then
-		        diskutil cs list | grep -E "Conversion Direction" | awk '{print $3}' >> $ENCRYPTDIRECTION
-		          if grep -iE 'Forward' $ENCRYPTDIRECTION; then
+		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
+		          if grep -iE 'forward' $ENCRYPTDIRECTION; then
 		            echo '<result>'FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Remaining'</result>'
                   else
 		            echo '<result>'FileVault 2 Encryption Status Unknown. Please check.'</result>'
@@ -80,8 +91,8 @@ if [ "$OS" = "10.7" ]; then
              fi
         else
             if [ "$ENCRYPTION" = "None" ]; then
-              diskutil cs list | grep -E "Conversion Direction" | awk '{print $3}' >> $ENCRYPTDIRECTION
-                if grep -iE 'Backward' $ENCRYPTDIRECTION; then
+              diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
+                if grep -iE 'backward' $ENCRYPTDIRECTION; then
                   echo '<result>'FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Remaining'</result>'
                 elif grep -iE '-none-' $ENCRYPTDIRECTION; then
                   echo '<result>'FileVault 2 Decryption Completed'</result>'
