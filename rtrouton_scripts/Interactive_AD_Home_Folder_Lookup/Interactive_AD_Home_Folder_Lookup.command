@@ -10,6 +10,7 @@
 Version=1.0
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
+OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
 
 # Error checking
 
