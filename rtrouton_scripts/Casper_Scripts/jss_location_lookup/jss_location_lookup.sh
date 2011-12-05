@@ -16,7 +16,7 @@ if (( "$accountType" > 1000 )); then
 	userFirstname=`dscl . -read /Users/$loggedInUser | grep FirstName: | cut -c 11-`
 	userLastname=`dscl . -read /Users/$loggedInUser | grep LastName: | cut -c 11-`
 	userEmail=`dscl . -read  /Users/$loggedInUser | grep EMailAddress: | cut -c 15-`
-	userPosition=`dscl . -read /Users/$loggedInUser | awk '/^JobTitle:/,/^LastName:/' | head -2 | tail -1  | cut -c 2-`
+	userPosition=`dscl . -read /Users/$loggedInUser | awk '/^JobTitle:/,/^JPEGPhoto:/' | head -2 | tail -1  | cut -c 2-`
 	userPhone=`dscl . -read /Users/$loggedInUser | grep PhoneNumber: | cut -c 14-`
 	userDepartment=`dscl . -read /Users/$loggedInUser | grep "Department:" | cut -c 12-`
         	if [[ -z $userDepartment ]]; then
