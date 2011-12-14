@@ -1,0 +1,1 @@
+This script monitors Tomcat by checking to see if port 8080 on localhost is active. If not, tomcat_report.sh sends an report via email. Tomcat is then stopped and started using the startup scripts for your Tomcat installation (edit the stop and start commands as appropriate for your Tomcat installation.)

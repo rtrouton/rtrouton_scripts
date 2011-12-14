@@ -1,0 +1,1 @@
+*/1  *  *  *  *  /scripts/tomcat_check.sh 2>&1 >> /dev/null
