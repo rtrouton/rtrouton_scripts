@@ -1,0 +1,3 @@
+Script to set up the syslog process on a particular machine to send copies of all syslog-generated logs to remote syslog servers. In order to send these logs, the script echoes the needed entries to /etc/syslog.conf on the individual machine, then forces the syslogd process to re-read its /etc/syslog.conf configuration file.
+
+As currently configured, the script is configuring /etc/syslog.conf to send all logs to two servers. Additional echo lines can be added or removed as needed from the script to meet differing logging requirements.
