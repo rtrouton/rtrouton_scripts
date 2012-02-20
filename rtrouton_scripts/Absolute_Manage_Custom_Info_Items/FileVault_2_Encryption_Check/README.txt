@@ -1,4 +1,4 @@
-This Absolute Manage custom information item checks to see if a Mac is running 10.7 or not. If the Mac in question is running 10.7, the script reports on whether or not it is encrypted with Apple's FileVault 2 encryption and gives the encryption or decryption status.
+This Absolute Manage custom information item checks to see if a Mac is running 10.7 or higher. If the Mac in question is running 10.7 or higher, the script reports on whether or not it is encrypted with Apple's FileVault 2 encryption and gives the encryption or decryption status.
 
 See "Absolute_Manage_Custom_Info_Item_Setup.png" for a screenshot of how the Custom Information Item should be configured.
 
