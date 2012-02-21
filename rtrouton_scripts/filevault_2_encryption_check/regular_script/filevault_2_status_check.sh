@@ -40,7 +40,7 @@ fi
 if [[ ${osvers} -ge 7 ]]; then
   diskutil cs list >> $CORESTORAGESTATUS
   
-    # If the Mac is running 10.7 or 10.8, but not does not have
+    # If the Mac is running 10.7 or 10.8, but does not have
     # any CoreStorage volumes, the following message is 
     # displayed without quotes:
     # "FileVault 2 Encryption Not Enabled"
