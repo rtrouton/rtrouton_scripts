@@ -1,0 +1,1 @@
+This script will allow a Mac running 10.6.x or 10.7.x to connect to an OpenLDAP server using a simple anonymous bind.
