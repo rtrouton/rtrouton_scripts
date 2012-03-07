@@ -3,8 +3,8 @@
 # Removes the 5.3 KBox agent
 
 sudo /Library/StartupItems/AMPAgentBootup/AMPAgentBootup stop
-sudo /Library/Application Support/Dell/KACE/bin/AMPctl stop 2>&1
-sudo /Library/Application Support/Dell/KACE/bin/kagentctl stop 2>&1
+sudo /Library/Application\ Support/Dell/KACE/bin/AMPctl stop 2>&1
+sudo /Library/Application\ Support/Dell/KACE/bin/kagentctl stop 2>&1
 sudo rm -rf /Library/Application\ Support/Dell
 sudo rm -rf /Library/StartupItems/AMPAgentBootup
 sudo rm -rf /Library/Receipts/AMPAgent.pkg
