@@ -8,8 +8,20 @@ oddomain="ldap.server.here" 	# Fully qualified DNS of your LDAP server
 domain="addomain.org"            	# Fully qualified DNS name of Active Directory Domain
 domainname="DOMAIN"             	# Name of the Domain as specified in the search paths
 
-# Advanced options AD Plugin
-alldomains="enable"                 # 'enable' or 'disable' automatic multi-domain authentication
+#
+#
+# If you are adapting this for your own use, run a 
+# search and replace for the following:
+#
+# "dc=replaceme,dc=org" (no quotes)
+# You'll need to replace that with your own LDAP search base
+#
+# "ldap.server.here" (no quotes)
+# You'll need to replace that with the
+# fully qualified domain name of your
+# OpenLDAP server
+#
+#
 
 # These variables probably don't need to be changed
 # Determing if any directory binding exists
@@ -816,7 +828,36 @@ NEW_LDAP_BIND
 fi
 
 echo "Finished OD Binding."
-sleep 5 # Give DS a chance to catch up
+# Give DS a chance to catch up
+sleep 5
+
+if [[ ${osvers} -ge 7 ]]; then
+    echo "Removing previous bindings"
+    dscl localhost -delete Search CSPSearchPath '/Active Directory/DOMAIN/All Domains'
+    dscl localhost -merge Search CSPSearchPath '/LDAPv3/ldap.server.here'
+
+# Even if using All Domains, you need to add '/Active Directory/DOMAIN'
+# to the authentication search path
+
+    dscl localhost -merge Search CSPSearchPath '/Active Directory/DOMAIN'
+    dscl localhost -merge Search CSPSearchPath '/Active Directory/DOMAIN/All Domains'
+
+# If you're planning to use All Domains, remove '/Active Directory/DOMAIN'
+# from the search path
+
+    dscl localhost -delete Search CSPSearchPath '/Active Directory/DOMAIN'
+    echo "Killing opendirectoryd"
+    killall opendirectoryd
+fi
+
+if [[ ${osvers} -lt 7 ]]; then
+  echo "Removing AD binding"
+  dscl localhost -delete Search CSPSearchPath '/Active Directory/All Domains'
+  dscl localhost -merge Search CSPSearchPath '/LDAPv3/ldap.server.here'
+  dscl localhost -merge Search CSPSearchPath '/Active Directory/All Domains'
+  echo "Killing DirectoryService"
+  killall DirectoryService
+fi
 
 echo -n "Now bound to OD Domain: "
 dscl localhost -list /LDAPv3
