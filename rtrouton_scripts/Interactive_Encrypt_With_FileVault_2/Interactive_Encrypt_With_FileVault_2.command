@@ -39,7 +39,7 @@ diskID=`diskutil info / | awk '/Device Identifier/{print $NF}'`
 
 echo "********* Running $FullScriptName Version $Version *********"
 
-# If the machine is already bound to AD, then there's no purpose going any further. 
+# If the machine is already encrypted, then there's no purpose going any further. 
 if [ "${check4FV2encryption}" = "Yes" ]; then
 	echo "This machine is already encrypted or in the process of encrypting.\nThis script will now exit. "; exit 1
 fi
