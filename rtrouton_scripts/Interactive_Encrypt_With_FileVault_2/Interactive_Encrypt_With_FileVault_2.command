@@ -16,7 +16,7 @@ DEVICE_COUNT=`diskutil cs list | grep -E "^CoreStorage logical volume groups" | 
 
 
 EGREP_STRING=""
-if [ "$DEVICE_COUNT" != "0" ]; then
+if [ "$DEVICE_COUNT" != "1" ]; then
   EGREP_STRING="^\| *"
 fi
 
