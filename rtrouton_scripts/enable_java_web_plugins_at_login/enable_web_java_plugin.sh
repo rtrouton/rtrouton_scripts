@@ -12,3 +12,5 @@ fi
 
 /usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
 /usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real '356031204.300292'" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
