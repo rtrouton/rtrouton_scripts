@@ -33,6 +33,8 @@ then
       then
         /usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" "${USER_TEMPLATE}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
 	/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" "${USER_TEMPLATE}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+	/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" "${USER_TEMPLATE}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+	/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real '356031204.300292'" "${USER_TEMPLATE}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
       fi
   done
 fi
@@ -67,8 +69,10 @@ then
       fi
       if [ -d "${USER_HOME}"/Library/Preferences/ByHost ]
       then
-         /usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
-	 /usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+        /usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+	/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+	/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+	/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real '356031204.300292'" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
         chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.*
       fi
     fi
