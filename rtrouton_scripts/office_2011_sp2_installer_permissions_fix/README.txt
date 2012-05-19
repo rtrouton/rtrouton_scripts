@@ -2,7 +2,7 @@ When installed by the Office 2011 SP 2 12.2.0 retail installer, the permissions 
 
 Owner: system (aka root): read/write/execute permissions
 Group: wheel: read/write/execute permissions
-Everyone else: read/write/execute permissions
+Everyone: read/write/execute permissions
 
 I've written a script that should find and fix the incorrect group and world-writable permissions and set them to the following permissions:
 
