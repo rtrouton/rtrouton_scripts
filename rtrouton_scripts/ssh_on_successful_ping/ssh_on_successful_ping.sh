@@ -19,7 +19,7 @@ echo $sshusername
 # for a response. The until
 # loop statement ends only
 # when the ping returns a
-# successful response..
+# successful response.
 
 until ping -c 1 $ipaddress
 do
