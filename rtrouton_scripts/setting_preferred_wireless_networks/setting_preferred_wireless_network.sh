@@ -12,11 +12,13 @@
 # add the correct variables as needed. The
 # wireless network name should not contain spaces.
 
-# Set the WIRELESS variable to the wireless
-# network port you want to use. 
-# For 10.7, set WIRELESS=Wi-Fi
-# For 10.6 and 10.5, set WIRELESS=AirPort
-WIRELESS=
+# Determines which OS the script is running on
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
+# On 10.7 and higher, the Wi-Fi interface needs to be identified.
+# On 10.5 and 10.6, the Wi-Fi interface should be named as "AirPort"
+
+wifiDevice=`/usr/sbin/networksetup -listallhardwareports | awk '/^Hardware Port: Wi-Fi/,/^Ethernet Address/' | head -2 | tail -1 | cut -c 9-`
 
 # Set the SSID variable to your wireless network name
 # to set the network name you want to connect to.
@@ -39,5 +41,12 @@ SECURITY=
 # encryption with a password of "thedrisin", set the PASSWORD
 # variable to "thedrisin" (no quotes.)
 PASSWORD=
-
-sudo networksetup -addpreferredwirelessnetworkatindex $WIRELESS $SSID $INDEX $SECURITY $PASSWORD
+  
+# Once the running OS is determined, the settings for the specified
+# wireless network are created and set as the first preferred network listed
+  
+if [[ ${osvers} -ge 7 ]]; then
+    networksetup -addpreferredwirelessnetworkatindex $wifiDevice $SSID $INDEX $SECURITY $PASSWORD
+else
+    networksetup -addpreferredwirelessnetworkatindex AirPort $SSID $INDEX $SECURITY $PASSWORD
+fi
