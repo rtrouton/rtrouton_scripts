@@ -5,14 +5,16 @@
 # to connect to.
 
 read -p "Enter IP Address or Domain Name: " ipaddress
-echo $ipaddress
 
 # At the prompt, enter the username
 # of the account you want to log in
 # with.
 
 read -p "Enter Username: " sshusername
-echo $sshusername
+echo ""
+
+echo "Connecting to $ipaddress using the $sshusername account."
+echo ""
 
 # The machine will be pinged
 # once per minute to check 
