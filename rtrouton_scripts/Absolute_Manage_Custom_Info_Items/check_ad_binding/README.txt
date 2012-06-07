@@ -1,0 +1,3 @@
+This Absolute Manage custom information item checks Macs to see if their Active Directory binding is working correctly by calling an AD account name. If the account name resolves, the script returns "Yes" If the account name doesn't resolve when it should, the script returns "No".
+
+See "Absolute_Manage_Custom_Info_Item_Setup.png" for a screenshot of how the Custom Information Item should be configured.
