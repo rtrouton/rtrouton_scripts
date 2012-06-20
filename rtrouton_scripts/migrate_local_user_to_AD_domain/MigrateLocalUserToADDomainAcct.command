@@ -1,6 +1,6 @@
 #!/bin/sh
-# Modified 7/20/2011
-Version=1.2
+# Modified 6/20/2012
+Version=1.3
 # MigrateUserHomeToDomainAcct.sh
 # Patrick Gallagher
 # Emory College
@@ -9,6 +9,9 @@ Version=1.2
 #
 # Version 1.2 - Added the ability to check if the OS is running on Mac OS X 10.7, and run "killall opendirectoryd"
 # instead of "killall DirectoryService" if it is.
+#
+# Version 1.3 - Added the ability to check if the OS is running on Mac OS X 10.7 or higher (including 10.8)
+# and run "killall opendirectoryd"  instead of "killall DirectoryService" if it is.
 #
 
 
@@ -20,8 +23,7 @@ listUsers="$(/usr/bin/dscl . list /Users | grep -v _ | grep -v root | grep -v uu
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
 check4AD=`/usr/bin/dscl localhost -list . | grep "Active Directory"`
-osversionlong=`sw_vers -productVersion`
-osvers=${osversionlong:3:1}
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 lookupAccount=helpdesk
 OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
 
@@ -99,7 +101,7 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete "/Users/$user"
 
 				# Refresh Directory Services
-				if [ "${OS}" = "10.7" ]; then
+				if [[ ${osvers} -ge 7 ]]; then
 					/usr/bin/killall opendirectoryd
 				else
 					/usr/bin/killall DirectoryService
@@ -126,7 +128,7 @@ until [ "$user" == "FINISHED" ]; do
 				done
 				# Refresh Directory Services
 				
-				if [ "${OS}" = "10.7" ]; then
+				if [[ ${osvers} -ge 7 ]]; then
 					/usr/bin/killall opendirectoryd
 				else
 					/usr/bin/killall DirectoryService

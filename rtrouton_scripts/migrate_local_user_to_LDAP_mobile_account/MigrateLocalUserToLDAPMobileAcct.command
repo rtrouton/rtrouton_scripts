@@ -1,5 +1,5 @@
 #!/bin/sh
-# Modified 3/12/2012
+# Modified 6/20/2012
 Version=1.0
 #
 # Adapted from 
@@ -11,7 +11,7 @@ Version=1.0
 #
 # Version 1.0 - Has the ability to check if the Mac is bound to LDAP.
 #
-# If the OS running is Mac OS X 10.7, script runs "killall opendirectoryd"
+# If the OS running is Mac OS X 10.7 or higher, script runs "killall opendirectoryd"
 # to restart directory services.
 #
 # If the OS running is Mac OS X 10.6, script runs "killall DirectoryService" 
