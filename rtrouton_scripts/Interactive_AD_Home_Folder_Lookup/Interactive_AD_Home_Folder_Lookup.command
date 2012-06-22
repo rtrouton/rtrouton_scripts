@@ -7,10 +7,10 @@
 
 # General parameters
 
-Version=1.0
+Version=1.1
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
-OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 # Error checking
 
@@ -46,7 +46,7 @@ echo ""         # force a carriage return to be output
 echo ""
 echo "Home folder is located at the following address:"
 echo ""
-if [ "${OS}" = "10.7" ]; then
+if [[ ${osvers} -ge 7 ]]; then
 	#
 	# For your 10.7 and higher Macs, you'll need to replace DOMAIN with your own Active Directory domain name
 	#
