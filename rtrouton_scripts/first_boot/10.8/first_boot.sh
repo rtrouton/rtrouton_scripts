@@ -21,15 +21,12 @@ launchctl unload /System/Library/LaunchDaemons/com.apple.loginwindow.plist
 sleep 30
 
 # Get the system's UUID to set ByHost prefs
+
 if [[ `ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-50` == "00000000-0000-1000-8000-" ]]; then
 	MAC_UUID=`ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c51-62 | awk {'print tolower()'}`
 elif [[ `ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-50` != "00000000-0000-1000-8000-" ]]; then
 	MAC_UUID=`ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-62`
 fi
-
-# Get the system's ethernet interface
-
-ETHERNET=$(/usr/sbin/networksetup -listnetworkserviceorder | /usr/bin/awk -F'\\) ' '/Ethernet/ { printf $2 }')
 
 # Get the system's wireless interface
 
@@ -58,7 +55,12 @@ SearchDomains="searchdomain1.com searchdomain2.com searchdomain3.com"
 
 # Set correct DNS search domains
 
-/usr/sbin/networksetup -setsearchdomains $ETHERNET $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "Built-in Ethernet" $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "Ethernet" $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "Ethernet 1" $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "Ethernet 2" $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "Thunderbolt Ethernet" $SearchDomains
+/usr/sbin/networksetup -setsearchdomains "USB Ethernet" $SearchDomains
 
 # Disable Time Machine's pop-up message whenever an external drive is plugged in
 
