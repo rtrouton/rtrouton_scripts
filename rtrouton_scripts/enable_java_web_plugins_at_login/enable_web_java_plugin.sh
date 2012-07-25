@@ -14,3 +14,10 @@ fi
 /usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
 /usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
 /usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real $(( $(date "+%s") - 978307200 ))" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+
+# Configure Safari to enable Java by default.
+
+/usr/libexec/PlistBuddy -c "Delete :WebKitJavaEnabled" /Users/$USER/Library/Preferences/com.apple.Safari.plist
+/usr/libexec/PlistBuddy -c "Add :WebKitJavaEnabled bool true" /Users/$USER/Library/Preferences/com.apple.Safari.plist
+/usr/libexec/PlistBuddy -c "Delete :WebKit2JavaEnabled" /Users/$USER/Library/Preferences/com.apple.Safari.plist
+/usr/libexec/PlistBuddy -c "Add :WebKit2JavaEnabled bool true" /Users/$USER/Library/Preferences/com.apple.Safari.plist
