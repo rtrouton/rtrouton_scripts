@@ -3,11 +3,11 @@
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 if [[ ${osvers} -lt 5 ]]; then
-  echo '<result>'Unaffected'<result>'
+  echo "<result>Unaffected</result>"
 fi
 
 if [[ ${osvers} -ge 7 ]]; then
-  echo '<result>'Unaffected'<result>'
+  echo "<result>Unaffected</result>"
 fi
  
 # Checks AD password interval on 10.5.x Macs

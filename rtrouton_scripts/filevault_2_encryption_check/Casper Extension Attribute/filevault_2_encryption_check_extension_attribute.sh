@@ -32,7 +32,7 @@ SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//'
 # "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
 
 if [[ ${osvers} -lt 7 ]]; then
-  echo '<result>'FileVault 2 Encryption Not Available For This Version Of Mac OS X'<result>'
+  echo "<result>FileVault 2 Encryption Not Available For This Version Of Mac OS X</result>"
 fi
 
 
@@ -46,7 +46,7 @@ if [[ ${osvers} -ge 7 ]]; then
     # "FileVault 2 Encryption Not Enabled"
     
     if grep -iE 'No CoreStorage' $CORESTORAGESTATUS 1>/dev/null; then
-       echo '<result>'FileVault 2 Encryption Not Enabled'<result>'
+       echo "<result>FileVault 2 Encryption Not Enabled</result>"
     fi
     
     # If the Mac is running 10.7 or 10.8 and has CoreStorage volumes,
@@ -88,14 +88,14 @@ if [[ ${osvers} -ge 7 ]]; then
         if [ "$ENCRYPTION" = "AES-XTS" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Conversion Status" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Complete' $ENCRYPTSTATUS 1>/dev/null; then 
-		      echo '<result>'FileVault 2 Encryption Complete'<result>'
+		      echo "<result>FileVault 2 Encryption Complete</result>"
             else
 		      if  grep -iE 'Converting' $ENCRYPTSTATUS 1>/dev/null; then
 		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
 		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
-		            echo '<result>'FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted'<result>'
+		            echo "<result>FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted</result>"
                   else
-		            echo '<result>'FileVault 2 Encryption Status Unknown. Please check.'<result>'
+		            echo "<result>FileVault 2 Encryption Status Unknown. Please check.</result>"
 	              fi
                fi
              fi
@@ -103,9 +103,9 @@ if [[ ${osvers} -ge 7 ]]; then
             if [ "$ENCRYPTION" = "None" ]; then
               diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
                 if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
-                  echo '<result>'FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted'<result>'
+                  echo "<result>FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted</result>"
                 elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
-                  echo '<result>'FileVault 2 Decryption Completed'<result>'
+                  echo "<result>FileVault 2 Decryption Completed</result>"
                 fi
             fi 
         fi
@@ -119,18 +119,18 @@ fi
         if [ "$ENCRYPTION" = "AES-XTS" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
-		      echo '<result>'FileVault 2 Encryption Complete'<result>'
+		      echo "<result>FileVault 2 Encryption Complete</result>"
             else
 		      if  grep -iE 'No' $ENCRYPTSTATUS 1>/dev/null; then
 		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
 		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
-		            echo '<result>'FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted'<result>'
+		            echo "<result>FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted</result>"
 
                   else
 		          if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
-                  	    echo '<result>'FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted'<result>'
+                  	    echo "<result>FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted</result>"
                           elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
-                            echo '<result>'FileVault 2 Decryption Completed'<result>'
+                            echo "<result>FileVault 2 Decryption Completed</result>"
 	              fi
                fi
              fi
