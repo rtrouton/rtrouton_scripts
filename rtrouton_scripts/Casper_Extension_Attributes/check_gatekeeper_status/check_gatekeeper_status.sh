@@ -22,7 +22,7 @@ if [[ ${osvers} -eq 7 ]]; then
    echo "<result>$result</result>"
 fi
 
-# Checks AD password interval on 10.8.x Macs
+# Checks Gatekeeper status on 10.8.x Macs
 
 if [[ ${osvers} -eq 8 ]]; then
     gatekeeper_status=`spctl --status | grep "assessments" | cut -c13-`
