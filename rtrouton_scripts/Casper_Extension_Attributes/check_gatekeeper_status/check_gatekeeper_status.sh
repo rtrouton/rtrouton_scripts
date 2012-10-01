@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 osvers=$(sw_vers -productVersion | awk -F. '{ print $2 }')
 
 if [[ 6 < ${osvers} && ${osvers} < 9 ]]; then
