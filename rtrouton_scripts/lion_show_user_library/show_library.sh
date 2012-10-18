@@ -2,4 +2,4 @@
 
 sleep 10
 
-/usr/bin/chflags nohidden /Users/$USER/Library
+/usr/bin/chflags nohidden $HOME/Library

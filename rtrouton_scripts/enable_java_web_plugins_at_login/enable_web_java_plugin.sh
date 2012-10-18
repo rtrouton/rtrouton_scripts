@@ -10,7 +10,7 @@ fi
 # Set the the "Enable applet plug-in and Web Start Applications" setting in
 # the Java Preferences for the current user.
 
-/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
-/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
-/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
-/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real $(( $(date "+%s") - 978307200 ))" /Users/$USER/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsEnabled" $HOME/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsEnabled bool true" $HOME/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Delete :GeneralByTask:Any:WebComponentsLastUsed" $HOME/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
+/usr/libexec/PlistBuddy -c "Add :GeneralByTask:Any:WebComponentsLastUsed real $(( $(date "+%s") - 978307200 ))" $HOME/Library/Preferences/ByHost/com.apple.java.JavaPreferences.${MAC_UUID}.plist
