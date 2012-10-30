@@ -1,6 +1,6 @@
 #!/bin/sh
 # Modified 6/20/2012
-Version=1.0
+Version=1.1
 #
 # Adapted from 
 # MigrateUserHomeToADAcct.sh
@@ -16,6 +16,8 @@ Version=1.0
 #
 # If the OS running is Mac OS X 10.6, script runs "killall DirectoryService" 
 # to restart directory services.
+#
+# Version 1.1 - Changed the admin rights function from using dscl append to using dseditgroup
 #
 
 
@@ -129,7 +131,7 @@ until [ "$user" == "FINISHED" ]; do
 				echo "Do you want to give the $netname account admin rights?"
 				select yn in "Yes" "No"; do
     					case $yn in
-        					Yes) /usr/bin/dscl . append /Groups/admin GroupMembership $netname; echo "Admin rights given to this account"; break;;
+        					Yes) /usr/sbin/dseditgroup -o edit -a $netname -t user admin; echo "Admin rights given to this account"; break;;
         					No ) echo "No admin rights given"; break;;
     					esac
 				done

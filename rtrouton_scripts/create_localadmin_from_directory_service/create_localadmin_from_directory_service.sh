@@ -10,13 +10,13 @@
 ##  		Create home folder     	       ##
 #################################################
 
-createhomedir -c -u localadmin
+/usr/sbin/createhomedir -c -u localadmin
 
 #################################################
 ##  Give the localadmin account admin rights   ##
 #################################################
 
-dscl . -append /Groups/admin GroupMembership localadmin
+/usr/sbin/dseditgroup -o edit -a localadmin -t user admin
 
 # Remove setup LaunchDaemon item
 

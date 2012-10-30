@@ -1,6 +1,6 @@
 #!/bin/sh
-# Modified 6/20/2012
-Version=1.3
+# Modified 10/30/2012
+Version=1.4
 # MigrateUserHomeToDomainAcct.sh
 # Patrick Gallagher
 # Emory College
@@ -13,7 +13,8 @@ Version=1.3
 # Version 1.3 - Added the ability to check if the OS is running on Mac OS X 10.7 or higher (including 10.8)
 # and run "killall opendirectoryd"  instead of "killall DirectoryService" if it is.
 #
-
+# Version 1.4 - Changed the admin rights function from using dscl append to using dseditgroup
+# 
 
 clear
 
@@ -122,7 +123,7 @@ until [ "$user" == "FINISHED" ]; do
 				echo "Do you want to give the $netname account admin rights?"
 				select yn in "Yes" "No"; do
     					case $yn in
-        					Yes) /usr/bin/dscl . append /Groups/admin GroupMembership $netname; echo "Admin rights given to this account"; break;;
+        					Yes) /usr/sbin/dseditgroup -o edit -a $netname -t user admin; echo "Admin rights given to this account"; break;;
         					No ) echo "No admin rights given"; break;;
     					esac
 				done
