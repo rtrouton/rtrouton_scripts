@@ -16,60 +16,31 @@ fi
 killall SophosUIServer
 
 
-# Make an SMB mount directory, after checking for and removing any leftover instances from a broken install
-
-if [ -d /private/tmp/sophos_mount ]; then
-	rm -rf /private/tmp/sophos_mount
-	mkdir /private/tmp/sophos_mount
-	logger "Sophos SMB mount directory created after removing old directory"
-else
-	mkdir /private/tmp/sophos_mount
-	logger "Sophos SMB mount directory created"
-fi
-
-
 # Make a working directory, after checking for and removing any leftover instances from a broken install
 
-if [ -d /private/tmp/sophos_install ]; then
-	rm -rf /private/tmp/sophos_install
-	mkdir /private/tmp/sophos_install
+if [ -d /private/tmp/sophos/ ]; then
+	rm -r /private/tmp/sophos/
+	mkdir /private/tmp/sophos/
 	logger "Sophos install temp directory created after removing old directory"
 else
-	mkdir /private/tmp/sophos_install
+	mkdir /private/tmp/sophos/
 	logger "Sophos install temp directory created"
 fi
 
-# Mount the Sophos client installs share to /private/tmp/sophos_mount
-# To make this script work, you will need to edit the mount_smbfs command
-# below with the appropriate login information for your environment
+# Download tar'd Sophos installer files from web server
+# to /private/tmp/sophos/ working directory
 
-mount_smbfs -o nobrowse //'DOMAIN;username:password'@server.name.here/Client_Installs /private/tmp/sophos_mount
+curl http://casper.int.janelia.org/sophos/sophos.tgz > /private/tmp/sophos/sophos.tgz
 
-# Zips the contents of the ESCOSX directory from 
-# the Client_Installs share and stores it
-# as /private/tmp/sophos/sophos.zip
+# Decompress tar file
 
-ditto -c -k -X /private/tmp/sophos_mount/ESCOSX /private/tmp/sophos_install/sophos.zip
+cd /private/tmp/sophos/
+tar -zxvf sophos.tgz
 
-# Unmount the Client_Installs share and remove the SMB mount directory
+# Install Sophos using the Sophos Anti-Virus metapackage stored inside /private/tmp/sophos/ESCOSX
 
-umount /private/tmp/sophos_mount
-rm -rf /private/tmp/sophos_mount
-
-# Decompress the zip file 
-
-cd /private/tmp/sophos_install/
-unzip sophos.zip
-
-# Install. Normally, installer requires sudo, but the jamf binary runs with admin rights, and using sudo here breaks the script.
-
-if [ -d /private/tmp/sophos_install/sophos]; then
-   logger "Installing Sophos"
-   installer -dumplog -verbose -pkg /private/tmp/sophos/sophos/Sophos\ Anti-Virus.mpkg -target /
-   logger "Sophos installation process completed"
-else
-   echo "Sophos Antivirus Installer Not Present. Aborting Install."
-fi
+cd /private/tmp/sophos/ESCOSX
+installer -dumplog -verbose -pkg /private/tmp/sophos/ESCOSX/Sophos\ Anti-Virus.mpkg -target /
 
 # Write configuration file
 # Note: Plist file here is only an example. You will
@@ -144,6 +115,7 @@ killall -HUP SophosAutoUpdate
 # Cleanup
 
 cd /
-rm -rf /private/tmp/sophos_install
+rm -rf /private/tmp/sophos
 
 exit 0
+
