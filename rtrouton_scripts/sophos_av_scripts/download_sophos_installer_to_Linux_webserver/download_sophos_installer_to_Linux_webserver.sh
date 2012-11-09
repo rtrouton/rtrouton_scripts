@@ -59,10 +59,18 @@ cd /tmp/sophos_mount
 
 tar cvzf /var/www/html/sophos/sophos.tgz ESCOSX
 
+if [ -f "/var/www/html/sophos/sophos.tgz" ]; then
+      logger "New Sophos tar file created"
+fi
+
 # Unmount the Client_Installs share and remove the SMB mount directory
 
 cd /
+
 umount /tmp/sophos_mount
+logger "Disconnecting from SMB share"
+
 rm -rf /tmp/sophos_mount
+logger "Mount directory removed"
 
 exit 0
