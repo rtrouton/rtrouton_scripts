@@ -30,7 +30,7 @@ fi
 # Download tar'd Sophos installer files from web server
 # to /private/tmp/sophos/ working directory
 
-curl http://casper.int.janelia.org/sophos/sophos.tgz > /private/tmp/sophos/sophos.tgz
+curl http://server.name.here/sophos/sophos.tgz > /private/tmp/sophos/sophos.tgz
 
 # Decompress tar file
 
