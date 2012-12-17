@@ -19,7 +19,7 @@ if [[ "${BOOTCAMP_DETECT}" == "1" ]]; then
       result=Yes
    else
       result=No
-   fi
+fi
 echo "<result>$result</result>"
 
 exit 0
