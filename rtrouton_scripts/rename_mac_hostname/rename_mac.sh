@@ -4,6 +4,7 @@
 
 scutil --set ComputerName ChangeMe
 scutil --set LocalHostName ChangeMe
+scutil --set HostName ChangeMe
 
 # Remove setup LaunchDaemon item
 
