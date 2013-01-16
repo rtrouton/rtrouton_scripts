@@ -34,6 +34,7 @@ if [[ ${osvers} -ge 6 ]]; then
       /usr/bin/plutil -convert xml1 /Users/username/Library/Preferences/com.apple.sidebarlists.plist
 
       # Search and replace in /Users/username/Library/Preferences/com.apple.sidebarlists.plist
+      
       /usr/bin/sed -i "" -e 's/smb:\/\/oldservername\/oldsharename/smb:\/\/newservername\/newsharename/g' /Users/username/Library/Preferences/com.apple.sidebarlists.plist
 
       # Fix permissions on file
