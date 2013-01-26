@@ -8,7 +8,7 @@ If SMB is running, and who is logged in via SMB
 Unsuccessful login attempts via SSH
 Unsuccessful attempts to use sudo by accounts not authorized to use sudo
 Authorized sudo commands that have been run
-Time Machine backup status (10.5.x and 10.6.x only)
+Time Machine backup status (10.5.x and higher only)
 Apple Hardware RAID status
 XServe hardware monitoring messages
 Any available software updates
@@ -17,7 +17,8 @@ More background here: http://derflounder.wordpress.com/2010/08/31/daily-server-r
 
 Permissions for the scripts:
 
-For 10.4.x
+For 10.4.x:
+
 In /etc/periodic/daily: copy 090.daily.logreport to /etc/periodic/daily
 
 Change permissions on /etc/periodic/daily/090.daily.logreport to match the following:
@@ -25,7 +26,10 @@ Change permissions on /etc/periodic/daily/090.daily.logreport to match the follo
 Owner – root (r/w/x)
 Group – wheel (r/x)
 Everyone – (r/x)
-For 10.5.x – 10.6.x
+
+
+For 10.5.x and higher:
+
 In /Library/LaunchDaemons: copy com.company.daily_report.plist to /Library/LaunchDaemons
 
 Change permissions on /Library/LaunchDaemons/com.company.daily_report.plist to match the following:
