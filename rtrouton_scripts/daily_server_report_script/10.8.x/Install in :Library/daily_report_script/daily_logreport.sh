@@ -41,8 +41,10 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin:/Applications/Server.app/Contents/ServerRoot/
 # to the PATH export as serveradmin has moved to 
 # /Applications/Server.app/Contents/ServerRoot/usr/sbin/serveradmin
 #
-# /var/log/secure.log's functions have been moved to Apple System Log; now
-# scraping /var/log/system.log for SSH errors.
+# /var/log/secure.log's functions have been moved to Apple System Log.
+# Now running syslog -k Time ge -24h | grep 'sshd' to have syslog check
+# ASL for SSH errors in the last 24 hours. Output is exported to 
+# /private/tmp/ssh-status.txt, then ssh-status.txt is scraped for SSH errors.
 # 
 
 
@@ -58,6 +60,7 @@ SWUD="/private/tmp/daily-report-softwareupdatelist.txt"
 RAIDLOG="/private/tmp/raid-status.txt"
 AFPLOG="/private/tmp/afp-status.txt"
 SMBLOG="/private/tmp/smb-status.txt"
+SSHLOG="/private/tmp/ssh-status.txt"
 HWLOGDATE=$(printf "`date "+%a %h %e"` \n")
 SEND="daily_report@`hostname`"
 
@@ -199,11 +202,12 @@ fi
 # This test if for attempts to connect via SSH by bad people.
 echo "UNSUCCESSFUL ATTEMPTS TO LOGIN VIA SSH" >> $LOGS
 echo "---------------------" >> $LOGS
-if grep -iE 'error' /var/log/system.log | grep "sshd\[" > /dev/null
+syslog -k Time ge -24h | grep 'sshd' >> $SSHLOG
+if grep -iE 'error' $SSHLOG | grep "sshd\[" > /dev/null
 then
-    grep -iE 'error' /var/log/system.log | grep "sshd" | grep -v "system.login.tty" | grep -v "bsm_audit_session_setup" >> $LOGS
+    grep -iE 'error' $SSHLOG | grep "sshd" | grep -v "system.login.tty" | grep -v "bsm_audit_session_setup" >> $LOGS
     echo " " >> $LOGS
-    echo "If there's nothing above this line, but you're not seeing the All Clear message, there were SSH errors logged in /var/log/system.log that didn't trip the alarm notifications for this report." >> $LOGS
+    echo "If there's nothing above this line, but you're not seeing the All Clear message, there were SSH errors logged in /var/log/secure.log that didn't trip the alarm notifications for this report." >> $LOGS
     echo " " >> $LOGS 
     echo " " >> $LOGS
 else
@@ -327,3 +331,4 @@ rm $RAIDLOG
 rm $SWUD
 rm $AFPLOG
 rm $SMBLOG
+rm $SSHLOG
