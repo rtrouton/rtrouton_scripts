@@ -132,11 +132,14 @@ fi
                           elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
                             echo "<result>FileVault 2 Decryption Completed</result>"
 	              fi
+                  fi
                fi
-             fi
-      fi  
-fi
-fi
+            fi  
+         fi
+       fi
+      if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
+		      echo "FileVault 2 Encryption Not Enabled"
+      fi
 
 
 
