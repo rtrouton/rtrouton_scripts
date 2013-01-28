@@ -138,7 +138,7 @@ fi
          fi
        fi
       if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
-		      echo "FileVault 2 Encryption Not Enabled"
+		      echo "<result>FileVault 2 Encryption Not Enabled</result>"
       fi
 
 
