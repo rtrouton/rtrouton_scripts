@@ -207,7 +207,7 @@ if grep -iE 'error' $SSHLOG | grep "sshd\[" > /dev/null
 then
     grep -iE 'error' $SSHLOG | grep "sshd" | grep -v "system.login.tty" | grep -v "bsm_audit_session_setup" >> $LOGS
     echo " " >> $LOGS
-    echo "If there's nothing above this line, but you're not seeing the All Clear message, there were SSH errors logged in /var/log/secure.log that didn't trip the alarm notifications for this report." >> $LOGS
+    echo "If there's nothing above this line, but you're not seeing the All Clear message, there were SSH errors logged that didn't trip the alarm notifications for this report." >> $LOGS
     echo " " >> $LOGS 
     echo " " >> $LOGS
 else
