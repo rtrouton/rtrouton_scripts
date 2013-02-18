@@ -72,6 +72,7 @@ SEND="daily_report@`hostname`"
 
 ADDY=`networksetup -getinfo Built-in\ Ethernet\ 1 | grep "^IP\ " | cut -c 13-26`
 if [ -z $ADDY ]; then ADDY=`networksetup -getinfo Airport | grep "^IP\ " | cut -c 13-26`; fi
+if [ -z $ADDY ]; then ADDY=`networksetup -getinfo Wi-Fi | grep "^IP\ " | cut -c 13-26`; fi
 if [ -z $ADDY ]; then ADDY=`networksetup -getinfo Built-in\ Ethernet | grep "^IP\ " | cut -c 13-26`; fi    
 if [ -z $ADDY ]; then ADDY=`networksetup -getinfo Ethernet | grep "^IP\ " | cut -c 13-26`; fi
 if [ -z $ADDY ]; then ADDY=`networksetup -getinfo Ethernet\ 1 | grep "^IP\ " | cut -c 13-26`; fi
