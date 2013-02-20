@@ -1,6 +1,6 @@
-This script provides a way to install Java for Mac OS X 10.6 Update 12 on 10.6.x Macs using Apple's command-line softwareupdate tool. The script does the following:
+This script provides a way to install Java for Mac OS X 10.6 Update 13 on 10.6.x Macs using Apple's command-line softwareupdate tool. The script does the following:
 
-1. Verify again that the Mac has Java for Mac OS X 10.6 Update 12 as an available update.
-2. If Java for Mac OS X 10.6 Update 12 is not an available update, the script logs that information then exits silently.
-3. If Java for Mac OS X 10.6 Update 12 is an available update, the script logs that the update is being installed. Apple's softwareupdate tool then installs that update silently in the background.
+1. Verify again that the Mac has Java for Mac OS X 10.6 Update 13 as an available update.
+2. If Java for Mac OS X 10.6 Update 13 is not an available update, the script logs that information then exits silently.
+3. If Java for Mac OS X 10.6 Update 13 is an available update, the script logs that the update is being installed. Apple's softwareupdate tool then installs that update silently in the background.
 

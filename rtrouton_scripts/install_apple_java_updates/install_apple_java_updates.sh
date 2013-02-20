@@ -3,25 +3,25 @@
 #
 # Using the softwareupdate tool
 # to detect if the Mac has
-# Java for Mac OS X 10.6 Update 12
+# Java for Mac OS X 10.6 Update 13
 # as an available update.
 #
 
-JAVA_UPDATE_DETECT=$( softwareupdate -l | grep -o "JavaForMacOSX10.6-12.0" )
+JAVA_UPDATE_DETECT=$( softwareupdate -l | grep -o "JavaForMacOSX10.6-13.0" )
 
 #
-# If Java for Mac OS X 10.6 Update 12
+# If Java for Mac OS X 10.6 Update 13
 # is an available update, script installs 
-# the update. If Java for Mac OS X 10.6 Update 12 is
+# the update. If Java for Mac OS X 10.6 Update 13 is
 # not an available update, script reports that and
 # exits.
 # 
 
-if [[ "${JAVA_UPDATE_DETECT}" = "JavaForMacOSX10.6-12.0" ]]; then
-      logger "Installing Java for Mac OS X 10.6 Update 12"
-      softwareupdate --install JavaForMacOSX10.6-12.0
+if [[ "${JAVA_UPDATE_DETECT}" = "JavaForMacOSX10.6-13.0" ]]; then
+      logger "Installing Java for Mac OS X 10.6 Update 13"
+      softwareupdate --install JavaForMacOSX10.6-13.0
    else
-      logger "Java for Mac OS X 10.6 Update 12 not an available update. Exiting."
+      logger "Java for Mac OS X 10.6 Update 13 not an available update. Exiting."
 fi
 
 exit 0
