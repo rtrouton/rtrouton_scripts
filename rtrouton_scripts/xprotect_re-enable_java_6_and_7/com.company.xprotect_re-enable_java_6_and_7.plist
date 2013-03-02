@@ -13,9 +13,9 @@
 	<array/>
 	<key>RunAtLoad</key>
 	<true/>
+	<key>StartInterval</key>
+	<integer>900</integer>
 	<key>WatchPaths</key>
-	<array>
-		<string>/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist</string>
-	</array>
+	<array/>
 </dict>
 </plist>
