@@ -25,7 +25,7 @@ XPROTECT_FLASH_BUILD=`/usr/libexec/PlistBuddy -c "print :PlugInBlacklist:10:com.
 
 #
 # Check to see if Xprotect is blocking Adobe's Flash browser plug-in and re-enable the plug-in if needed.
-# Changes in this section are from Cengage Learning's re-enable_java_6 script: https://github.com/cengage
+# Changes in this section are from Pepijn Bruienne's re-enable_java_6 script: https://github.com/bruienne
 #
 
 if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist ]]; then

@@ -41,7 +41,7 @@ ln -sf "$3/System/Library/Frameworks/JavaVM.framework/Commands/javaws" "$3/usr/b
 
 #
 # Check to see if Xprotect is blocking our current JVM build and reenable if it is
-# Changes in this section are from Cengage Learning's fork of this script: https://github.com/cengage
+# Changes in this section are from Pepijn Bruienne's fork of this script: https://github.com/bruienne
 #
 
 if [[ -e "$3/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist" ]]; then
