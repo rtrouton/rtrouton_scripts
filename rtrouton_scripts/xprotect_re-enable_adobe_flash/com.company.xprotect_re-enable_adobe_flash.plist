@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+	<string>com.company.xprotect_re-enable_adobe_flash</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>sh</string>
+		<string>/Library/Scripts/xprotect_re-enable_adobe_flash.sh</string>
+	</array>
+	<key>QueueDirectories</key>
+	<array/>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StartInterval</key>
+	<integer>900</integer>
+	<key>WatchPaths</key>
+	<array/>
+</dict>
+</plist>
