@@ -1,0 +1,1 @@
+This script checks which local user accounts have Remote Management rights to access this Mac.
