@@ -30,7 +30,7 @@ XPROTECT_FLASH_BUILD=`/usr/libexec/PlistBuddy -c "print :PlugInBlacklist:10:com.
 
 if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist ]]; then
   
-	if [ ${CURRENT_FLASH_BUILD} != ${XPROTECT_FLASH_BUILD} ]; then
+	if [[ ${CURRENT_FLASH_BUILD} != ${XPROTECT_FLASH_BUILD} ]]; then
 
 	 	  /usr/bin/logger "Current Flash build (${CURRENT_FLASH_BUILD}) does not match the minimum build required by Xprotect (${XPROTECT_FLASH_BUILD}). Setting current version as the minimum build."
 	 	  /usr/libexec/PlistBuddy -c "Set :PlugInBlacklist:10:com.macromedia.Flash\ Player.plugin:MinimumPlugInBundleVersion $CURRENT_FLASH_BUILD" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist

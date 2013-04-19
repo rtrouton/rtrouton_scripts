@@ -30,7 +30,7 @@ XPROTECT_JAVA_7_BUILD=`/usr/libexec/PlistBuddy -c "print :PlugInBlacklist:10:com
 
 if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist ]]; then
 	
-	if [ ${CURRENT_JAVA_6_BUILD} != ${XPROTECT_JAVA_6_BUILD} ]; then
+	if [[ ${CURRENT_JAVA_6_BUILD} != ${XPROTECT_JAVA_6_BUILD} ]]; then
 
 	 	  /usr/bin/logger "Current Java 6 build (${CURRENT_JAVA_6_BUILD}) does not match the minimum build required by Xprotect (${XPROTECT_JAVA_6_BUILD}). Setting current version as the minimum build."
 	 	  /usr/bin/defaults write /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta JavaWebComponentVersionMinimum -string "$CURRENT_JAVA_6_BUILD"
@@ -50,8 +50,8 @@ if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProte
 # 
    
     if [[ ${osvers} -ge 7 ]]; then
-      if [ "$javaVendor" = "com.oracle.java.JavaAppletPlugin" ]; then 
-	 	if [ ${CURRENT_JAVA_7_BUILD} != ${XPROTECT_JAVA_7_BUILD} ]; then
+      if [[ "$javaVendor" = "com.oracle.java.JavaAppletPlugin" ]]; then 
+	 	if [[ ${CURRENT_JAVA_7_BUILD} != ${XPROTECT_JAVA_7_BUILD} ]]; then
 
 	 	  /usr/bin/logger "Current Java 7 build (${CURRENT_JAVA_7_BUILD}) does not match the minimum build required by Xprotect (${XPROTECT_JAVA_7_BUILD}). Setting current version as the minimum build."
 	 	  /usr/libexec/PlistBuddy -c "Set :PlugInBlacklist:10:com.oracle.java.JavaAppletPlugin:MinimumPlugInBundleVersion $CURRENT_JAVA_7_BUILD" /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist
