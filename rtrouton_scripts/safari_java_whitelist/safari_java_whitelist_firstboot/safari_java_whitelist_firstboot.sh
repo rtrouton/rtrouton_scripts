@@ -31,11 +31,11 @@ then
      if [ -d "${USER_TEMPLATE}"/Library/Preferences ]
       then
 
-         # Add Janelia VPN to Java whitelist
+         # Add Server1 to Java whitelist
 
          /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server1.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server1.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
-         # Add MyDrive to Java whitelist
+         # Add Server2 to Java whitelist
 
          /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server2.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server2.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
         
@@ -67,11 +67,11 @@ then
       if [ -d "${USER_HOME}"/Library/Preferences ]
       then
 
-         # Add Janelia VPN to Java whitelist
+         # Add Server1 to Java whitelist
 
          /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server1.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server1.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
-         # Add MyDrive to Java whitelist
+         # Add Server2 to Java whitelist
 
          /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server2.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server2.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
