@@ -10,10 +10,10 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 JAVA_PLUGIN=`/usr/bin/defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info" CFBundleIdentifier`
 
 # Check com.apple.Safari.plist for Server1 address
-SERVER1_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.apple.Safari WhitelistedBlockedPlugins | grep PluginHostname | awk '{print $3, $4}' | grep server1.name.here | tr -d '";'`
+SERVER1_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.apple.Safari WhitelistedBlockedPlugins | grep PluginHostname | awk '{print $3}' | grep server1.name.here | tr -d '";'`
 
 # Check com.apple.Safari.plist for Server2 address
-SERVER2_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.apple.Safari WhitelistedBlockedPlugins | grep PluginHostname | awk '{print $3, $4}' | grep server2.name.here | tr -d '";'`
+SERVER2_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.apple.Safari WhitelistedBlockedPlugins | grep PluginHostname | awk '{print $3}' | grep server2.name.here | tr -d '";'`
 
 if [[ ${osvers} -ge 6 ]]; then
   if [[ -n ${SERVER1_WHITELIST_CHECK} ]]; then

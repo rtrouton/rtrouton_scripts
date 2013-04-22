@@ -37,7 +37,7 @@ if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProte
 	 	  /usr/bin/plutil -convert xml1 /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist
 	 	  /bin/chmod a+r /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProtect.meta.plist
 	else
-	 	  /usr/bin/logger "Current JVM build is ${CURRENT_JAVA_6_BUILD} and Xprotect minimum build is ${XPROTECT_JAVA_6_BUILD}, nothing to do here."
+	 	  /usr/bin/logger "Current Java 6 version is ${CURRENT_JAVA_6_BUILD} and Xprotect minimum build is ${XPROTECT_JAVA_6_BUILD}, nothing to do here."
 	fi
 
 
