@@ -10,6 +10,12 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 TODAY=$(date "+%FT%TZ")
 
+# Server1's address
+SERVER1=server1.name.here
+
+# Server2's address
+SERVER2=server2.name.here
+
 # Get Java plug-in info
 JAVA_PLUGIN=`/usr/bin/defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info" CFBundleIdentifier`
 
@@ -33,11 +39,11 @@ then
 
          # Add Server1 to Java whitelist
 
-         /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server1.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server1.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
+         /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "'$SERVER1'"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://'$SERVER1'"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
          # Add Server2 to Java whitelist
 
-         /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server2.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server2.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
+         /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "'$SERVER2'"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://'$SERVER2'"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
         
      fi
   done
@@ -69,11 +75,11 @@ then
 
          # Add Server1 to Java whitelist
 
-         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server1.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server1.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
+         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "'$SERVER1'"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://'$SERVER1'"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
          # Add Server2 to Java whitelist
 
-         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "server2.name.here"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://server2.name.here"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
+         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.Safari "WhitelistedBlockedPlugins" -array-add '{"PluginHostname" = "'$SERVER2'"; "PluginIdentifier" = "'$JAVA_PLUGIN'"; "PluginLastVisitedDate" = "'$TODAY'"; "PluginName" = "Java Applet Plug-in"; "PluginPageURL" = "https://'$SERVER2'"; "PluginPolicy" = "PluginPolicyNeverBlock";}'
 
         # Fix permissions on com.apple.Safari.plist
 
