@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/bin/ditto "$1/Contents/Resources/fb_installers" "$3/Users/Shared/fb_installers"
