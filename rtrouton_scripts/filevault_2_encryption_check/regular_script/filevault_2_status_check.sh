@@ -116,7 +116,6 @@ fi
     # FileVault 2 status
 
       if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
-        if [ "$ENCRYPTION" = "AES-XTS" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
 		      echo "FileVault 2 Encryption Complete"
@@ -135,7 +134,6 @@ fi
                   fi
                fi
             fi  
-         fi
        fi
       if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
 		      echo "FileVault 2 Encryption Not Enabled"
