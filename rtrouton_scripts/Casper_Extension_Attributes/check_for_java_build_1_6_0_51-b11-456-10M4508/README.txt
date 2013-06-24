@@ -1,3 +1,0 @@
-This Casper Extension Attribute determines if the following Java build is installed: 1.6.0_51-b11-456-10M4508. This build was installed by the first versions of Java for OS X 2013-004 and Java for Mac OS X 10.6 Update 16 and can cause problems for Java Swing applications like MATLAB and Papercut.
-
-See "Casper_Extension_Attribute_Setup.png" for a screenshot of how the Extension Attribute should be configured.
