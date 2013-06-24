@@ -3,7 +3,7 @@
 # Determines if either of the following 
 # Java build are installed: 
 #
-# 10.6.x: 1.6.0_51-b11-457-11M4508
+# 10.6.x: 1.6.0_51-b11-456-10M4508
 # 10.7.x - 10.8.x: 1.6.0_51-b11-456-11M4508
 #
 # This build was installed by the first versions of
@@ -24,10 +24,10 @@ elif [ "$JAVA_BUILD_CHECK" = "" ]; then
         result=$NOT_FOUND
 fi
 
-# If either 1.6.0_51-b11-457-11M4508 or 1.6.0_51-b11-456-11M4508
+# If either 1.6.0_51-b11-456-10M4508 or 1.6.0_51-b11-456-11M4508
 # is installed, an "Installed" message is displayed.
 #
-# If neither 1.6.0_51-b11-457-11M4508 or 1.6.0_51-b11-456-11M4508
+# If neither 1.6.0_51-b11-456-10M4508 or 1.6.0_51-b11-456-11M4508
 # is installed, a "Not Found" message is displayed.
 
 echo "<result>$result</result>"
