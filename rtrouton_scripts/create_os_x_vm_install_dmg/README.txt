@@ -8,7 +8,7 @@ Example usage:
 
 If you have a 10.8.4 Mountain Lion installer available, run this command:
 
-sudo create_vmware_osx_install_dmg/create_vmware_osx_install_dmg.sh "/Applications/Install OS X Mountain Lion.app" /path/to/output_directory
+sudo /path/to/create_vmware_osx_install_dmg.sh "/Applications/Install OS X Mountain Lion.app" /path/to/output_directory
 
 This should produce a DMG file at output_directory that's named OSX_InstallESD_10.8.4_12E55.dmg. An MD5 checksum is printed at the end of the process.
 
