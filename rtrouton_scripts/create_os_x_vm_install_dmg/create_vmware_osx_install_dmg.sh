@@ -138,13 +138,6 @@ if [ -n "$SUDO_UID" ] && [ -n "$SUDO_GID" ]; then
 	chown -R $SUDO_UID:$SUDO_GID "$OUT_DIR"
 fi
 
-if [ -n "$DEFAULT_ISO_DIR" ]; then
-	msg_status "Setting ISO file in definition "$DEFINITION_FILE".."
-	ISO_FILE=$(basename "$OUTPUT_DMG")
-	# Explicitly use -e in order to use double quotes around sed command
-	sed -i -e "s/%OSX_ISO%/${ISO_FILE}/" "$DEFINITION_FILE"
-fi
-
 msg_status "Checksumming output image.."
 MD5=$(md5 -q "$OUTPUT_DMG")
 msg_status "MD5: $MD5"
