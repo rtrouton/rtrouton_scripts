@@ -142,4 +142,4 @@ msg_status "Checksumming output image.."
 MD5=$(md5 -q "$OUTPUT_DMG")
 msg_status "MD5: $MD5"
 
-msg_status "Done. Built image is located at $OUTPUT_DMG. Add this iso and its checksum to your template."
+msg_status "Done. Built image is located at $OUTPUT_DMG."
