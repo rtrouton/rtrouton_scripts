@@ -1,6 +1,6 @@
 #!/bin/sh
-# Modified 6/20/2012
-Version=1.1
+# Modified 10/10/2013
+Version=1.2
 #
 # Adapted from 
 # MigrateUserHomeToADAcct.sh
@@ -18,6 +18,8 @@ Version=1.1
 # to restart directory services.
 #
 # Version 1.1 - Changed the admin rights function from using dscl append to using dseditgroup
+#
+# Version 1.2 - Fixed the admin rights functionality so that it actually now grants admin rights
 #
 
 
@@ -131,18 +133,10 @@ until [ "$user" == "FINISHED" ]; do
 				echo "Do you want to give the $netname account admin rights?"
 				select yn in "Yes" "No"; do
     					case $yn in
-        					Yes) /usr/sbin/dseditgroup -o edit -a $netname -t user admin; echo "Admin rights given to this account"; break;;
+        					Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; echo "Admin rights given to this account"; break;;
         					No ) echo "No admin rights given"; break;;
     					esac
 				done
-				# Refresh Directory Services
-				
-				if [[ ${osvers} -ge 7 ]]; then
-					/usr/bin/killall opendirectoryd
-				else
-					/usr/bin/killall DirectoryService
-				fi
-				sleep 20
 			break
 		else
 			echo "Invalid selection!"

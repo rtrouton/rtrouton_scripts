@@ -1,6 +1,6 @@
 #!/bin/sh
-# Modified 10/30/2012
-Version=1.4
+# Modified 10/10/2013
+Version=1.5
 # MigrateUserHomeToDomainAcct.sh
 # Patrick Gallagher
 # Emory College
@@ -14,7 +14,9 @@ Version=1.4
 # and run "killall opendirectoryd"  instead of "killall DirectoryService" if it is.
 #
 # Version 1.4 - Changed the admin rights function from using dscl append to using dseditgroup
-# 
+#
+# Version 1.5 - Fixed the admin rights functionality so that it actually now grants admin rights
+#
 
 clear
 
@@ -123,18 +125,10 @@ until [ "$user" == "FINISHED" ]; do
 				echo "Do you want to give the $netname account admin rights?"
 				select yn in "Yes" "No"; do
     					case $yn in
-        					Yes) /usr/sbin/dseditgroup -o edit -a $netname -t user admin; echo "Admin rights given to this account"; break;;
+        					Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; echo "Admin rights given to this account"; break;;
         					No ) echo "No admin rights given"; break;;
     					esac
 				done
-				# Refresh Directory Services
-				
-				if [[ ${osvers} -ge 7 ]]; then
-					/usr/bin/killall opendirectoryd
-				else
-					/usr/bin/killall DirectoryService
-				fi
-				sleep 20
 			break
 		else
 			echo "Invalid selection!"
