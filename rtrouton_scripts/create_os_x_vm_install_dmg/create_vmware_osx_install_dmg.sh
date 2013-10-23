@@ -6,7 +6,7 @@
 # 
 # 1. Mounts the InstallESD.dmg using a shadow file, so the original DMG is left
 #    unchanged.
-# 2. minstallconfig.xml and PartitionInfo.plist are also copied, which is looked for by the installer environment's 
+# 2. minstallconfig.xml is also copied, which is looked for by the installer environment's 
 #    rc.* files that first load with the system. This allows us to never actually modify the 
 #    BaseSystem.dmg and only drop in these extra files.
 # 3. Additional installer packages can be added using First Boot Package Install.pkg, 
@@ -14,7 +14,7 @@
 #    on how to use this package are documented here: 
 #    http://derflounder.wordpress.com/2013/05/13/first-boot-package-install-pkg/
 # 4. If desired, a second disk image in .iso format can be generated for use with VMware ESXi
-#    servers running on Apple hardware. The .iso file will also be stored in the output directory.
+#    servers running on Apple hardware. 
 #
 # Original script written by Tim Sutton:
 # https://github.com/timsutton/osx-vm-templates/tree/master/prepare_iso
@@ -31,10 +31,10 @@ usage() {
 	cat <<EOF
 Usage:
 $(basename "$0") "/path/to/InstallESD.dmg" /path/to/output/directory
-$(basename "$0") "/path/to/Install OS X [Mountain] Lion.app" /path/to/output/directory
+$(basename "$0") "/path/to/Install OS X Mavericks / Mountain Lion / Lion.app" /path/to/output/directory
 
 Description:
-Converts a 10.7/10.8 installer image to a new image that contains components
+Converts a 10.7/10.8/10.9 installer image to a new image that contains components
 used to perform an automated installation. The new image will be named
 'OSX_InstallESD_[osversion].dmg.'
 
@@ -114,9 +114,31 @@ if [ $? -ne 0 ]; then
 	msg_error "Could not mount $ESD on $MNT_ESD"
 	exit 1
 fi
-DMG_OS_VERS=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "$MNT_ESD/System/Library/CoreServices/SystemVersion.plist")
+
+# Check if we might be 10.9
+if [ ! -d "$MNT_ESD/System" ] && [ -d "$MNT_ESD/Packages" ]; then
+	msg_status "This looks like a 10.9 installer. Mounting BaseSystem.."
+
+	BASE_SYSTEM_DMG="$MNT_ESD/BaseSystem.dmg"
+	MNT_BASE_SYSTEM=$(/usr/bin/mktemp -d /tmp/vmware-osx-basesystem.XXXX)
+	[ ! -e "$BASE_SYSTEM_DMG" ] && msg_error "Could not find BaseSystem.dmg in $MNT_ESD"
+	hdiutil attach "$BASE_SYSTEM_DMG" -mountpoint "$MNT_BASE_SYSTEM" -nobrowse -owners on
+	if [ $? -ne 0 ]; then
+		msg_error "Could not mount $BASE_SYSTEM_DMG on $MNT_BASE_SYSTEM"
+		exit 1
+	fi
+	SYSVER_PLIST_PATH="$MNT_BASE_SYSTEM/System/Library/CoreServices/SystemVersion.plist"
+else
+	SYSVER_PLIST_PATH="$MNT_ESD/System/Library/CoreServices/SystemVersion.plist"
+fi
+
+
+DMG_OS_VERS=$(/usr/libexec/PlistBuddy -c 'Print :ProductVersion' "$SYSVER_PLIST_PATH")
 DMG_OS_VERS_MAJOR=$(echo $DMG_OS_VERS | awk -F "." '{print $2}')
-DMG_OS_BUILD=$(/usr/libexec/PlistBuddy -c 'Print :ProductBuildVersion' "$MNT_ESD/System/Library/CoreServices/SystemVersion.plist")
+DMG_OS_VERS_MINOR=$(echo $DMG_OS_VERS | awk -F "." '{print $3}')
+DMG_OS_BUILD=$(/usr/libexec/PlistBuddy -c 'Print :ProductBuildVersion' "$SYSVER_PLIST_PATH")
+msg_status "OS X version detected: 10.$DMG_OS_VERS_MAJOR.$DMG_OS_VERS_MINOR, build $DMG_OS_BUILD"
+
 OUTPUT_DMG="$OUT_DIR/OSX_InstallESD_${DMG_OS_VERS}_${DMG_OS_BUILD}.dmg"
 if [ -e "$OUTPUT_DMG" ]; then
 	msg_error "Output file $OUTPUT_DMG already exists! We're not going to overwrite it, exiting.."
@@ -126,7 +148,7 @@ fi
 
 SUPPORT_DIR="$SCRIPT_DIR/support"
 
-create_bom() {
+create_10_8_bom() {
 	/bin/cat > $SUPPORT_DIR/10_8_AP_bomlist << BOMLIST
 .
 ./System
@@ -162,6 +184,48 @@ create_bom() {
 ./System/Library/CoreServices/System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app/Contents/_CodeSignature
 ./System/Library/CoreServices/System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app/Contents/_CodeSignature/CodeResources
 ./System/Library/CoreServices/System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app/Contents/version.plist
+BOMLIST
+}
+
+create_10_9_bom() {
+	/bin/cat > $SUPPORT_DIR/10_9_AP_bomlist << BOMLIST
+.
+./System
+./System/Library
+./System/Library/CoreServices
+./System/Library/CoreServices/System Image Utility.app
+./System/Library/CoreServices/System Image Utility.app/Contents
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Info.plist
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/MacOS
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/MacOS/AutoPartition
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/PkgInfo
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/AutoPartition.icns
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/en.lproj
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/en.lproj/Localizable.strings
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/en.lproj/MainMenu.nib
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/fr.lproj
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/fr.lproj/Localizable.strings
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/fr.lproj/MainMenu.nib
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/de.lproj
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/de.lproj/Localizable.strings
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/de.lproj/MainMenu.nib
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/ja.lproj
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/ja.lproj/Localizable.strings
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/Resources/ja.lproj/MainMenu.nib
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/_CodeSignature
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/_CodeSignature/CodeResources
+./System/Library/CoreServices/System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app/Contents/version.plist
 BOMLIST
 }
 
@@ -207,41 +271,76 @@ PARTITIONXML
 # 10.7 systems need to get Server Admin Tools here:
 # http://support.apple.com/kb/DL1596
 # direct link: http://support.apple.com/downloads/DL1596/en_US/ServerAdminTools.dmg
-AUTOPART_APP_IN_SIU="System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app"
 OSX_VERS=$(sw_vers -productVersion | awk -F "." '{print $2}')
-if [ $DMG_OS_VERS_MAJOR -eq 8 ]; then
+# AutoPartition.app lives in different places depending on 10.8/10.9
+if [ $OSX_VERS -eq 8 ]; then
+	AUTOPART_APP_IN_SIU="System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app"
+elif [ $OSX_VERS -eq 9 ]; then
+	AUTOPART_APP_IN_SIU="System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app"
+fi
+
+if [ $DMG_OS_VERS_MAJOR -ge 8 ]; then
 	if [ $OSX_VERS -eq 7 ]; then
-		msg_status "To build Mountain Lion on Lion, we need to extract AutoPartition.app from within the 10.8 installer ESD."
-		create_bom
-		SIU_TMPDIR=$(/usr/bin/mktemp -d /tmp/siu-108.XXXX)
-		msg_status "Expanding flat package.."
-		pkgutil --verbose --expand "$MNT_ESD/Packages/Essentials.pkg" "$SIU_TMPDIR/expanded"
+		if [ $DMG_OS_VERS_MAJOR -eq 8 ]; then
+			msg_status "To build Mountain Lion on Lion, we need to extract AutoPartition.app from within the 10.8 installer ESD."
+			create_10_8_bom
+			AUTOPART_APP_IN_SIU="System Image Utility.app/Contents/Library/Automator/Create Image.action/Contents/Resources/AutoPartition.app"
+			SIU_TMPDIR=$(/usr/bin/mktemp -d /tmp/siu-108.XXXX)
+			msg_status "Expanding flat package.."
+			pkgutil --verbose --expand "$MNT_ESD/Packages/Essentials.pkg" "$SIU_TMPDIR/expanded"
 
-		msg_status "Generating BOM.."
-		mkbom -s -i "$SUPPORT_DIR/10_8_AP_bomlist" "$SUPPORT_DIR/BOM"
+			msg_status "Generating BOM.."
+			mkbom -s -i "$SUPPORT_DIR/10_8_AP_bomlist" "$SUPPORT_DIR/BOM"
 
-		msg_status "Extracting AutoPartition.app using ditto.."
-		ditto --bom "$SUPPORT_DIR/BOM" -x "$SIU_TMPDIR/expanded/Payload" "$SIU_TMPDIR/ditto"
-		if [ ! -d "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}" ]; then
-			mkdir "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}"
+			msg_status "Extracting AutoPartition.app using ditto.."
+			ditto --bom "$SUPPORT_DIR/BOM" -x "$SIU_TMPDIR/expanded/Payload" "$SIU_TMPDIR/ditto"
+			if [ ! -d "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}" ]; then
+				mkdir "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}"
+			fi
+
+			msg_status "Copying out AutoPartition.app.."
+			cp -R "$SIU_TMPDIR/ditto/System/Library/CoreServices/$AUTOPART_APP_IN_SIU" "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/"
+			msg_status "Removing temporary extracted files.."
+			rm -rf "$SIU_TMPDIR"
+			rm "$SUPPORT_DIR/BOM"
+
+			AUTOPART_TOOL="$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/AutoPartition.app"
 		fi
 
-		msg_status "Copying out AutoPartition.app.."
-		cp -R "$SIU_TMPDIR/ditto/System/Library/CoreServices/$AUTOPART_APP_IN_SIU" "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/"
-		msg_status "Removing temporary extracted files.."
-		rm -rf "$SIU_TMPDIR"
-		rm "$SUPPORT_DIR/BOM"
+		if [ $DMG_OS_VERS_MAJOR -eq 9 ]; then
+			msg_status "To build Mavericks on Lion, we need to extract AutoPartition.app from within the 10.9 installer ESD."
+			create_10_9_bom
+			AUTOPART_APP_IN_SIU="System Image Utility.app/Contents/Frameworks/SIUFoundation.framework/Versions/A/XPCServices/com.apple.SIUAgent.xpc/Contents/Resources/AutoPartition.app"
+			SIU_TMPDIR=$(/usr/bin/mktemp -d /tmp/siu-109.XXXX)
+			msg_status "Expanding flat package.."
+			pkgutil --verbose --expand "$MNT_ESD/Packages/Essentials.pkg" "$SIU_TMPDIR/expanded"
 
-		AUTOPART_TOOL="$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/AutoPartition.app"
+			msg_status "Generating BOM.."
+			mkbom -s -i "$SUPPORT_DIR/10_9_AP_bomlist" "$SUPPORT_DIR/BOM"
 
-	elif [ $OSX_VERS -eq 8 ]; then
+			msg_status "Extracting AutoPartition.app using ditto.."
+			ditto --bom "$SUPPORT_DIR/BOM" -x "$SIU_TMPDIR/expanded/Payload" "$SIU_TMPDIR/ditto"
+			if [ ! -d "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}" ]; then
+				mkdir "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}"
+			fi
+
+			msg_status "Copying out AutoPartition.app.."
+			cp -R "$SIU_TMPDIR/ditto/System/Library/CoreServices/$AUTOPART_APP_IN_SIU" "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/"
+			msg_status "Removing temporary extracted files.."
+			$rm -rf "$SIU_TMPDIR"
+			rm "$SUPPORT_DIR/BOM"
+
+			AUTOPART_TOOL="$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/AutoPartition.app"
+		fi
+	elif [ $OSX_VERS -ge 8 ]; then
 		AUTOPART_TOOL="/System/Library/CoreServices/$AUTOPART_APP_IN_SIU"
 		if [ ! -e "$AUTOPART_TOOL" ]; then
-			msg_error "We're on Mountain Lion, and should have System Image Utility available at $AUTOPART_TOOL, but it's not available for some reason."
+			msg_error "We're on 10.${OSX_VERS}, and should have System Image Utility available at $AUTOPART_TOOL, but it's not available for some reason."
 			exit 1
 		fi
 		cp -R "$AUTOPART_TOOL" "$SUPPORT_DIR/AutoPartition-10.${DMG_OS_VERS_MAJOR}/"
 	fi
+
 # on Lion, we first check if Server Admin Tools are already installed..
 elif [ $DMG_OS_VERS_MAJOR -eq 7 ]; then
 	msg_status "Building OS X 10.${DMG_OS_VERS_MAJOR}, so trying to locate System Image Utility from Server Admin Tools.."
@@ -254,16 +353,11 @@ elif [ $DMG_OS_VERS_MAJOR -eq 7 ]; then
 			# Lion SAT download
 			SAT_URL=http://support.apple.com/downloads/DL1596/en_US/ServerAdminTools.dmg
 			
-			msg_status "It doesn't seem to be installed."
+			msg_status "It doesn't seem to be installed and vmware hasn't yet cached it in the support dir.."
 			msg_status "Attempting download of the Server Admin Tools.."
 			SAT_TMPDIR=$(/usr/bin/mktemp -d /tmp/server-admin-tools.XXXX)
 			
 			curl -L "$SAT_URL" -o "$SAT_TMPDIR/sat.dmg"
-			if [ ! -f "$SAT_TMPDIR/sat.dmg" ]; then
-				msg_error "Server Admin Tools failed to download. Stopping build process."
-				exit 1
-			fi
-			
 			msg_status "Attaching Server Admin Tools.."
 			hdiutil attach "$SAT_TMPDIR/sat.dmg" -mountpoint "$SAT_TMPDIR/mnt"
 
@@ -287,7 +381,7 @@ elif [ $DMG_OS_VERS_MAJOR -eq 7 ]; then
 		fi
 	fi
 elif [ $DMG_OS_VERS_MAJOR -lt 7 ]; then
-	msg_error "This script does not support support building disk images for OS X versions prior to 10.7."
+	msg_error "This script currently doesn't support building guest OS X versions prior to 10.7."
 	exit 1
 fi
 
@@ -299,21 +393,66 @@ FIRSTBOOT_PKG="$SUPPORT_DIR/First Boot Package Install.pkg"
 
 partition_info
 
+if [ $DMG_OS_VERS_MAJOR -eq 9 ]; then
+	# We'd previously mounted this to check versions
+	hdiutil detach "$MNT_BASE_SYSTEM"
+
+	BASE_SYSTEM_DMG_RW="$(/usr/bin/mktemp /tmp/vmware-osx-basesystem-rw.XXXX).dmg"
+	rm "$BASE_SYSTEM_DMG_RW"
+
+	msg_status "Converting BaseSystem.dmg to a read-write DMG located at $BASE_SYSTEM_DMG_RW.."
+	# hdiutil convert -o will actually append .dmg to the filename if it has no extn
+	hdiutil convert -format UDRW -o "$BASE_SYSTEM_DMG_RW" "$BASE_SYSTEM_DMG"
+
+#	BASE_SYSTEM_SHADOW=$(/usr/bin/mktemp /tmp/vmware-osx-basesystem-shadow.XXXX)
+
+	msg_status "Growing new BaseSystem.."
+	hdiutil resize -size 6G "$BASE_SYSTEM_DMG_RW"
+	msg_status "Mounting new BaseSystem.."
+	hdiutil attach "$BASE_SYSTEM_DMG_RW" -mountpoint "$MNT_BASE_SYSTEM" -nobrowse -owners on
+
+	# Remove the symlink on the ESD that would reference the BaseSystem outside
+	rm "$MNT_BASE_SYSTEM/System/Installation/Packages"
+# 	msg_status "Copying Packages directory from the ESD to BaseSystem.."
+# 	cp -Rv "$MNT_ESD/Packages" "$MNT_BASE_SYSTEM/System/Installation/"
+	msg_status "Moving 'Packages' directory from the ESD to BaseSystem.."
+	mv -v "$MNT_ESD/Packages" "$MNT_BASE_SYSTEM/System/Installation/"
+
+	PACKAGES_DIR="$MNT_BASE_SYSTEM/System/Installation/Packages"
+else
+	PACKAGES_DIR="$MNT_ESD/Packages"
+fi
+
 # Add our auto-setup files: minstallconfig.xml and OSInstall.collection
 msg_status "Adding automated components.."
-mkdir "$MNT_ESD/Packages/Extras"
-cp "$SUPPORT_DIR/minstallconfig.xml" "$MNT_ESD/Packages/Extras/"
-cp "$SUPPORT_DIR/OSInstall.collection" "$MNT_ESD/Packages/"
-cp "$SUPPORT_DIR/PartitionInfo.plist" "$MNT_ESD/Packages/Extras/"
-cp -R "$AUTOPART_TOOL" "$MNT_ESD/Packages/Extras/AutoPartition.app"
-cp -r "$FIRSTBOOT_PKG" "$MNT_ESD/Packages/"
+mkdir "$PACKAGES_DIR/Extras"
+cp "$SUPPORT_DIR/minstallconfig.xml" "$PACKAGES_DIR/Extras/"
+cp "$SUPPORT_DIR/OSInstall.collection" "$PACKAGES_DIR/"
+cp "$SUPPORT_DIR/PartitionInfo.plist" "$PACKAGES_DIR/Extras/"
+cp -R "$AUTOPART_TOOL" "$PACKAGES_DIR/Extras/AutoPartition.app"
+cp -r "$FIRSTBOOT_PKG" "$PACKAGES_DIR/"
 rm -rf "$SUPPORT_DIR/tmp"
+
+if [ $DMG_OS_VERS_MAJOR -eq 9 ]; then
+	msg_status "Detaching BaseSystem.."
+	hdiutil detach "$MNT_BASE_SYSTEM"
+# 	msg_status "Removing original BaseSystem.dmg.."
+# 	rm "$MNT_ESD/BaseSystem.dmg"
+fi
 
 msg_status "Unmounting.."
 hdiutil detach "$MNT_ESD"
 
 msg_status "Converting to .dmg disk image.."
-/usr/bin/hdiutil convert -format UDZO -o "$OUTPUT_DMG" -shadow "$SHADOW_FILE" "$ESD"
+
+if [ $DMG_OS_VERS_MAJOR -lt 9 ]; then
+	hdiutil convert -format UDZO -o "$OUTPUT_DMG" -shadow "$SHADOW_FILE" "$ESD"
+	rm "$SHADOW_FILE"
+else
+	msg_status "Converting BaseSystem back to read-only compressed.."
+	hdiutil convert -format UDZO -o "$OUTPUT_DMG" "$BASE_SYSTEM_DMG_RW"
+
+fi
 
 if [[ $ISO = 1 ]]; then
    OUTPUT_ISO="$OUT_DIR/OSX_InstallESD_${DMG_OS_VERS}_${DMG_OS_BUILD}.iso"
@@ -330,6 +469,10 @@ rm "$SUPPORT_DIR/PartitionInfo.plist"
 
 if [ -f "$SUPPORT_DIR/10_8_AP_bomlist" ]; then
 	rm "$SUPPORT_DIR/10_8_AP_bomlist"
+fi
+
+if [ -f "$SUPPORT_DIR/10_9_AP_bomlist" ]; then
+	rm "$SUPPORT_DIR/10_9_AP_bomlist"
 fi
 
 if [ -n "$SUDO_UID" ] && [ -n "$SUDO_GID" ]; then

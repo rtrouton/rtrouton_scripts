@@ -2,15 +2,15 @@ This script prepares a customized OS X installer disk image for use with VMware 
 
 Running the script: 
 
-Run the create_vmware_osx_install_dmg.sh script with two arguments: the path to an "Install OS X [Mountain] Lion.app" or the InstallESD.dmg contained within, and an output directory. 
+Run the create_vmware_osx_install_dmg.sh script with two arguments: the path to an "Install OS X.app" or the InstallESD.dmg contained within, and an output directory. 
 
 Example usage: 
 
-If you have a 10.8.4 Mountain Lion installer available, run this command:
+If you have a 10.9.0 Mavericks installer available, run this command:
 
-sudo /path/to/create_vmware_osx_install_dmg.sh "/Applications/Install OS X Mountain Lion.app" /path/to/output_directory
+sudo /path/to/create_vmware_osx_install_dmg.sh "/Applications/Install OS X Mavericks.app" /path/to/output_directory
 
-This should produce a DMG file at output_directory that's named OSX_InstallESD_10.8.4_12E55.dmg. An MD5 checksum is printed at the end of the process.
+This should produce a DMG file at output_directory that's named OSX_InstallESD_10.9_13A598.dmg. An MD5 checksum is printed at the end of the process.
 
 What the script does:
 
@@ -29,7 +29,7 @@ What the script does:
 
 Once you have the customized DMG file created, you can choose it as an install disk image in VMware Fusion when creating virtual machines in VMware Fusion.
 
-This script has been tested with Apple's 10.7.5 and 10.8.4 installers from the Mac App Store.
+This script has been tested with Apple's 10.7.5, 10.8.5 and 10.9.0 installers from the Mac App Store.
 
 
 
