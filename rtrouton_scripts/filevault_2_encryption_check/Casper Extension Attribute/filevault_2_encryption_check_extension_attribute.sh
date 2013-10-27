@@ -27,7 +27,7 @@ ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e'
 CONVERTED=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}'`
 SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}'`
 
-# Checks to see if the OS on the Mac is 10.7 or 10.8.
+# Checks to see if the OS on the Mac is 10.7 - 10.9.
 # If it is not, the following message is displayed without quotes:
 # "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
 
@@ -40,7 +40,7 @@ fi
 if [[ ${osvers} -ge 7 ]]; then
   diskutil cs list >> $CORESTORAGESTATUS
   
-    # If the Mac is running 10.7 or 10.8, but does not have
+    # If the Mac is running 10.7, 10.8 or 10.9, but does not have
     # any CoreStorage volumes, the following message is 
     # displayed without quotes:
     # "FileVault 2 Encryption Not Enabled"
@@ -49,7 +49,7 @@ if [[ ${osvers} -ge 7 ]]; then
        echo "<result>FileVault 2 Encryption Not Enabled</result>"
     fi
     
-    # If the Mac is running 10.7 or 10.8 and has CoreStorage volumes,
+    # If the Mac is running 10.7, 10.8 or 10.9 and has CoreStorage volumes,
     # the script then checks to see if the machine is encrypted,
     # encrypting, or decrypting.
     # 
@@ -114,7 +114,7 @@ fi
 fi
     # This section does 10.8-specific checking of the Mac's
     # FileVault 2 status
-
+    if [[ ${osvers} = 8 ]]; then
       if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
@@ -138,6 +138,39 @@ fi
       if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
 		      echo "<result>FileVault 2 Encryption Not Enabled</result>"
       fi
+    fi
+
+    # This section does 10.9-specific checking of the Mac's
+    # FileVault 2 status
+
+     if [[ ${osvers} -ge 9 ]]; then
+      
+      CONVERTED=`diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}'`
+      
+      if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
+	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
+		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
+		      echo "<result>FileVault 2 Encryption Complete</result>"
+            else
+		      if  grep -iE 'No' $ENCRYPTSTATUS 1>/dev/null; then
+		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
+		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
+		            echo "<result>FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted</result>"
+
+                  else
+		          if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
+                  	    echo "<result>FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted</result>"
+                          elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
+                            echo "<result>FileVault 2 Decryption Completed</result>"
+	              fi
+                  fi
+               fi
+            fi  
+       fi
+      if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
+		      echo "FileVault 2 Encryption Not Enabled"
+      fi
+     fi
 
 
 
