@@ -89,7 +89,7 @@ fi
 if grep -iq 'Logical Volume Family' $CORESTORAGESTATUS; then
   if [ "$CONTEXT" = "Present" ]; then
     if [ "$ENCRYPTION" = "AES-XTS" ]; then
-    grep -E "$EGREP_STRING\Conversion Status" $CORESTORAGESTATUS | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
+      grep -E "$EGREP_STRING\Conversion Status" $CORESTORAGESTATUS | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
 	    if grep -iq 'Complete' $ENCRYPTSTATUS; then 
 	      echo "FileVault 2 Encryption Complete"
       elif  grep -iq 'Converting' $ENCRYPTSTATUS; then
@@ -138,4 +138,3 @@ fi
 
 # Remove the temp files created during the script
 rm -f $CORESTORAGESTATUS $ENCRYPTSTATUS $ENCRYPTDIRECTION
-
