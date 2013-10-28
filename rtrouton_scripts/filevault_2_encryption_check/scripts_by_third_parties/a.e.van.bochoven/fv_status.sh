@@ -111,8 +111,13 @@ if grep -iq 'Logical Volume Family' $CORESTORAGESTATUS; then
   fi  
 fi
 
+# This section does 10.9-specific checking of the Mac's
+# FileVault 2 status
+if [[ ${osvers} -ge 13 ]]; then
+  CONVERTED=`grep -E "\Conversion \Progress" $CORESTORAGESTATUS | sed -e's/\|//' | awk '{print $3}'`
+fi
 
-# This section does 10.8-specific checking of the Mac's
+# This section does 10.8-10.9 specific checking of the Mac's
 # FileVault 2 status
 if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
   grep -E "$EGREP_STRING\Fully Secure" $CORESTORAGESTATUS | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
