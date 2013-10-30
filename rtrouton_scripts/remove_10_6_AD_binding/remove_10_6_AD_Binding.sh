@@ -12,7 +12,7 @@ rm /Library/Preferences/DirectoryService/ActiveDirectoryDomainCache.plist
 rm /Library/Preferences/DirectoryService/ActiveDirectoryDomainPolicies.plist
 rm /Library/Preferences/DirectoryService/ActiveDirectoryDynamicData.plist
 dscl /Search -delete / CSPSearchPath /Active\ Directory/All\ Domains
-dscl /Search -delete /Search/Contacts CSPSearchPath /Active\ Directory/All\ Domains
+dscl /Search -delete /Search/Contact CSPSearchPath /Active\ Directory/All\ Domains
 rm /Library/Preferences/edu.mit.Kerberos*
 rm /var/db/dslocal/nodes/Default/config/Kerberos\:*
 rm /var/db/dslocal/nodes/Default/config/AD\ DS\ Plugin.plist

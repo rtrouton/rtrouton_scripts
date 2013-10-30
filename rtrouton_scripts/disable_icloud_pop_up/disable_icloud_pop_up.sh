@@ -3,7 +3,6 @@
 # Determine OS version
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 sw_vers=$(sw_vers -productVersion)
-sw_build=$(sw_vers -buildVersion)
 
 # Checks first to see if the Mac is running 10.7.0 or higher. 
 # If so, the script checks the system default user template
@@ -20,15 +19,6 @@ if [[ ${osvers} -ge 7 ]]; then
     defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
     defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
   done
-
-if [[ ${osvers} -ge 9 ]]; then
-
- for USER_TEMPLATE in "/System/Library/User Template"/*
-  do
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastPreLoginTasksPerformedVersion "${sw_vers}"
-    defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastPreLoginTasksPerformedBuild "${sw_build}"
-  done
-fi
 
  # Checks first to see if the Mac is running 10.7.0 or higher.
  # If so, the script checks the existing user folders in /Users
@@ -53,10 +43,6 @@ fi
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
         defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
-        	if [[ ${osvers} -ge 9 ]]; then
-        		defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastPreLoginTasksPerformedVersion "${sw_vers}"
-        		defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastPreLoginTasksPerformedBuild "${sw_build}"
-        	fi
         chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
       fi
     fi
