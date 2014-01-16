@@ -1,0 +1,7 @@
+Oracle’s [Java 7 Update 51](http://www.oracle.com/technetwork/java/javase/7u51-relnotes-2085002.html) has introduced new security requirements for browser plugins for applets and web start applications. However, not all applets are able to run using the new requirements. To help with this, Oracle has included a way to whitelist specific sites using Java 7’s new [Exception Site List](https://blogs.oracle.com/java-platform-group/entry/upcoming_exception_site_list_in). This allows the applets and web start applications hosted on the specified sites to continue to work, even if they don’t meet the new security requirements in Java 7.
+
+On OS X 10.7 and higher, the Exception Site List is a plaintext file named **exception.sites**, which is stored in **/Users/username/Library/Application Support/Oracle/Java/Deployment/security**.
+
+Since these settings are stored on a per-user basis, I’ve written a script and launch agent combination to help Mac admins manage the Exception Site List. The LaunchAgent runs the script on login to any user account with the logging-in user’s privileges and permissions.
+
+The script will add two servers to the Oracle Java Exception Site List. If the servers are already in the whitelist, it will note that in the log, then exit.
