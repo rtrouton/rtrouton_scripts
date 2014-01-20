@@ -17,16 +17,16 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	# Download the latest Adobe Flash Player software disk image
 
-	/usr/bin/curl -O http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_11_osx.dmg
+	/usr/bin/curl -O http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_12_osx_pkg.dmg
 
-	# Mount the install_flash_player_11_osx.dmg disk image in /Volumes
+	# Mount the install_flash_player_12_osx.dmg disk image in /Volumes
 
-	/usr/bin/hdiutil attach install_flash_player_11_osx.dmg -nobrowse -noverify -noautoopen
+	/usr/bin/hdiutil attach install_flash_player_12_osx_pkg.dmg -nobrowse -noverify -noautoopen
 
 	# Install Adobe Flash Player from the installer package inside Install Adobe Flash Player.app
 	# Note: Installing Flash Player this way will not install the Adobe Flash Updater
 
-	/usr/sbin/installer -dumplog -verbose -pkg "/Volumes/Flash Player/Install Adobe Flash Player.app/Contents/Resources/Adobe Flash Player.pkg" -target "/"
+	/usr/sbin/installer -dumplog -verbose -pkg "/Volumes/Flash Player/Install Adobe Flash Player.pkg" -target "/"
 
 	# Clean-up
  
@@ -36,7 +36,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	# Remove the install_flash_player_11_osx.dmg disk image from /tmp
 
-	/bin/rm -rf /tmp/install_flash_player_11_osx.dmg
+	/bin/rm -rf /tmp/install_flash_player_12_osx_pkg.dmg
 
 fi
 
