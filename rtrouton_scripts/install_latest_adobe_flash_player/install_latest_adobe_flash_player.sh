@@ -30,11 +30,11 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	# Clean-up
  
-	# Unmount the install_flash_player_11_osx.dmg disk image from /Volumes
+	# Unmount the install_flash_player_13_osx.dmg disk image from /Volumes
 
 	/usr/bin/hdiutil eject -force /Volumes/Flash\ Player
 
-	# Remove the install_flash_player_11_osx.dmg disk image from /tmp
+	# Remove the install_flash_player_13_osx.dmg disk image from /tmp
 
 	/bin/rm -rf /tmp/install_flash_player_13_osx_pkg.dmg
 
