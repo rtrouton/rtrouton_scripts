@@ -21,7 +21,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	# Mount the install_flash_player_12_osx.dmg disk image in /Volumes
 
-	/usr/bin/hdiutil attach install_flash_player_12_osx_pkg.dmg -nobrowse -noverify -noautoopen
+	/usr/bin/hdiutil attach install_flash_player_13_osx_pkg.dmg -nobrowse -noverify -noautoopen
 
 	# Install Adobe Flash Player from the installer package inside Install Adobe Flash Player.app
 	# Note: Installing Flash Player this way will not install the Adobe Flash Updater
@@ -36,7 +36,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	# Remove the install_flash_player_11_osx.dmg disk image from /tmp
 
-	/bin/rm -rf /tmp/install_flash_player_12_osx_pkg.dmg
+	/bin/rm -rf /tmp/install_flash_player_13_osx_pkg.dmg
 
 fi
 
