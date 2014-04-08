@@ -19,7 +19,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
 	/usr/bin/curl -O http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_13_osx_pkg.dmg
 
-	# Mount the install_flash_player_12_osx.dmg disk image in /Volumes
+	# Mount the install_flash_player_13_osx.dmg disk image in /Volumes
 
 	/usr/bin/hdiutil attach install_flash_player_13_osx_pkg.dmg -nobrowse -noverify -noautoopen
 
