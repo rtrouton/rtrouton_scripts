@@ -139,7 +139,7 @@ At this point, the script will proceed with verifying whether the Casper agent o
 7. A check is run using the "jamf checkJSSConnection" command to make sure that the Casper agent can communicate with the JSS service. This check should usually succeed, but may fail in the following circumstances:
 
 A. The Casper agent on the machine was originally talking to the JSS at a different DNS address - In the event that the Casper server has moved to a different DNS address from the one that the Casper agent is expecting, this check will fail.
-B. The Casper agent is present but so broken that it cannot contact the JSS service using the checkJSSConnection function.�
+B. The Casper agent is present but so broken that it cannot contact the JSS service using the checkJSSConnection function.
 
 If the check fails, the CasperCheck script will reinstall the Casper agent using the QuickAdd installer stored on the Mac.
 
