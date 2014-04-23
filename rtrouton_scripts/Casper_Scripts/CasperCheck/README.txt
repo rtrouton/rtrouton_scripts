@@ -35,13 +35,13 @@ Plan: Run Script iscasperonline.sh
  
  exit 0
 
-When run, the policy will return "Script result: up" among other output. The CasperCheck script verifies if it's received the "Script result: up"�output and will use that as the indicator that policies can be successfully run by the Casper agent.
+When run, the policy will return "Script result: up" among other output. The CasperCheck script verifies if it's received the "Script result: up" output and will use that as the indicator that policies can be successfully run by the Casper agent.
 
 
 Zipped QuickAdd installer posted to web server
 ----------------------------------------------
 
-For the QuickAdd installer, I generated a QuickAdd installer using Casper Recon. This is because QuickAdds made by Recon include an unlimited enrollment invitation, which means that the same package can be used to enroll multiple machines with the JSS in question. Once the QuickAdd package was created by Recon, I then used OS X's built-in compression app�to generate a zip archive of the QuickAdd installer. The zipped QuickAdd can be posted to any web server.
+For the QuickAdd installer, I generated a QuickAdd installer using Casper Recon. This is because QuickAdds made by Recon include an unlimited enrollment invitation, which means that the same package can be used to enroll multiple machines with the JSS in question. Once the QuickAdd package was created by Recon, I then used OS X's built-in compression app to generate a zip archive of the QuickAdd installer. The zipped QuickAdd can be posted to any web server.
 
 
 LaunchDaemon
