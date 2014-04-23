@@ -101,8 +101,7 @@ Assuming that the Casper Online policy has been set up described above on the JS
 fileURL - For the fileURL variable, put the complete address of the zipped Casper QuickAdd installer package.
 jss_server_address - put the complete fully qualified domain name address of your Casper server.
 jss_server_port - put the appropriate port number for your Casper server. This is usually 8443 or 443; change as appropriate.
-log_location - put the preferred location of the log file for this script. If you don't have a preference, using the default setting of /var/log/caspercheck.log should be fine.�For HHMI, that will be using the default of�/var/log/caspercheck.log
-
+log_location - put the preferred location of the log file for this script. If you don't have a preference, using the default setting of /var/log/caspercheck.log should be fine.
 NOTE: Use caution when editing the functions or variables below the User-editable variables section of the script.
 
 CasperCheck in operation
