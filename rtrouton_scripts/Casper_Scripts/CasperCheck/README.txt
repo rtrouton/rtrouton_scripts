@@ -1,4 +1,4 @@
-For folks using JAMF Software's Casper solution, sometimes the Casper agent installed on the Macs stop working properly. They stop checking in with the Casper server, or check in but can't run policies anymore. To help address this issue, CasperCheck provides an automated way to check and repair Casper agents that are not working properly. As designed, this solution will do the following:
+For folks using JAMF Software's Casper solution, sometimes the Casper agent installed on individual Macs stops working properly. They stop checking in with the Casper server, or check in but can't run policies anymore. To help address this issue, CasperCheck provides an automated way to check and repair Casper agents that are not working properly. As designed, this solution will do the following:
 
 A. Check to see if a Casper-managed Mac's network connection is live
 B. If the network is working, check to see if the machine is on a network where the Mac's Casper JSS is accessible.
