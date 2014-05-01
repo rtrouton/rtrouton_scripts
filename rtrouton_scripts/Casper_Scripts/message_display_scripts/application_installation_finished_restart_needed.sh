@@ -8,6 +8,6 @@
 
 application_name="$4"
 
-jamf displayMessage -message "$application_name has now been installed on your Mac. Please restart your Mac before using $4"
+jamf displayMessage -message "$application_name has now been installed on your Mac. Please restart your Mac before using $application_name"
 
 exit 0
