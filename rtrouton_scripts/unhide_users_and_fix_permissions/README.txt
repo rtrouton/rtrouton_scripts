@@ -16,7 +16,7 @@ To fix this issue if you're seeing it:
 5. Run the unhide_users_and_fix_permissions.sh script found in this directory.
 
 
-What the unhide_users_and_fix_permissions.sh script does is look for the /Users and /Users/Shared directory. If found, the directories are unhidden. A permissions repair is then run using the diskutil command to the world-writable permission on the /Users directory.
+What the unhide_users_and_fix_permissions.sh script does is look for the /Users and /Users/Shared directory. If found, the directories are unhidden. A permissions repair is then run using the diskutil command to fix the world-writable permission issue for the /Users directory.
 
 Note: The permissions repair may take up to 10 minutes to run.
 
