@@ -225,13 +225,13 @@ InstallCasper () {
  # to fix problems with Casper being able to communicate with
  # the Casper server
  
- if [[ ! -d "$quickadd_installer" ]] ; then
+ if [[ ! -e "$quickadd_installer" ]] ; then
     ScriptLogging "Casper installer is missing. Downloading."
     /bin/rm -rf "$quickadd_timestamp"
     update_quickadd
  fi
  
-  if [[ -d "$quickadd_installer" ]] ; then
+  if [[ -e "$quickadd_installer" ]] ; then
     ScriptLogging "Casper installer is present. Installing."
     /usr/sbin/installer -dumplog -verbose -pkg "$quickadd_installer" -target /
     ScriptLogging "Casper agent has been installed."
