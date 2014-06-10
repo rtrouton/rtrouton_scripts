@@ -8,7 +8,7 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 # Specify the complete address of the Adobe Flash Player
 # disk image
  
-fileURL="http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_13_osx_pkg.dmg"
+fileURL="http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_14_osx_pkg.dmg"
 
 # Specify name of downloaded disk image
 
