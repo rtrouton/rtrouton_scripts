@@ -8,6 +8,9 @@ OSVERS=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 installed_driver=$(defaults read "/Library/Printers/Xerox/PDEs/XeroxFeatures.plugin/Contents/Info" CFBundleShortVersionString)
 installed_version=$(echo "$installed_driver" | sed 's/[\._-]//g')
+button1="OK"
+jamfHelper="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
+icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"
 
 if [[ ${OSVERS} -eq 5 ]]; then
 
@@ -16,6 +19,8 @@ if [[ ${OSVERS} -eq 5 ]]; then
 
   jss_driver="$5"
   driver_version=$(echo "$jss_driver" | sed 's/[\._-]//g')
+  dialog="The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+  description=`echo "$dialog"`
 
  if [[ ${installed_version} -ge ${driver_version} ]]; then
   echo "Xerox $installed_driver Print Drivers installed"
@@ -23,7 +28,7 @@ if [[ ${OSVERS} -eq 5 ]]; then
 
  if [[ ${installed_version} -lt ${driver_version} ]]; then
   echo "Xerox $jss_driver Print Drivers not installed. Installing Xerox $jss_driver Print Drivers"
-  jamf displayMessage -message "The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+  "$jamfHelper" -windowType utility -description "$description" -button1 "$button1" -icon "$icon" -timeout 20
   jamf policy -trigger companyxeroxdrivers
  fi
 fi
@@ -35,6 +40,8 @@ if [[ ${OSVERS} -eq 6 ]]; then
 
  jss_driver="$6"
  driver_version=$(echo "$jss_driver" | sed 's/[\._-]//g')
+ dialog="The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+ description=`echo "$dialog"`
 
  if [[ ${installed_version} -ge ${driver_version} ]]; then
   echo "Xerox $installed_driver Print Drivers installed"
@@ -42,7 +49,7 @@ if [[ ${OSVERS} -eq 6 ]]; then
 
  if [[ ${installed_version} -lt ${driver_version} ]]; then
   echo "Xerox $jss_driver Print Drivers not installed. Installing Xerox $jss_driver Print Drivers"
-  jamf displayMessage -message "The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+  "$jamfHelper" -windowType utility -description "$description" -button1 "$button1" -icon "$icon" -timeout 20
   jamf policy -trigger companyxeroxdrivers
  fi
 fi
@@ -54,6 +61,8 @@ if [[ ${OSVERS} -ge 7 ]]; then
   
  jss_driver="$7"
  driver_version=$(echo $jss_driver | sed 's/[\._-]//g')
+ dialog="The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+ description=`echo "$dialog"`
 
  if [[ ${installed_version} -ge ${driver_version} ]]; then
   echo "Xerox $installed_driver Print Drivers installed"
@@ -61,7 +70,9 @@ if [[ ${OSVERS} -ge 7 ]]; then
 
  if [[ ${installed_version} -lt ${driver_version} ]]; then
   echo "Xerox $jss_driver Print Drivers not installed. Installing Xerox $jss_driver Print Drivers"
-  jamf displayMessage -message "The needed Xerox printer drivers have not been detected. Installing Xerox $jss_driver Print Drivers before adding the requested printer."
+  jamf displayMessage -message "$dialog"
   jamf policy -trigger companyxeroxdrivers
  fi
 fi
+
+exit 0
