@@ -8,7 +8,7 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 # Determine current major version of Adobe Flash for use
 # with the fileURL variable
 
-flash_major_version="`/usr/bin/curl --silent http://fpdownload2.macromedia.com/get/flashplayer/update/current/xml/version_en_mac_pl.xml | grep 'update version' | awk '{print $2}' | cut -c10-11`"
+flash_major_version=`/usr/bin/curl --silent http://fpdownload2.macromedia.com/get/flashplayer/update/current/xml/version_en_mac_pl.xml | cut -d , -f 1 | awk -F\" '/update version/{print $NF}'`
 
 # Specify the complete address of the Adobe Flash Player
 # disk image
