@@ -2,7 +2,7 @@ This script will download a disk image containing the latest Adobe Flash Player 
 
 How the script works:
 
-1. Uses curl to download a disk image named "install_flash_player_14_osx_pkg.dmg" (no quotes) from Adobe's web site
+1. Uses curl to download a disk image containing the latest Flash Player installer from Adobe's web site
 
 2. Renames the downloaded disk image to flash.dmg and stores it in /tmp
 
@@ -13,5 +13,5 @@ How the script works:
 4. After installation, unmounts the disk image and removes it from the Mac in question.
 
 
-This script is also available as a payload-free installer package, stored in the payload_free_installer directory.
+This script is also available as a payload-free installer package, stored as a .zip file in the payload_free_installer directory.
 

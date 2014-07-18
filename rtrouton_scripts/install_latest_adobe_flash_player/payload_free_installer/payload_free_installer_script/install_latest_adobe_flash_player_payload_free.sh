@@ -17,7 +17,7 @@ fileURL="http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/
 
 # Specify name of downloaded disk image
 
-flash_dmg="/tmp/flash.dmg"
+flash_dmg="$3/tmp/flash.dmg"
 
 if [[ ${osvers} -lt 6 ]]; then
   echo "Adobe Flash Player is not available for Mac OS X 10.5.8 or below."
@@ -31,7 +31,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
     # Specify a /tmp/flashplayer.XXXX mountpoint for the disk image
  
-    TMPMOUNT=`/usr/bin/mktemp -d /tmp/flashplayer.XXXX`
+    TMPMOUNT=`/usr/bin/mktemp -d "$3"/tmp/flashplayer.XXXX`
 
     # Mount the latest Flash Player disk image to /tmp/flashplayer.XXXX mountpoint
  
@@ -39,7 +39,7 @@ if [[ ${osvers} -ge 6 ]]; then
 
     # Install Adobe Flash Player from the installer package stored inside the disk image
 
-    /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.pkg -o -iname \*\.mpkg \))" -target "/"
+    /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.pkg -o -iname \*\.mpkg \))" -target "$3"
 
     # Clean-up
  
