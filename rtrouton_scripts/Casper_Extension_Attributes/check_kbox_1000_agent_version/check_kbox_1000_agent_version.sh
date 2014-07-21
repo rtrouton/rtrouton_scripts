@@ -5,7 +5,7 @@
 # version.
 
 if [ -f "/Library/Application Support/Dell/KACE/data/version" ]; then
-   result=`cat "/Library/Application Support/Dell/KACE/data/version" | grep 5`
+   result=`cat "/Library/Application Support/Dell/KACE/data/version" | awk 'NR == 1'`
    echo "<result>$result</result>"
 else
    echo "<result>Not installed</result>"
