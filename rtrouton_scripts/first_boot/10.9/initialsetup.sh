@@ -22,11 +22,7 @@ sleep 30
 
 # Get the system's UUID to set ByHost prefs
 
-if [[ `ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-50` == "00000000-0000-1000-8000-" ]]; then
-	MAC_UUID=`ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c51-62 | awk {'print tolower()'}`
-elif [[ `ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-50` != "00000000-0000-1000-8000-" ]]; then
-	MAC_UUID=`ioreg -rd1 -c IOPlatformExpertDevice | grep -i "UUID" | cut -c27-62`
-fi
+MAC_UUID=$(/usr/sbin/system_profiler SPHardwareDataType | awk '/UUID/ { print $3; }')
 
 # Disable Time Machine's pop-up message whenever an external drive is plugged in
 
