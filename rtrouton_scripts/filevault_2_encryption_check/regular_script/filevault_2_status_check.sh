@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
@@ -19,8 +19,7 @@ if [ "$DEVICE_COUNT" != "1" ]; then
   EGREP_STRING="^\| *"
 fi
 
-osversionlong=`sw_vers -productVersion`
-osvers=${osversionlong:3:1}
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 CONTEXT=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}'`
 ENCRYPTIONEXTENTS=`diskutil cs list | grep -E "$EGREP_STRING\Has Encrypted Extents" | sed -e's/\|//' | awk '{print $4}'`
 ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
@@ -179,14 +178,16 @@ fi
 
 # Remove the temp files created during the script
 
-if [ -f /private/tmp/corestorage.txt ]; then
-   rm /private/tmp/corestorage.txt
+if [ -f "$CORESTORAGESTATUS" ]; then
+   rm -f "$CORESTORAGESTATUS"
 fi
 
-if [ -f /private/tmp/encrypt_status.txt ]; then
-   rm /private/tmp/encrypt_status.txt
+if [ -f "$ENCRYPTSTATUS" ]; then
+   rm -f "$ENCRYPTSTATUS"
 fi
 
-if [ -f /private/tmp/encrypt_direction.txt ]; then
-   rm /private/tmp/encrypt_direction.txt
+if [ -f "$ENCRYPTDIRECTION" ]; then
+   rm -f "$ENCRYPTDIRECTION"
 fi
+
+exit 0
