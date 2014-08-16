@@ -15,3 +15,4 @@ How the script works:
 
 This script is also available as a payload-free installer package, stored as a .zip file in the payload_free_installer directory.
 
+Accompanying blog post: http://derflounder.wordpress.com/2014/08/16/automating-oracle-java-7-updates/
