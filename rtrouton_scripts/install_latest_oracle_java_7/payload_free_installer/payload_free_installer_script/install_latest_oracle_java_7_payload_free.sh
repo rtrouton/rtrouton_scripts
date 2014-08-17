@@ -30,7 +30,7 @@ osminorvers=$(sw_vers -productVersion | awk -F. '{print $3}')
 
 OracleUpdateXML="https://javadl-esd-secure.oracle.com/update/mac/au-1.7.0_67.xml"
 
-# Use the XML address embedded with Java 7 Update 67 to query Oracle via curl
+# Use the XML address defined in the OracleUpdateXML variable to query Oracle via curl 
 # for the complete address of the latest Oracle Java 7 installer disk image.
 
 fileURL=`/usr/bin/curl --silent $OracleUpdateXML | grep enclosure | awk -F\" '{print $(NF-1)}'`
