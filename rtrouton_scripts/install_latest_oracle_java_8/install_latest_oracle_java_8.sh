@@ -27,7 +27,7 @@ OracleUpdateXML="https://javadl-esd-secure.oracle.com/update/mac/au-1.8.0_11.xml
 # Use the XML address defined in the OracleUpdateXML variable to query Oracle via curl 
 # for the complete address of the latest Oracle Java 8 installer disk image.
 
-fileURL=`/usr/bin/curl --silent $OracleUpdateXML | grep enclosure | awk -F\" '{print $(NF-1)}'`
+fileURL=`/usr/bin/curl --silent $OracleUpdateXML | awk -F \" /enclosure/'{print $(NF-1)}'`
 
 # Specify name of downloaded disk image
 
