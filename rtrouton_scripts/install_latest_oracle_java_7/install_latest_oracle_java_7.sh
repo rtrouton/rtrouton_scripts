@@ -39,7 +39,7 @@ fileURL=`/usr/bin/curl --silent $OracleUpdateXML | grep enclosure | awk -F\" '{p
 
 java_seven_dmg="/tmp/java_seven.dmg"
 
-if [[ ${osvers} -lt 6 ]]; then
+if [[ ${osvers} -lt 7 ]]; then
   echo "Oracle Java 7 is not available for Mac OS X 10.6.8 or below."
 fi
 
