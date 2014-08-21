@@ -9,7 +9,7 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 # /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info.plist file. 
 #
 # Note: The "OracleUpdateXML" variable is currently specified in the script as that for 
-# Java 8 Update 11, but the XML address embedded with Java 8 Update 11 is not special in 
+# Java 8 Update 20, but the XML address embedded with Java 8 Update 20 is not special in 
 # this regard. I have verified that using the address for Java 8 Update 5 will also work 
 # to pull the address of the latest Oracle Java 8 installer disk image. To get the "SUFeedURL"
 # value embedded with your currently installed version of Java 8 on Mac OS X, please run
@@ -17,12 +17,12 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 #
 # defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info" SUFeedURL
 #
-# As of Java 8 Update 11, that produces the following return:
+# As of Java 8 Update 20, that produces the following return:
 #
-# https://javadl-esd-secure.oracle.com/update/mac/au-1.8.0_11.xml
+# https://javadl-esd-secure.oracle.com/update/mac/au-1.8.0_20.xml
 #
 
-OracleUpdateXML="https://javadl-esd-secure.oracle.com/update/mac/au-1.8.0_11.xml"
+OracleUpdateXML="https://javadl-esd-secure.oracle.com/update/mac/au-1.8.0_20.xml"
 
 # Use the XML address defined in the OracleUpdateXML variable to query Oracle via curl 
 # for the complete address of the latest Oracle Java 8 installer disk image.
