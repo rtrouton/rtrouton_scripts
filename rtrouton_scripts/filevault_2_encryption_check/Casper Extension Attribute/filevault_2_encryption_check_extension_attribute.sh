@@ -4,6 +4,17 @@ CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
 ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
 
+# Test the OS Version first.  If Less than 7, no need to contine. 
+# Really old systems can not handle the additional tests, so we should exit if less than 10.7
+# Checks to see if the OS on the Mac is 10.7 - 10.9.
+# If it is not, the following message is displayed without quotes:
+# "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
+
+osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+if [[ ${osvers} -lt 7 ]]; then
+  echo "<result>FileVault 2 Encryption Not Available For This Version Of Mac OS X</result>"; exit 0
+fi
+
 # Get number of CoreStorage devices. The egrep pattern used later in the script
 # uses this information to only report on the first encrypted drive, which should
 # be the boot drive.
@@ -19,21 +30,12 @@ if [ "$DEVICE_COUNT" != "1" ]; then
   EGREP_STRING="^\| *"
 fi
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
 CONTEXT=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}'`
 ENCRYPTIONEXTENTS=`diskutil cs list | grep -E "$EGREP_STRING\Has Encrypted Extents" | sed -e's/\|//' | awk '{print $4}'`
 ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
 CONVERTED=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}'`
 SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}'`
-
-# Checks to see if the OS on the Mac is 10.7 - 10.9.
-# If it is not, the following message is displayed without quotes:
-# "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
-
-if [[ ${osvers} -lt 7 ]]; then
-  echo "<result>FileVault 2 Encryption Not Available For This Version Of Mac OS X</result>"
-fi
-
 
 
 if [[ ${osvers} -ge 7 ]]; then
