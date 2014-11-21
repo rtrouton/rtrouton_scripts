@@ -1,10 +1,10 @@
 This script sets whether you want to send diagnostic info from Yosemite and later back to Apple and/or third party app developers by setting the appropriate values in **/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist**.
 
-If you want to send diagonostic data to Apple, set the following value in the script for the **SUBMIT_DIAGNOSTIC_DATA_TO_APPLE** value:
+If you want to send diagnostic and usage data to Apple, set the following value in the script for the **SUBMIT_DIAGNOSTIC_DATA_TO_APPLE** value:
 
 `SUBMIT_DIAGNOSTIC_DATA_TO_APPLE=TRUE`
 
-If you want to send data to third party app developers, set the following value in the script for the **SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS** value:
+If you want to send crash data to third party app developers, set the following value in the script for the **SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS** value:
 
 `SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS=TRUE`
 
