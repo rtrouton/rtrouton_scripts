@@ -2,7 +2,7 @@
 
 # Initial setup script for Mac OS X 10.10.x
 # Rich Trouton, created August 20, 2014
-# Last modified 9-3-2014
+# Last modified 11-21-2014
 #
 # Adapted from Initial setup script for Mac OS X 10.9.x
 # Rich Trouton, created August 15, 2013
