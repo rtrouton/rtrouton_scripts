@@ -12,19 +12,19 @@ Fortunately, the answer is relatively simple - disable beam synchronization. Onc
 
 Enter [BeamOff](https://github.com/JasF/beamoff), an application designed to do one thing - disable beam synchronization. 
 
-BeamOff was developed by [JasF](http://www.insanelymac.com/forum/user/1190299-jasf/), who developed BeamOff to fix the performance issue he was having with Yosemite VMs. He posted [his source files to GitHub](https://github.com/JasF/beamoff) and a [compiled version of the application](https://www.sendspace.com/file/sm9sf7) as part of [this thread on the InsanelyMac forums](http://).
+**BeamOff** was developed by [JasF](http://www.insanelymac.com/forum/user/1190299-jasf/), who developed BeamOff to fix the performance issue he was having with Yosemite VMs. He posted [his source files to GitHub](https://github.com/JasF/beamoff) and a [compiled version of the application](https://www.sendspace.com/file/sm9sf7) as part of [this thread on the InsanelyMac forums](http://).
 
-When BeamOff runs, you should see it appear briefly in the dock and bounce once or twice as it runs. Once it has finished disabling beam sync, it then quits automatically.
+When **BeamOff** runs, you should see it appear briefly in the dock and bounce once or twice as it runs. Once it has finished disabling beam sync, it then quits automatically.
 
-When I tested the compiled BeamOff application, I saw a considerable improvement in how fast the VM was now responding. The window redraw issues I had previously seen were now also addressed, where windows were now being refreshed correctly regardless if they were in the background or foreground.
+When I tested the compiled **BeamOff** application, I saw a considerable improvement in how fast the VM was now responding. The window redraw issues I had previously seen were now also addressed, where windows were now being refreshed correctly regardless if they were in the background or foreground.
 
-Because I wanted to have BeamOff run automatically, I installed it in **/Applications** of my Yosemite VM and wrote the LaunchAgent linked below to launch and run BeamOff on login:
+Because I wanted to have **BeamOff** run automatically, I installed it in **/Applications** of my Yosemite VM and wrote the LaunchAgent linked below to launch and run BeamOff on login:
 
 [https://gist.github.com/rtrouton/b732cb81b947e20b8bdc](https://gist.github.com/rtrouton/b732cb81b947e20b8bdc)
 
-To assist other Mac admins who are also dealing with this issue, I've also built and posted an installer for BeamOff and the LaunchAgent, which is available as a .zip file from the **installer** directory. The installer adds **BeamOff** to **/Applications** and installs the  LaunchAgent to **/Library/LaunchAgents**.
+To assist other Mac admins who are also dealing with this issue, I've also built and posted an installer for **BeamOff** and the LaunchAgent, which is available as a .zip file from the **installer** directory. The installer adds **BeamOff** to **/Applications** and installs the  LaunchAgent to **/Library/LaunchAgents**.
 
 
-For those interested in building their own installer, I've also posted a copy of the compiled BeamOff application, the LaunchAgent and the [Packages](http://s.sudre.free.fr/Software/Packages/about.html) project files I used to build the BeamOff installer. Those are available in the **resources** directory.
+For those interested in building their own installer, I've also posted a copy of the compiled **BeamOff** application, the LaunchAgent and the [Packages](http://s.sudre.free.fr/Software/Packages/about.html) project files I used to build the installer. Those are available in the **resources** directory.
 
 Blog post: [http://derflounder.wordpress.com/2014/12/13/improving-yosemite-vm-performance-in-vmware-fusion/](http://derflounder.wordpress.com/2014/12/13/improving-yosemite-vm-performance-in-vmware-fusion/)
