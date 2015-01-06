@@ -32,10 +32,15 @@ SIZE=$(diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//
 # "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
 
 if [[ "$OS_major" -ne 10 ]]; then
+
     echo "<result>Unknown version of Mac OS X</result>"
+
 elif [[ "$OS_major" -eq 10 && "$OS_minor" -lt 7 ]]; then
+
     echo "<result>FileVault 2 Encryption Not Available For This Version Of Mac OS X</result>"
+
 elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
+
     diskutil cs list >> $CORESTORAGESTATUS
     
     # If the Mac is running 10.7, 10.8 or 10.9, but does not have
@@ -107,7 +112,9 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
             fi
         fi
     fi
+
     if [[ "$OS_major" -eq 10 && "$OS_minor" -eq 8 ]]; then
+
         # This section does 10.8-specific checking of the Mac's
         # FileVault 2 status
         if [[ "$ENCRYPTIONEXTENTS" = "Yes" ]]; then
@@ -132,7 +139,9 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
         if [[ "$ENCRYPTIONEXTENTS" = "No" ]]; then
             echo "<result>FileVault 2 Encryption Not Enabled</result>"
         fi
+
     elif [[ "$OS_major" -eq 10 && "$OS_minor" -eq 9 ]]; then
+
         # This section does 10.9-specific checking of the Mac's
         # FileVault 2 status
         CONVERTED=$(diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}')
@@ -159,6 +168,7 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
         if [[ "$ENCRYPTIONEXTENTS" = "No" ]]; then
             echo "<result>FileVault 2 Encryption Not Enabled</result>"
         fi
+        
     fi
 fi
 
