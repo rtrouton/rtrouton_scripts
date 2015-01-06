@@ -11,7 +11,7 @@ ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
 # Credit to Mike Osterman for identifying this problem in the original version of
 # the script and finding a fix for it.
 
-DEVICE_COUNT=`diskutil cs list | grep -E "^CoreStorage logical volume groups" | awk '{print $5}' | sed -e's/(//'`
+DEVICE_COUNT=$(diskutil cs list | grep -E "^CoreStorage logical volume groups" | awk '{print $5}' | sed -e's/(//')
 
 EGREP_STRING=""
 if [[ "$DEVICE_COUNT" != "1" ]]; then
@@ -21,11 +21,11 @@ fi
 OS_major=$(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}')
 OS_minor=$(/usr/bin/sw_vers -productVersion | awk -F . '{print $2}')
 
-CONTEXT=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}'`
-ENCRYPTIONEXTENTS=`diskutil cs list | grep -E "$EGREP_STRING\Has Encrypted Extents" | sed -e's/\|//' | awk '{print $4}'`
-ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
-CONVERTED=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}'`
-SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}'`
+CONTEXT=$(diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}')
+ENCRYPTIONEXTENTS=$(diskutil cs list | grep -E "$EGREP_STRING\Has Encrypted Extents" | sed -e's/\|//' | awk '{print $4}')
+ENCRYPTION=$(diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}')
+CONVERTED=$(diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}')
+SIZE=$(diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}')
 
 # Checks to see if the OS on the Mac is 10.7 - 10.9.
 # If it is not, the following message is displayed without quotes:
@@ -135,7 +135,7 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
     elif [[ "$OS_major" -eq 10 && "$OS_minor" -eq 9 ]]; then
         # This section does 10.9-specific checking of the Mac's
         # FileVault 2 status
-        CONVERTED=`diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}'`
+        CONVERTED=$(diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}')
         
         if [[ "$ENCRYPTIONEXTENTS" = "Yes" ]]; then
             diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
