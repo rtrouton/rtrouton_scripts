@@ -35,11 +35,11 @@ if [[ "$OS_major" -ne 10 ]]; then
 
     echo "<result>Unknown version of Mac OS X</result>"
 
-elif [[ "$OS_major" -eq 10 && "$OS_minor" -lt 7 ]]; then
+elif [[ "$OS_minor" -lt 7 ]]; then
 
     echo "<result>FileVault 2 Encryption Not Available For This Version Of Mac OS X</result>"
 
-elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
+else
 
     diskutil cs list >> $CORESTORAGESTATUS
     
@@ -113,7 +113,7 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
         fi
     fi
 
-    if [[ "$OS_major" -eq 10 && "$OS_minor" -eq 8 ]]; then
+    if [[ "$OS_minor" -eq 8 ]]; then
 
         # This section does 10.8-specific checking of the Mac's
         # FileVault 2 status
@@ -140,9 +140,9 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
             echo "<result>FileVault 2 Encryption Not Enabled</result>"
         fi
 
-    elif [[ "$OS_major" -eq 10 && "$OS_minor" -eq 9 ]]; then
+    elif [[ "$OS_minor" -eq 9 || "$OS_minor" -eq 10 ]]; then
 
-        # This section does 10.9-specific checking of the Mac's
+        # This section does 10.9- and 10.10-specific checking of the Mac's
         # FileVault 2 status
         CONVERTED=$(diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}')
         
@@ -168,11 +168,15 @@ elif [[ "$OS_major" -eq 10 && "$OS_minor" -ge 7 ]]; then
         if [[ "$ENCRYPTIONEXTENTS" = "No" ]]; then
             echo "<result>FileVault 2 Encryption Not Enabled</result>"
         fi
-        
+
+    else
+        # Mac OS X 10.11 or higher. We don't know whether this script will be
+        # compatible yet.
+        echo "<result>Unknown version of Mac OS X</result>"
     fi
 fi
 
-# Remove the temp files created during the script
+# Remove the temp files created during the script.
 
 if [[ -f "$CORESTORAGESTATUS" ]]; then
     rm -f "$CORESTORAGESTATUS"
