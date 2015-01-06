@@ -1,193 +1,124 @@
-#!/bin/bash
+#!/bin/sh
+# Orginal script by rtrouton
+# Modified by Doug Campbell (Nov 2014)
 
-CORESTORAGESTATUS="/private/tmp/corestorage.txt"
-ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
-ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
+cleanup()
+{
+  # Remove the temp files created during the script
+  rm -f $CSLIST $LVINFO $LVFINFO
+}
 
-# Get number of CoreStorage devices. The egrep pattern used later in the script
-# uses this information to only report on the first encrypted drive, which should
-# be the boot drive.
-#
-# Credit to Mike Osterman for identifying this problem in the original version of
-# the script and finding a fix for it.
-#
+# temporary files
+CSLIST="/private/tmp/corestorage.txt"
+LVINFO="/private/tmp/lvinfo.txt"
+LVFINFO="/private/tmp/lvfinfo.txt"
+ 
+# Get major OS vresion (uses uname -r and bash substituion)
+# osvers is 10 for 10.6, 11 for 10.7, 12 for 10.8, etc.
+osversionlong=$(uname -r)
+osvers=${osversionlong/.*/}
 
-DEVICE_COUNT=`diskutil cs list | grep -E "^CoreStorage logical volume groups" | awk '{print $5}' | sed -e's/(//'`
-
-EGREP_STRING=""
-if [ "$DEVICE_COUNT" != "1" ]; then
-  EGREP_STRING="^\| *"
+# Checks to see if the OS on the Mac is >= 10.7
+if [[ ${osvers} -lt 11 ]]; then
+  echo "FileVault 2 Encryption Not Available for this Version of Mac OS X"
+  exit 0
 fi
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
-CONTEXT=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Context" | sed -e's/\|//' | awk '{print $3}'`
-ENCRYPTIONEXTENTS=`diskutil cs list | grep -E "$EGREP_STRING\Has Encrypted Extents" | sed -e's/\|//' | awk '{print $4}'`
-ENCRYPTION=`diskutil cs list | grep -E "$EGREP_STRING\Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
-CONVERTED=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Converted\)" | sed -e's/\|//' | awk '{print $5, $6}'`
-SIZE=`diskutil cs list | grep -E "$EGREP_STRING\Size \(Total\)" | sed -e's/\|//' | awk '{print $5, $6}'`
+# Store the output of diskutil cs list in a temporary file
+diskutil cs list > $CSLIST
 
-# Checks to see if the OS on the Mac is 10.7 - 10.9.
-# If it is not, the following message is displayed without quotes:
-# "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
+# find out disk identifier mounted as / filesystem
+DISK_ID=$(df / | tail -1 | awk '{print $1}' | awk -F "/" '{print $3}')
 
-if [[ ${osvers} -lt 7 ]]; then
-  echo "FileVault 2 Encryption Not Available For This Version Of Mac OS X"
+# get list of all logical volumes in core storage
+LOGICAL_VOLUMES=$(grep -v "Family" $CSLIST | grep -v "Group" | grep "Logical Volume" | awk '{print $NF}')
+
+# find logical volume that matches the disk mount as / filesystem, if any
+for lv in $LOGICAL_VOLUMES; do
+  # get device identifier for logical volume, if it exists
+  DEVICE_ID=$(diskutil cs info $lv | grep "Device Identifier" | awk '{print $3}')
+  if [ "$DEVICE_ID" == "$DISK_ID" ]; then
+    LV=$lv
+    break
+  fi
+done
+
+if [[ -z $LV ]]; then
+  echo "FileVault 2 Encryption Not Enabled."
+  cleanup
+  exit 0
 fi
 
+# get Logical Volume Family UUID
+LVF=$(diskutil cs info $LV | grep "Parent LVF UUID:" | awk '{print $4}')
 
+# get logical volume info
+diskutil cs list $LV > $LVINFO
 
-if [[ ${osvers} -ge 7 ]]; then
-  diskutil cs list >> $CORESTORAGESTATUS
-  
-    # If the Mac is running 10.7, 10.8 or 10.9, but does not have
-    # any CoreStorage volumes, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Encryption Not Enabled"
-    
-    if grep -iE 'No CoreStorage' $CORESTORAGESTATUS 1>/dev/null; then
-       echo "FileVault 2 Encryption Not Enabled"
-    fi
-    
-    # If the Mac is running 10.7, 10.8 or 10.9 and has CoreStorage volumes,
-    # the script then checks to see if the machine is encrypted,
-    # encrypting, or decrypting.
-    # 
-    # If encrypted, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Encryption Complete"
-    #
-    # If encrypting, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Encryption Proceeding."
-    # How much has been encrypted of of the total
-    # amount of space is also displayed. If the
-    # amount of encryption is for some reason not
-    # known, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Encryption Status Unknown. Please check."
-    #
-    # If decrypting, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Decryption Proceeding"
-    # How much has been decrypted of of the total
-    # amount of space is also displayed
-    #
-    # If fully decrypted, the following message is 
-    # displayed without quotes:
-    # "FileVault 2 Decryption Complete"
-    #
+# get logical volume family info
+diskutil cs list $LVF > $LVFINFO
 
+CONTEXT=$(grep -E "Encryption Context" $LVFINFO | awk '{print $3}')
+ENCRYPTIONEXTENTS=$(grep -E "Has Encrypted Extents" $LVFINFO | awk '{print $4}')
+ENCRYPTION=$(grep -E "Encryption Type" $LVFINFO | awk '{print $3}')
+if [[ ${osvers} -lt 13 ]]; then
+  CONVERTED=$(grep -E "Size \(Converted\)" $LVINFO | awk '{print $5, $6}')
+else
+  CONVERTED=$(grep -E "Conversion Progress" $LVINFO | awk '{print $3}')
+fi
+SIZE=$(grep -E "Size \(Total\)" $LVINFO | awk '{print $5, $6}')
 
-    if grep -iE 'Logical Volume Family' $CORESTORAGESTATUS 1>/dev/null; then
-
-    # This section does 10.7-specific checking of the Mac's
-    # FileVault 2 status
-    
-    if [[ ${osvers} = 7 ]]; then
-      if [ "$CONTEXT" = "Present" ]; then
-        if [ "$ENCRYPTION" = "AES-XTS" ]; then
-	      diskutil cs list | grep -E "$EGREP_STRING\Conversion Status" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
-		    if grep -iE 'Complete' $ENCRYPTSTATUS 1>/dev/null; then 
-		      echo "FileVault 2 Encryption Complete"
-            else
-		      if  grep -iE 'Converting' $ENCRYPTSTATUS 1>/dev/null; then
-		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-		          if grep -iE 'Forward' $ENCRYPTDIRECTION 1>/dev/null; then
-		            echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted"
-                  else
-		            echo "FileVault 2 Encryption Status Unknown. Please check."
-	              fi
-               fi
-             fi
-        else
-            if [ "$ENCRYPTION" = "None" ]; then
-              diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-                if grep -iE 'Backward' $ENCRYPTDIRECTION 1>/dev/null; then
-                  echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted"
-                elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
-                  echo "FileVault 2 Decryption Completed"
-                fi
-            fi 
+# for OS X 10.7
+if [[ ${osvers} -eq 11 ]]; then
+  # check either that CONTEXT is "Present" for OS X 10.7 or ENCRYPTIONEXTENTS is "Yes" for OS X 10.8 and above
+  if [ "$CONTEXT" = "Present" ]; then
+    if [ "$ENCRYPTION" = "AES-XTS" ]; then
+      CONVERSION_STATUS=$(grep -E "Conversion Status" $LVFINFO | awk '{print $3}' | tr [:upper:] [:lower:])
+      if [ "$CONVERSION_STATUS" = "complete" ]; then
+        echo "FileVault 2 Encryption Complete"
+      else
+        if [ "$CONVERSION_STATUS" = "converting" ]; then
+          ENCRYPTION_DIRECTION=$(grep -E "Conversion Direction" $LVFINFO | awk '{print $3}' | tr [:upper:] [:lower:])
+          if [ "$ENCRYPTION_DIRECTION" = "forward" ]; then
+            echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted"
+          else
+            echo "FileVault 2 Encryption Status Unknown. Please check."
+          fi
         fi
-      fi  
-fi
-fi
-fi
-
-    # This section does 10.8-specific checking of the Mac's
-    # FileVault 2 status
-    
-    if [[ ${osvers} = 8 ]]; then
-      if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
-	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
-		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
-		      echo "FileVault 2 Encryption Complete"
-            else
-		      if  grep -iE 'No' $ENCRYPTSTATUS 1>/dev/null; then
-		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
-		            echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted"
-
-                  else
-		          if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
-                  	    echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted"
-                          elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
-                            echo "FileVault 2 Decryption Completed"
-	              fi
-                  fi
-               fi
-            fi  
-       fi
-      if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
-		      echo "FileVault 2 Encryption Not Enabled"
       fi
-     fi
-
-    # This section does 10.9-specific checking of the Mac's
-    # FileVault 2 status
-
-     if [[ ${osvers} -ge 9 ]]; then
-      
-      CONVERTED=`diskutil cs list | grep -E "\Conversion \Progress" | sed -e's/\|//' | awk '{print $3}'`
-      
-      if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
-	      diskutil cs list | grep -E "$EGREP_STRING\Fully Secure" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
-		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
-		      echo "FileVault 2 Encryption Complete"
-            else
-		      if  grep -iE 'No' $ENCRYPTSTATUS 1>/dev/null; then
-		        diskutil cs list | grep -E "$EGREP_STRING\Conversion Direction" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTDIRECTION
-		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
-		            echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted"
-
-                  else
-		          if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
-                  	    echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted"
-                          elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
-                            echo "FileVault 2 Decryption Completed"
-	              fi
-                  fi
-               fi
-            fi  
-       fi
-      if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
-		      echo "FileVault 2 Encryption Not Enabled"
+    else
+      if [ "$ENCRYPTION" = "None" ]; then
+        ENCRYPTION_DIRECTION=$(grep -E "Conversion Direction" $LVFINFO | awk '{print $3}' | tr [:upper:] [:lower:])  
+        if [ "$ENCRYPTION_DIRECTION" = "backward" ]; then
+          echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted"
+        elif [ "$ENCRYPTION_DIRECTION" = "-none-" ]; then
+          echo "FileVault 2 Decryption Completed"
+        fi
       fi
-     fi
-
-
-# Remove the temp files created during the script
-
-if [ -f "$CORESTORAGESTATUS" ]; then
-   rm -f "$CORESTORAGESTATUS"
+    fi
+  fi
 fi
 
-if [ -f "$ENCRYPTSTATUS" ]; then
-   rm -f "$ENCRYPTSTATUS"
+# for OS X 10.8 and above
+if [[ ${osvers} -ge 12 ]]; then
+  if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
+    ENCRYPTSTATUS=$(grep -E "Fully Secure" $LVFINFO | awk '{print $3}' | tr [:upper:] [:lower:])
+    if [ "$ENCRYPTSTATUS" = "yes" ]; then
+      echo "FileVault 2 Encryption Complete"
+    else
+      if [ "$ENCRYPTSTATUS" = "no" ]; then
+        ENCRYPTION_DIRECTION=$(grep -E "Conversion Direction" $LVFINFO | awk '{print $3}' | tr [:upper:] [:lower:])
+        if [ "$ENCRYPTION_DIRECTION" = "forward" ]; then
+          echo "FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted"
+        elif [ "$ENCRYPTION_DIRECTION" = "backward" ]; then
+          echo "FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted"
+        elif [ "$ENCRYPTION_DIRECTION" = "-none-" ]; then
+          echo "FileVault 2 Decryption Completed"
+        fi
+      fi
+    fi
+  fi
 fi
 
-if [ -f "$ENCRYPTDIRECTION" ]; then
-   rm -f "$ENCRYPTDIRECTION"
-fi
-
+cleanup
 exit 0
