@@ -169,7 +169,7 @@ else
             echo "<result>FileVault 2 Encryption Not Enabled</result>"
         fi
 
-    else
+    elif [[ "$OS_minor" -ge 11 ]]; then
         # Mac OS X 10.11 or higher. We don't know whether this script will be
         # compatible yet.
         echo "<result>Unknown version of Mac OS X</result>"
