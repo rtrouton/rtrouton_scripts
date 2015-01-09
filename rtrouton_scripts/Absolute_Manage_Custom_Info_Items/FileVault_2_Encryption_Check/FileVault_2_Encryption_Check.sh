@@ -82,7 +82,8 @@ if [[ ${osvers} -ge 7 ]]; then
 
     # This section does 10.7-specific checking of the Mac's
     # FileVault 2 status
-
+    
+    if [[ ${osvers} = 7 ]]; then
       if [ "$CONTEXT" = "Present" ]; then
         if [ "$ENCRYPTION" = "AES-XTS" ]; then
 	      diskutil cs list | grep -E "$EGREP_STRING\Conversion Status" | sed -e's/\|//' | awk '{print $3}' >> $ENCRYPTSTATUS
@@ -111,6 +112,8 @@ if [[ ${osvers} -ge 7 ]]; then
       fi  
 fi
 fi
+fi
+
     # This section does 10.8-specific checking of the Mac's
     # FileVault 2 status
     
@@ -171,7 +174,6 @@ fi
 		      echo "FileVault 2 Encryption Not Enabled"
       fi
      fi
-
 
 
 # Remove the temp files created during the script
