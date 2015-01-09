@@ -36,6 +36,7 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
     
     if grep -iE '/ is not a CoreStorage disk' $CORESTORAGESTATUS 1>/dev/null; then
        echo "FileVault 2 Encryption Not Enabled"
+       rm -f "$CORESTORAGESTATUS"
        exit 0
     fi
     
