@@ -42,7 +42,7 @@ if [[ "$osx_vers" -eq 7 ]] || [[ "$osx_vers" -eq 8 ]]; then
 	fi
 	
 	if [[ "$osx_vers" -eq 8 ]]; then
-	     DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_xcode_os_x_mountain_lion_march_2014.dmg
+	     DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_osx_mountain_lion_april_2014.dmg
 	fi
 
 		TOOLS=cltools.dmg
