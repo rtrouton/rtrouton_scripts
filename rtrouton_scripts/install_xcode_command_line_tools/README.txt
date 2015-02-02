@@ -10,12 +10,14 @@ On 10.9.x and 10.10.x:
 
 3. Uses the softwareupdate tool to install the latest version of the Xcode command line tools for the OS in question.
 
+4. Removes the placeholder file stored in /tmp.
+
 
 On 10.7.x and 10.8.x:
 
 1. Uses curl to download a disk image containing the specified Xcode Command Line Tools installer from Apple's web site
 
-2. Renames the downloaded disk image to clitools.dmg.
+2. Renames the downloaded disk image to cltools.dmg.
 
 2. Mounts the disk image silently in /tmp. Disk image will not be visible to any logged-in user.
 

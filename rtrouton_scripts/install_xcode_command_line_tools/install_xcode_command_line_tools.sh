@@ -45,7 +45,7 @@ if [[ "$osx_vers" -eq 7 ]] || [[ "$osx_vers" -eq 8 ]]; then
 	     DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_xcode_os_x_mountain_lion_march_2014.dmg
 	fi
 
-		TOOLS=clitools.dmg
+		TOOLS=cltools.dmg
 		curl "$DMGURL" -o "$TOOLS"
 		TMPMOUNT=`/usr/bin/mktemp -d /tmp/clitools.XXXX`
 		hdiutil attach "$TOOLS" -mountpoint "$TMPMOUNT" -nobrowse
