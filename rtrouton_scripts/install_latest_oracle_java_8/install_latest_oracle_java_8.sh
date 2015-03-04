@@ -53,9 +53,11 @@ if [[ ${osvers} -ge 8 ]]; then
  
     hdiutil attach "$java_eight_dmg" -mountpoint "$TMPMOUNT" -nobrowse -noverify -noautoopen
 
-    # Install Oracle Java 8 from the installer package stored inside the disk image
+    # Install Oracle Java 8 from the installer package stored inside the disk image's install application
 
-    /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.pkg -o -iname \*\.mpkg \))" -target "/"
+    if [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/JavaAppletPlugin.pkg" ]]; then
+        /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/JavaAppletPlugin.pkg" -target "/"
+    fi
 
     # Clean-up
  
