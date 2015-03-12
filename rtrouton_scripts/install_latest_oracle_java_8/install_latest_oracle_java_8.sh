@@ -33,11 +33,11 @@ fileURL=`/usr/bin/curl --silent $OracleUpdateXML | awk -F \" /enclosure/'{print 
 
 java_eight_dmg="/tmp/java_eight.dmg"
 
-if [[ ${osvers} -lt 8 ]]; then
-  echo "Oracle Java 8 is not available for Mac OS X 10.7.5 or below."
+if [[ ${osvers} -lt 7 ]]; then
+  echo "Oracle Java 8 is not available for Mac OS X 10.6.8 or earlier."
 fi
 
-if [[ ${osvers} -ge 8 ]]; then
+if [[ ${osvers} -ge 7 ]]; then
  
     # Download the latest Oracle Java 8 software disk image
     # The curl -L option is needed because there is a redirect 
@@ -53,11 +53,9 @@ if [[ ${osvers} -ge 8 ]]; then
  
     hdiutil attach "$java_eight_dmg" -mountpoint "$TMPMOUNT" -nobrowse -noverify -noautoopen
 
-    # Install Oracle Java 8 from the installer package stored inside the disk image's install application
+    # Install Oracle Java 8 from the installer package stored inside the disk image
 
-    if [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/JavaAppletPlugin.pkg" ]]; then
-        /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/JavaAppletPlugin.pkg" -target "/"
-    fi
+    /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.pkg -o -iname \*\.mpkg \))" -target "/"
 
     # Clean-up
  
