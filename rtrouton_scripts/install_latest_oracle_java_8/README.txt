@@ -8,7 +8,9 @@ How the script works:
 
 3. Mounts the disk image silently in /tmp. The mounted disk image will not be visible to any logged-in user.
 
-4. Installs the latest Java 8 using the installer package stored inside the disk image.
+4. Installs the latest Java 8 using the installer package stored inside the disk image. 
+
+Note: This installer may be stored inside an install application on the disk image, or there may be an installer package available at the root of the mounted disk image. 
 
 5. After installation, unmounts the disk image and removes it from the Mac in question.
 
