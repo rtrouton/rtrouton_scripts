@@ -1,4 +1,4 @@
-This script will download an OS-appropriate gzipped tar file from [Joylent](http://pkgsrc.joyent.com) and install **pkgsrc** using the bootstrap installer stored inside the downloaded tar file.
+This script will download an OS-appropriate gzipped tar file from [Joyent](http://pkgsrc.joyent.com) and install **pkgsrc** using the bootstrap installer stored inside the downloaded tar file.
 
 How the script works:
 
@@ -39,4 +39,4 @@ After that, please close and re-open your Terminal window. That will allow the n
 
 This script is also available as a payload-free installer package, stored as a .zip file in the **payload_free_installer** directory.
 
-Accompanying blog post: [https://derflounder.wordpress.com/2015/04/23/installing-joylents-pkgsrc-package-manager-on-os-x/](https://derflounder.wordpress.com/2015/04/23/installing-joylents-pkgsrc-package-manager-on-os-x/)
+Accompanying blog post: [https://derflounder.wordpress.com/2015/04/23/installing-joyents-pkgsrc-package-manager-on-os-x/](https://derflounder.wordpress.com/2015/04/23/installing-joyents-pkgsrc-package-manager-on-os-x/)
