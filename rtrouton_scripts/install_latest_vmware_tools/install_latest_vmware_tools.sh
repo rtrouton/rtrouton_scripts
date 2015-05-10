@@ -37,8 +37,32 @@ cache_path=$(defaults read com.github.autopkg CACHE_DIR)
 # Install VMware Tools using the AutoPkg-generated installer package
 
 pkg_path="$(/usr/bin/find ${cache_path} -maxdepth 2 \( -iname \VMware*\.pkg -o -iname \VMware*\.mpkg \))"
-installer -pkg "${pkg_path}" -target /
+/usr/sbin/installer -pkg "${pkg_path}" -target /
 
 # Clean up
 
-rm -rf "${AUTOPKG_DIR}" "~/Library/AutoPkg"
+/bin/rm -rf "${AUTOPKG_DIR}"
+
+# If this script is run on a logged-out machine,
+# a /var/root/Library/AutoPkg directory will be
+# created. As part of the clean-up process, this
+# folder will be removed.
+
+if [[ -d "/var/root/Library/AutoPkg" ]]; then
+   /bin/rm -rf "/var/root/Library/AutoPkg"
+fi
+
+# If this script is run by while logged-in, an
+# AutoPkg directory will be created in the logged-in
+# user's home folder. As part of the clean-up process, this
+# folder will be removed, but only if the AutoPkg directory
+# is owned by root. If the AutoPkg directory is not owned by
+# root, it will be left alone as it may contain previously-created
+# AutoPkg downloads and cached recipes.
+
+if [[ "echo $HOME" != "" ]] && [[ -d "$HOME/Library/AutoPkg" ]]; then
+   OWNERSHIP_CHECK=`/usr/bin/stat -F "$HOME/Library/AutoPkg" | awk '{ print $3 }'`
+     if [[ "${OWNERSHIP_CHECK}" = "root" ]]; then
+        /bin/rm -rf "$HOME/Library/AutoPkg"
+     fi
+fi

@@ -49,7 +49,10 @@ if [[ "$osx_vers" -eq 7 ]] || [[ "$osx_vers" -eq 8 ]]; then
 		curl "$DMGURL" -o "$TOOLS"
 		TMPMOUNT=`/usr/bin/mktemp -d /tmp/clitools.XXXX`
 		hdiutil attach "$TOOLS" -mountpoint "$TMPMOUNT" -nobrowse
-		installer -pkg "$(find $TMPMOUNT -name '*.mpkg')" -target /
+		# The "-allowUntrusted" flag has been added to the installer
+		# command to accomodate for now-expired certificates used
+		# to sign the downloaded command line tools.
+		installer -allowUntrusted -pkg "$(find $TMPMOUNT -name '*.mpkg')" -target /
 		hdiutil detach "$TMPMOUNT"
 		rm -rf "$TMPMOUNT"
 		rm "$TOOLS"
