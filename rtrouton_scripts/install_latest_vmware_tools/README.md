@@ -2,7 +2,7 @@ This script will download and install the latest version of VMware Tools.
 
 ***Essential Pre-requisite:***
 
-*Either Xcode or the Xcode command line tools ***must*** be installed and licensed inside the OS X VM before running this script.*
+*Either Xcode or the Xcode command line tools* **must** *be installed and licensed inside the OS X VM before running this script.*
 
 How the script works:
 
