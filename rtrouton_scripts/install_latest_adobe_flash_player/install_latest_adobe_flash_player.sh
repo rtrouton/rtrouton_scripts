@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script downloads and installs the latest Flash player for compatible Macs
 
@@ -37,9 +37,30 @@ if [[ ${osvers} -ge 6 ]]; then
  
     hdiutil attach "$flash_dmg" -mountpoint "$TMPMOUNT" -nobrowse -noverify -noautoopen
 
-    # Install Adobe Flash Player from the installer package stored inside the disk image
+    pkg_path="$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))"
 
-    /usr/sbin/installer -dumplog -verbose -pkg "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.pkg -o -iname \*\.mpkg \))" -target "/"
+    # Before installation on Mac OS X 10.7.x and later, the installer's
+    # developer certificate is checked to see if it has been signed by
+    # Adobe's developer certificate. Once the certificate check has been
+    # passed, the package is then installed.
+
+    if [[ ${pkg_path} != "" ]]; then
+       if [[ ${osvers} -ge 7 ]]; then
+         signature_check=`/usr/sbin/pkgutil --check-signature "$pkg_path" | awk /'Developer ID Installer/{ print $5 }'`
+         if [[ ${signature_check} = "Adobe" ]]; then
+           # Install Adobe Flash Player from the installer package stored inside the disk image
+           /usr/sbin/installer -dumplog -verbose -pkg "${pkg_path}" -target "/"
+         fi
+       fi
+
+    # On Mac OS X 10.6.x, the developer certificate check is not an
+    # available option, so the package is just installed.
+    
+       if [[ ${osvers} -eq 6 ]]; then
+           # Install Adobe Flash Player from the installer package stored inside the disk image
+           /usr/sbin/installer -dumplog -verbose -pkg "${pkg_path}" -target "/"
+       fi
+    fi
 
     # Clean-up
  
