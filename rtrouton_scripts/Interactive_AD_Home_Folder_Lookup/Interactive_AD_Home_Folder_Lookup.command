@@ -7,10 +7,20 @@
 
 # General parameters
 
-Version=1.1
+Version=1.2
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
+# Enter your Active Directory domain
+# in the AD_domain variable. For example,
+# if your AD domain was the COMPANY domain,
+# the AD_domain would be set up as follows:
+#
+# AD_Domain="COMPANY"
+#
+
+AD_Domain="AD_Domain_Name_Goes_Here"
 
 # Error checking
 
@@ -47,12 +57,17 @@ echo ""
 echo "Home folder is located at the following address:"
 echo ""
 if [[ ${osvers} -ge 7 ]]; then
-	#
-	# For your 10.7 and higher Macs, you'll need to replace DOMAIN with your own Active Directory domain name
-	#
-	/usr/bin/dscl localhost -read /Active\ Directory/DOMAIN/All\ Domains/Users/$udn SMBHome | /usr/bin/sed -e 's/\\\/\\//g' | /usr/bin/awk '{print $2}'                
-else
-	/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/sed -e 's/\\\/\\//g' | /usr/bin/awk '{print $2}'
+     windows_path=`/usr/bin/dscl localhost -read /Active\ Directory/$AD_Domain/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print $2}'`
+     mac_path=`/usr/bin/dscl localhost -read /Active\ Directory/$AD_Domain/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print "smb:" $2}' | tr '\\' '/'`
+	 echo "Windows:" $windows_path
+	 echo "Mac:" $mac_path
+fi
+	                 
+if [[ ${osvers} -lt 7 ]]; then
+	windows_path=`/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print $2}'`
+	mac_path=`/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/awk {'print "smb:" $2'} | tr '\\' '/'`
+	echo "Windows:" $windows_path
+	echo "Mac:" $mac_path
 fi
 echo ""         # force a carriage return to be output
 echo ""
