@@ -1,0 +1,1 @@
+Script for use with fixing common Active Directory binding issues. Script uses the address of a NTP time server (set as **Parameter 4** in the script's parameter list in the JSS) to specify which NTP server should be used by **ntpdate**.
