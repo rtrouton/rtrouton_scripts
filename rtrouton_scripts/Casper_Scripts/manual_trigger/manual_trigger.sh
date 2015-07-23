@@ -7,6 +7,6 @@
 
 trigger_name="$4"
 
-/usr/sbin/jamf policy -trigger "$trigger_name"
+jamf policy -trigger "$trigger_name"
 
 exit 0

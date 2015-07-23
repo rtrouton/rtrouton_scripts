@@ -140,15 +140,15 @@ UpdateManagementAndInventory (){
 #    that the OS upgrade has happened.
 #
  
-jss_comm_chk=`/usr/sbin/jamf checkJSSConnection > /dev/null; echo $?`
+jss_comm_chk=`jamf checkJSSConnection > /dev/null; echo $?`
  
 if [[ "$jss_comm_chk" -gt 0 ]]; then
        /usr/bin/logger "Machine cannot connect to the JSS. Exiting."
        exit 0
 elif [[ "$jss_comm_chk" -eq 0 ]]; then
        /usr/bin/logger "Machine can connect to the JSS. Enforcing management and updating inventory."
-       /usr/sbin/jamf manage -verbose
-       /usr/sbin/jamf recon
+       jamf manage -verbose
+       jamf recon
 fi
 }
  
