@@ -10,13 +10,13 @@ myCurl () { /usr/bin/curl -k --retry 3 --silent --show-error "$@"; }
 # This variable's URL may change periodically. Check the following website for the latest address:
 # http://pkgsrc.joyent.com/install-on-osx/
 
-SixtyFourBitURL="http://pkgsrc.joyent.com/packages/Darwin/bootstrap/bootstrap-2015Q1-x86_64.tar.gz"
+SixtyFourBitURL="https://pkgsrc.joyent.com/packages/Darwin/bootstrap/bootstrap-2015Q2-x86_64.tar.gz"
 
 # For the ThirtyTwoBitURL variable, put the complete address of the 32-bit pkgsrc bootstrap kit.
 # This variable's URL may change periodically. Check the following website for the latest address:
 # http://pkgsrc.joyent.com/install-on-osx/
 
-ThirtyTwoBitURL="http://pkgsrc.joyent.com/packages/Darwin/bootstrap/bootstrap-2015Q1-i386.tar.gz"
+ThirtyTwoBitURL="https://pkgsrc.joyent.com/packages/Darwin/bootstrap/bootstrap-2015Q2-x86_64.tar.gz"
 
 # Specify name and location of the downloaded pkgsrc bootstrap kit
 
@@ -56,7 +56,7 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 9 ]]; then
   myCurl --output "$bootstrap_kit" "$SixtyFourBitURL"
 fi
 
-# Install pkgsrc bootstrap kit to /usr/pkg
+# Install pkgsrc bootstrap kit to /opt/pkg
 
 if [[ -f "$bootstrap_kit" ]]; then
   /usr/bin/tar -zxpf "$bootstrap_kit" -C $3
@@ -66,8 +66,8 @@ fi
 
 # Fetch the latest package repository information for pkgsrc
 
-if [[ -d "$3/usr/pkg" ]]; then
-  "$3/usr/pkg/bin/pkgin" -y update
+if [[ -d "$3/opt/pkg" ]]; then
+  "$3/opt/pkg/bin/pkgin" -y update
 fi
 
 # Clean up by removing the downloaded pkgsrc bootstrap kit
