@@ -1,7 +1,8 @@
 #!/usr/bin/python
-import plistlib, os.path
+import plistlib, os.path, os
 
 # Based off of https://forums.developer.apple.com/message/6741
+#          and http://apple.stackexchange.com/a/136976
 
 def jdk_info_plists():
     # Find all the JDK Info.plist files
@@ -27,3 +28,21 @@ for info_plist in jdk_info_plists():
     info['JavaVM']['JVMCapabilities'] = sorted(capabilities)
     # Write back our changes
     plistlib.writePlist(info, info_plist)
+    # Create a symlink to fix legacy applications
+    # Find the Contents directory
+    contents_path = os.path.dirname(info_plist)
+    # make the bundle/Libraries subpath
+    bundle_libraries = os.path.join(contents_path, "Home", "bundle", "Libraries")
+    try:
+        # Just in case you run this script multiple times, we'll fail if the directory already exists
+        os.makedirs(os.path.join(bundle_libraries))
+    except:
+        pass
+    # create the symlink between libjvm.dylib and libserver.dylib
+    libjvm_dylib = os.path.join(contents_path, "Home", "jre", "lib", "server", "libjvm.dylib")
+    libserver_dylib = os.path.join(bundle_libraries, "libserver.dylib")
+    try:
+        # Just in case you run this script multiple times, we'll fail if the file already exists
+        os.symlink(libjvm_dylib, libserver_dylib)
+    except:
+        pass
