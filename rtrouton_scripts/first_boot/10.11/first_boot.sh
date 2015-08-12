@@ -2,7 +2,7 @@
 
 # Initial setup script for Mac OS X 10.11.x
 # Rich Trouton, created July 29, 2015
-# Last modified 8-3-2015
+# Last modified 8-12-2015
 #
 # Adapted from Initial setup script for Mac OS X 10.10.x
 # Rich Trouton, created August 20, 2014
@@ -183,7 +183,7 @@ if [[ ${osvers} -ge 7 ]]; then
 
  for USER_TEMPLATE in "/System/Library/User Template"/*
   do
-    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
+    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
@@ -209,7 +209,7 @@ if [[ ${osvers} -ge 7 ]]; then
       fi
       if [ -d "${USER_HOME}"/Library/Preferences ]
       then
-        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
+        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool true
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
@@ -275,7 +275,16 @@ spctl --master-disable
 # will reactivate every 30 days. When it reactivates, it
 # will be be set to "Mac App Store and identified developers"
 
-/usr/bin/defaults write /Library/Preferences/com.apple.security GKAutoRearm -bool NO 
+/usr/bin/defaults write /Library/Preferences/com.apple.security GKAutoRearm -bool false
+
+# Set the RSA maximum key size to 32768 bits (32 kilobits) in
+# /Library/Preferences/com.apple.security.plist to provide
+# future-proofing against larger TLS certificate key sizes.
+#
+# For more information about this issue, please see the link below:
+# http://blog.shiz.me/post/67305143330/8192-bit-rsa-keys-in-os-x
+
+/usr/bin/defaults write /Library/Preferences/com.apple.security RSAMaxKeySize -int 32768
 
 # Remove setup LaunchDaemon item
 
