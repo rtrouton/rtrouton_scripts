@@ -129,10 +129,12 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
 
 
     # This section does checking of the Mac's FileVault 2 status
-    # on 10.8.x and higher
+    # on 10.8.x through 10.10.x
     
-    if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 8 ]]; then
-      if [ "$ENCRYPTIONEXTENTS" = "Yes" ]; then
+    if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 8 ]] && [[ ${osvers_minor} -lt 11 ]]; then
+      if [[ "$ENCRYPTIONEXTENTS" = "No" ]]; then
+		      echo "<result>FileVault 2 Encryption Not Enabled</result>"
+      elif [[ "$ENCRYPTIONEXTENTS" = "Yes" ]]; then
 	      diskutil cs list $LV_FAMILY_UUID | awk '/Fully Secure/ {print $3;exit}' >> $ENCRYPTSTATUS
 		    if grep -iE 'Yes' $ENCRYPTSTATUS 1>/dev/null; then 
 		      echo "<result>FileVault 2 Encryption Complete</result>"
@@ -141,21 +143,48 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
 		        diskutil cs list $LV_FAMILY_UUID | awk '/Conversion Direction/ {print $3;exit}' >> $ENCRYPTDIRECTION
 		          if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
 		            echo "<result>FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted</result>"
-
                   else
 		          if grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
                   	    echo "<result>FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted</result>"
                           elif grep -iE '-none-' $ENCRYPTDIRECTION 1>/dev/null; then
                             echo "<result>FileVault 2 Decryption Completed</result>"
-	              fi
+	                fi
                   fi
-               fi
-            fi  
-       fi
-      if [ "$ENCRYPTIONEXTENTS" = "No" ]; then
-		      echo "<result>FileVault 2 Encryption Not Enabled</result>"
+		      fi
+		    fi  
       fi
-     fi
+    fi
+
+    # This section does checking of the Mac's FileVault 2 status
+    # on 10.11.x and higher
+    
+    if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 11 ]]; then
+      if [[ "$ENCRYPTION" = "None" ]] && [[ $(diskutil cs list "$LV_UUID" | awk '/Conversion Progress/ {print $3;exit}') == "" ]]; then
+	      echo "<result>FileVault 2 Encryption Not Enabled</result>"
+      elif [[ "$ENCRYPTION" = "None" ]] && [[ $(diskutil cs list "$LV_UUID" | awk '/Conversion Progress/ {print $3;exit}') == "Complete" ]]; then
+	      echo "<result>FileVault 2 Decryption Completed</result>"
+      elif [[ "$ENCRYPTION" = "AES-XTS" ]]; then
+	      diskutil cs list $LV_FAMILY_UUID | awk '/High Level Queries/ {print $4,$5;exit}' >> $ENCRYPTSTATUS
+		    if grep -iE 'Fully Secure' $ENCRYPTSTATUS 1>/dev/null; then 
+		      echo "<result>FileVault 2 Encryption Complete</result>"
+            else
+		      if grep -iE 'Not Fully' $ENCRYPTSTATUS 1>/dev/null; then
+		        if [[ $(diskutil cs list "$LV_FAMILY_UUID" | awk '/Conversion Status/ {print $4;exit}') != "" ]]; then 
+		          diskutil cs list $LV_FAMILY_UUID | awk '/Conversion Status/ {print $4;exit}' >> $ENCRYPTDIRECTION
+		            if grep -iE 'forward' $ENCRYPTDIRECTION 1>/dev/null; then
+		              echo "<result>FileVault 2 Encryption Proceeding. $CONVERTED of $SIZE Encrypted</result>"
+		            elif grep -iE 'backward' $ENCRYPTDIRECTION 1>/dev/null; then
+		              echo "<result>FileVault 2 Decryption Proceeding. $CONVERTED of $SIZE Decrypted</result>"
+		            fi
+		        elif [[ $(diskutil cs list "$LV_FAMILY_UUID" | awk '/Conversion Status/ {print $4;exit}') == "" ]]; then
+		          if [[ $(diskutil cs list "$LV_FAMILY_UUID" | awk '/Conversion Status/ {print $3;exit}') == "Complete" ]]; then
+		              echo "<result>FileVault 2 Decryption Completed</result>"
+		          fi
+		        fi
+		      fi
+      fi  
+    fi
+fi
 
 # Remove the temp files created during the script
 
