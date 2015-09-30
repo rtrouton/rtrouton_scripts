@@ -65,6 +65,21 @@ jss_server_address="casper.server.address.here"
 # appropriate.
  
 jss_server_port="8443"
+
+CheckBinary (){
+
+# Identify location of jamf binary.
+
+jamf_binary=`/usr/bin/which jamf`
+
+ if [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ ! -e "/usr/local/bin/jamf" ]]; then
+    jamf_binary="/usr/sbin/jamf"
+ elif [[ "$jamf_binary" == "" ]] && [[ ! -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
+    jamf_binary="/usr/local/bin/jamf"
+ elif [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
+    jamf_binary="/usr/local/bin/jamf"
+ fi
+}
  
 CheckSiteNetwork (){
  
@@ -140,15 +155,17 @@ UpdateManagementAndInventory (){
 #    that the OS upgrade has happened.
 #
  
-jss_comm_chk=`jamf checkJSSConnection > /dev/null; echo $?`
+CheckBinary
+ 
+jss_comm_chk=`$jamf_binary checkJSSConnection > /dev/null; echo $?`
  
 if [[ "$jss_comm_chk" -gt 0 ]]; then
        /usr/bin/logger "Machine cannot connect to the JSS. Exiting."
        exit 0
 elif [[ "$jss_comm_chk" -eq 0 ]]; then
        /usr/bin/logger "Machine can connect to the JSS. Enforcing management and updating inventory."
-       jamf manage -verbose
-       jamf recon
+       $jamf_binary manage -verbose
+       $jamf_binary recon
 fi
 }
  
@@ -173,6 +190,7 @@ if [[ "$site_network" == "True" ]]; then
     /usr/bin/logger "Access to site network verified"
     CheckTomcat
     CheckLogAge
+    CheckBinary
     UpdateManagementAndInventory
     SelfDestruct
 fi
