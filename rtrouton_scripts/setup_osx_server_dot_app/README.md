@@ -14,3 +14,5 @@ As part of OS X Server's initial setup process, the script will:
 A. Agree to the OS X Server license
 
 B. Authorize the setup process using the temporary user's username and password
+
+The script is also available for download as a payload-free package. This payload-free package is compressed as a .zip file and located in the **payload-free** directory.
