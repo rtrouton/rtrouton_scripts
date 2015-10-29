@@ -1,4 +1,4 @@
-The **setup_osx_server_dot_app** script is designed to automate the setup of OS X Server 5.0.3 and later by authorizing and using the **server** command line tool within **/Applications/Server.app** to run the initial setup and configuration of OS X Server's services.
+The **setup_osx_server_dot_app** script is designed to automate the setup of OS X Server 5.0.3 and later by using the **server** command line tool within **/Applications/Server.app** to run the initial setup and configuration of OS X Server's services.
 
 When launched, the script will check for the existence of the **server** setup tool. If the **server** setup tool is not located where the script expects it to be, the script will exit. 
 
