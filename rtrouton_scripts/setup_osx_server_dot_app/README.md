@@ -12,4 +12,5 @@ If the **server** setup tool is located in the expected location, the script wil
 As part of OS X Server's initial setup process, the script will:
 
 A. Agree to the OS X Server license
+
 B. Authorize the setup process using the temporary user's username and password
