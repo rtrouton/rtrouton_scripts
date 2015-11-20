@@ -1,0 +1,1 @@
+By default, OS X's **Guest** account will have **Parental Controls** management applied to it, even if **Parental Controls** is not configured on the Mac in question. This script will disable the **Parental Controls** management for the **Guest** account.
