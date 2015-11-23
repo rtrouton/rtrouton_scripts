@@ -42,8 +42,8 @@ if [[ "$available_free_space" -ge "$needed_free_space" ]]; then
    fi
    
    jamf displayMessage -message "$adequate_free_space_for_install_dialog"
-   jamf policy -trigger cache-yosemite-installer
-   jamf policy -trigger run-yosemite-install
+   jamf policy -trigger cache-elcapitan-installer
+   jamf policy -trigger run-elcapitan-installer
    shutdown -r now
 fi
  
