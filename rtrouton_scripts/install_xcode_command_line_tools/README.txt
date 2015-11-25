@@ -2,7 +2,7 @@ This script will download and install the Xcode command line tools on Macs runni
 
 How the script works:
 
-On 10.9.x and 10.10.x:
+On 10.9.x and later:
 
 1. Creates a placeholder file in /tmp. This file's existence is checked by the softwareupdate tool before allowing the installation of the Xcode command line tools.
 
@@ -26,6 +26,6 @@ On 10.7.x and 10.8.x:
 4. After installation, unmounts the disk image and removes it from the Mac in question.
 
 
-Note: This script should not be used in combination with a payload-free installer package. On 10.9.x and 10.10.x, the softwareupdate tool will not work properly when called from within a payload-free package.
+Note: This script should not be used in combination with a payload-free installer package. On 10.9.x and later, the softwareupdate tool will not work properly when called from within a payload-free package.
 
 
