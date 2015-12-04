@@ -1,0 +1,1 @@
+This script is designed to accept the Xcode EULA and install the Mobile Device Packages in Xcode. These actions ensure that the user is not prompted to either accept the license or install anything when launching Xcode for the first time.
