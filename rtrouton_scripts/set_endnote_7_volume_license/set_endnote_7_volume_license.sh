@@ -21,7 +21,7 @@ fi
 
 if [[ ! -e "$endnote_license_file" ]]; then
     printf "$endnote_license" > "$endnote_license_file"
-    chmod 775 "$endnote_license_file"
+    chmod 755 "$endnote_license_file"
 fi
 
 exit 0
