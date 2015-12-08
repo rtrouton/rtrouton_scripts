@@ -58,10 +58,13 @@ if [[ ${osvers} -ge 7 ]]; then
     # may be an installer package available at the root of the mounted disk
     # image.
 
-    if [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/*Java*.pkg" ]]; then    
-      pkg_path="$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))/Contents/Resources/*Java*.pkg"
-    elif [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Java*\.pkg -o -iname \*Java*\.mpkg \))" ]]; then    
+    if [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Java*\.pkg -o -iname \*Java*\.mpkg \))" ]]; then    
       pkg_path="$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Java*\.pkg -o -iname \*Java*\.mpkg \))"
+    elif [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))" ]]; then
+         oracle_app=`(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))`
+        if [[ -e "$(/usr/bin/find "$oracle_app"/Contents/Resources -maxdepth 1 \( -iname \*Java*\.pkg -o -iname \*Java*\.mpkg \))" ]]; then
+          pkg_path="$(/usr/bin/find "$oracle_app"/Contents/Resources -maxdepth 1 \( -iname \*Java*\.pkg -o -iname \*Java*\.mpkg \))"
+        fi
     fi
          
     # Before installation, the installer's developer certificate is checked to
