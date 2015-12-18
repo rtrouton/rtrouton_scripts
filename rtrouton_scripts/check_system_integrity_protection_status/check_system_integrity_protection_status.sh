@@ -9,7 +9,7 @@ osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
 # "Unknown Version Of Mac OS X"
 
 if [[ ${osvers_major} -ne 10 ]]; then
-  /bin/echo "<result>Unknown Version of Mac OS X</result>"
+  /bin/echo "Unknown Version of Mac OS X"
 fi
 
 # Checks to see if the OS on the Mac is 10.11.x or higher.
@@ -18,7 +18,7 @@ fi
 # "System Integrity Protection Not Available For" followed by the version of OS X.
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 11 ]]; then
-  /bin/echo "<result>System Integrity Protection Not Available For `sw_vers -productVersion`</result>"
+  /bin/echo "System Integrity Protection Not Available For `sw_vers -productVersion`"
 fi
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 11 ]]; then
@@ -69,5 +69,5 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 11 ]]; then
         fi
         result="$SIP_status$sip_kernel$sip_filesystem$sip_nvram$sip_debug$sip_dtrace"
   fi
-   /bin/echo "<result>$result</result>"
+   /bin/echo "System Integrity Protection status: ""$result"
 fi
