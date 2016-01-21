@@ -2,7 +2,7 @@
 
 # Initial setup script for Mac OS X 10.11.x
 # Rich Trouton, created July 29, 2015
-# Last modified 8-12-2015
+# Last modified 1-21-2016
 #
 # Adapted from Initial setup script for Mac OS X 10.10.x
 # Rich Trouton, created August 20, 2014
@@ -241,6 +241,18 @@ SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS=FALSE
 # To change this in your own script, comment out the FALSE
 # lines and uncomment the TRUE lines as appropriate.
 
+# Set the appropriate number value for AutoSubmitVersion
+# and ThirdPartyDataSubmitVersion by the OS version. For
+# 10.10.x, the value will be 4. For 10.11.x, the value will
+# be 5.
+
+if [[ ${osvers} -eq 10 ]]; then
+  VERSIONNUMBER=4
+elif [[ ${osvers} -ge 11 ]]; then
+  VERSIONNUMBER=5
+fi
+
+
 # Checks first to see if the Mac is running 10.10.0 or higher. 
 # If so, the desired diagnostic submission settings are applied.
 
@@ -255,9 +267,9 @@ if [[ ${osvers} -ge 10 ]]; then
   fi
 
  /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory AutoSubmit -boolean ${SUBMIT_DIAGNOSTIC_DATA_TO_APPLE}
- /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory AutoSubmitVersion -int 4
+ /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory AutoSubmitVersion -int ${VERSIONNUMBER}
  /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory ThirdPartyDataSubmit -boolean ${SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS}
- /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory ThirdPartyDataSubmitVersion -int 4
+ /usr/bin/defaults write "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory ThirdPartyDataSubmitVersion -int ${VERSIONNUMBER}
  /bin/chmod a+r "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory.plist
  /usr/sbin/chown root:admin "$CRASHREPORTER_SUPPORT"/DiagnosticMessagesHistory.plist
 
