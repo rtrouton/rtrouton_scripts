@@ -1,0 +1,1 @@
+This Casper Extension Attribute will check for the most recent update for Gatekeeper and display the last-updated date and time. See "Casper_Extension_Attribute_Setup.png" for a screenshot of how the Extension Attribute should be configured.

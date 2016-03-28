@@ -1,0 +1,1 @@
+This script will check for the most recent update for XProtect and display the last-updated date and time. This script has been tested and verified to work on 10.5.8 and later.
