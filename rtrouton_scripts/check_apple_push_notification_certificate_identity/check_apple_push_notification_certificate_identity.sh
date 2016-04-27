@@ -41,7 +41,7 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
 
   APNS_certificate=`/usr/sbin/system_profiler SPConfigurationProfileDataType | awk '/Topic/{ print $NF }' | sed 's/[";]//g'`
 
-  if [ $APNS_certificate = "" ]; then
+  if [[ "$APNS_certificate" = "" ]]; then
       result="NA"
   else
       result="$APNS_certificate"
