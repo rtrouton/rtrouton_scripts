@@ -44,3 +44,5 @@ if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
    /usr/sbin/dsconfigad -force -remove -u nousernamehere -p nopasswordhere
   fi
 fi
+
+exit 0
