@@ -1,0 +1,3 @@
+This script is designed to loop through all user folders stored in **/Users** and delete all contents from the the user account's **Library/Keychains** directory. This will remove the user's [login](https://support.apple.com/HT201609) and [Local Items](https://macmule.com/2014/03/30/the-local-items-keychain-in-mavericks/) keychain files. To run the script, a sample LaunchDaemon is provided which can execute the script on startup.
+
+A payload-free package which installs both the script and sample LaunchDaemon is available from the **payload_free** directory.

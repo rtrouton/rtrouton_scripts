@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.github.delete_user_keychains</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>sh</string>
+		<string>/Library/Scripts/delete_user_keychains.sh</string>
+	</array>
+	<key>QueueDirectories</key>
+	<array/>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>WatchPaths</key>
+	<array/>
+</dict>
+</plist>
