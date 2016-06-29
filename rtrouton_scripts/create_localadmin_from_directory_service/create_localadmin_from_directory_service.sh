@@ -20,8 +20,8 @@
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.setup_admin_user.plist 
+rm -rf /Library/LaunchDaemons/com.company.setup_admin_user.plist 
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

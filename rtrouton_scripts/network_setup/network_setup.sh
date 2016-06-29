@@ -18,8 +18,8 @@ SearchDomains="searchdomain1.com searchdomain2.com searchdomain3.com"
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.networksetup.plist
+rm -rf /Library/LaunchDaemons/com.company.networksetup.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

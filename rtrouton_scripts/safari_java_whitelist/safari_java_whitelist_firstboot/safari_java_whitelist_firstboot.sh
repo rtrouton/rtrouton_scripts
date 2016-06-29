@@ -92,8 +92,8 @@ fi
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.safari_java_whitelist_firstboot.plist
+rm -rf /Library/LaunchDaemons/com.company.safari_java_whitelist_firstboot.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

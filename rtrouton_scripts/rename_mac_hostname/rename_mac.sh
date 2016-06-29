@@ -8,9 +8,9 @@ scutil --set HostName ChangeMe
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.rename_mac.plist
+rm -rf /Library/LaunchDaemons/com.company.rename_mac.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0
 

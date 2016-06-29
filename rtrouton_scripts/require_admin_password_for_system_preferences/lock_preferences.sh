@@ -6,8 +6,8 @@
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/org.janelia.lock_preferences.plist
+rm -rf /Library/LaunchDaemons/org.janelia.lock_preferences.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

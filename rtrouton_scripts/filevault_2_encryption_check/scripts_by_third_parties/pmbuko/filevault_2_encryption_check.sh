@@ -68,7 +68,7 @@ if [[ "$OS" =~ "10.7" ]]; then
     
     # Remove the temp file created during the script    
     if [ -f /private/tmp/corestorage.txt ]; then
-        srm /private/tmp/corestorage.txt
+        rm -rf /private/tmp/corestorage.txt
     fi
 
 else

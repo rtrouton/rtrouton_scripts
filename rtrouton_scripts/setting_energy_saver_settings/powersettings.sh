@@ -29,8 +29,8 @@ fi
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.powersettings.plist
+rm -rf /Library/LaunchDaemons/com.company.powersettings.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

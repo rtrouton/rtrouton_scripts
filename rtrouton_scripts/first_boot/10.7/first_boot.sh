@@ -284,8 +284,8 @@ launchctl load /System/Library/LaunchDaemons/com.apple.loginwindow.plist
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.initialsetup.plist
+rm -rf /Library/LaunchDaemons/com.company.initialsetup.plist
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0

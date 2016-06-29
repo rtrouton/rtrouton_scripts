@@ -117,7 +117,7 @@ echo ""         # force a carriage return to be output
 # Remove plist with recovery key
 # from /tmp
 
-srm /tmp/recovery.plist
+rm -rf /tmp/recovery.plist
 
 #Exiting the script
 

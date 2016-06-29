@@ -176,7 +176,7 @@ SelfDestruct (){
 if [[ -f "/Library/LaunchDaemons/com.github.runcasperinventory.plist" ]]; then
    /bin/rm "/Library/LaunchDaemons/com.github.runcasperinventory.plist"
 fi
-srm $0
+rm -rf $0
 }
  
 CheckSiteNetwork

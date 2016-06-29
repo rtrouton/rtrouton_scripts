@@ -37,8 +37,8 @@ defaults delete /Library/Preferences/com.apple.loginwindow StartupDelay
 
 # Remove setup LaunchDaemon item
 
-srm /Library/LaunchDaemons/com.company.setup_od_settings.plist 
+rm -rf /Library/LaunchDaemons/com.company.setup_od_settings.plist 
 
 # Make script self-destruct
 
-srm $0
+rm -rf $0
