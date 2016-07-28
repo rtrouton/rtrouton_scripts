@@ -1,0 +1,1 @@
+This script is designed to fix Spotlight indexing issues by removing the existing Spotlight index and forcing Spotlight to create a new search index. For best results, restart the Mac after running this script.
