@@ -30,4 +30,4 @@ This script is also available as two separate payload-free installer packages, c
 
 `payload_free_package/install_latest_oracle_java_jdk_8_psu_version` - Installs the latest Oracle Java JDK 8 PSU version
 
-Accompanying blog post: 
+Accompanying blog post: [https://derflounder.wordpress.com/2016/07/29/automating-oracle-java-8-jdk-updates/](https://derflounder.wordpress.com/2016/07/29/automating-oracle-java-8-jdk-updates/)
