@@ -9,12 +9,12 @@ CheckBinary (){
 
 jamf_binary=`/usr/bin/which jamf`
 
- if [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ ! -e "/usr/local/jamf" ]]; then
+ if [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ ! -e "/usr/local/bin/jamf" ]]; then
     jamf_binary="/usr/sbin/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ ! -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/jamf" ]]; then
-    jamf_binary="/usr/local/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/jamf" ]]; then
-    jamf_binary="/usr/local/jamf"
+ elif [[ "$jamf_binary" == "" ]] && [[ ! -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
+    jamf_binary="/usr/local/bin/jamf"
+ elif [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
+    jamf_binary="/usr/local/bin/jamf"
  fi
 
 }
