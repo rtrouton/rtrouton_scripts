@@ -1,3 +1,3 @@
 The tomcat_check.sh script monitors Tomcat by checking to see if port 8080 on localhost is active. If not, tomcat_report.sh sends an report via email. After the email is sent, Tomcat is then stopped and started using the startup scripts for your Tomcat installation (edit the stop and start commands as appropriate for your Tomcat installation.)
 
-The Tomcat installation being monitored is Jamf Software's Casper JSS server running on Red Hat Enterprise Linux 6.0. You will need to edit the stop and start commands in tomcat_check.sh and the log monitoring in tomcat_report.sh if you are monitoring a different Tomcat installation.
+The Tomcat installation being monitored is JAMF Software's Casper JSS server running on Red Hat Enterprise Linux 6.x. You will need to edit the stop and start commands in tomcat_check.sh and the log monitoring in tomcat_report.sh if you are monitoring a different Tomcat installation.

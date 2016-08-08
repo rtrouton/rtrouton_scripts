@@ -1,0 +1,1 @@
+The daily_tomcat_restart.sh script is designed to stop and start Tomcat running on a Casper JSS server running on Red Hat Enterprise Linux 6.x. You will need to edit the stop and start commands in daily_tomcat_restart.sh if you want to stop and start a different Tomcat installation.

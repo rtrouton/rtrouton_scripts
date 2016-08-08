@@ -1,0 +1,2 @@
+# Run at 2 am daily: restart Casper's JSS Tomcat
+0 2 * * * /scripts/daily_tomcat_restart.sh 2>&1 >> /dev/null
