@@ -37,4 +37,10 @@ if [[ -e "$3/Applications/Xcode.app/Contents/Resources/Packages/MobileDeviceDeve
   /usr/sbin/installer -dumplog -verbose -pkg "$3/Applications/Xcode.app/Contents/Resources/Packages/MobileDeviceDevelopment.pkg" -target "$3"
 fi
 
+# Install Xcode System Resources Package, available in Xcode 8 and later
+
+if [[ -e "$3/Applications/Xcode.app/Contents/Resources/Packages/XcodeSystemResources.pkg" ]]; then
+  /usr/sbin/installer -dumplog -verbose -pkg "$3/Applications/Xcode.app/Contents/Resources/Packages/XcodeSystemResources.pkg" -target "$3"
+fi
+
 exit 0
