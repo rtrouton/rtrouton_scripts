@@ -20,7 +20,7 @@ if [[ "$osx_vers" -ge 9 ]]; then
 	
 	#Install the command line tools
 	
-	softwareupdate -i "$cmd_line_tools" -v
+	softwareupdate -i "$cmd_line_tools" --verbose
 	
 	# Remove the temp file
 	
