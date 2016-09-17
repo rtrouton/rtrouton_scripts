@@ -11,17 +11,18 @@ sw_build=$(sw_vers -buildVersion)
 # Checks first to see if the Mac is running 10.7.0 or higher. 
 # If so, the script checks the system default user template
 # for the presence of the Library/Preferences directory. Once
-# found, the iCloud and Diagnostic pop-up settings are set 
+# found, the iCloud, Diagnostic and Siri pop-up settings are set 
 # to be disabled.
 
 if [[ ${osvers} -ge 7 ]]; then
 
- for USER_TEMPLATE in "$3/System/Library/User Template"/*
+ for USER_TEMPLATE in "/System/Library/User Template"/*
   do
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeCloudSetup -bool TRUE
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
     /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
-    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"      
+    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
+    /usr/bin/defaults write "${USER_TEMPLATE}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE      
   done
   
  # Checks first to see if the Mac is running 10.7.0 or higher.
@@ -29,9 +30,9 @@ if [[ ${osvers} -ge 7 ]]; then
  # for the presence of the Library/Preferences directory.
  #
  # If the directory is not found, it is created and then the
- # iCloud and Diagnostic pop-up settings are set to be disabled.
+ # iCloud, Diagnostic and Siri pop-up settings are set to be disabled.
 
- for USER_HOME in "$3/Users"/*
+ for USER_HOME in /Users/*
   do
     USER_UID=`basename "${USER_HOME}"`
     if [ ! "${USER_UID}" = "Shared" ]; then
@@ -45,6 +46,7 @@ if [[ ${osvers} -ge 7 ]]; then
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant GestureMovieSeen none
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenCloudProductVersion "${sw_vers}"
         /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant LastSeenBuddyBuildVersion "${sw_build}"
+        /usr/bin/defaults write "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant DidSeeSiriSetup -bool TRUE
         /usr/sbin/chown "${USER_UID}" "${USER_HOME}"/Library/Preferences/com.apple.SetupAssistant.plist
       fi
     fi

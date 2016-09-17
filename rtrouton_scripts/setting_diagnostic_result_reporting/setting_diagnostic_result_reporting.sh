@@ -26,9 +26,10 @@ SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS=FALSE
 # lines and uncomment the TRUE lines as appropriate.
 
 # Set the appropriate number value for AutoSubmitVersion
-# and ThirdPartyDataSubmitVersion by the OS version. For
-# 10.10.x, the value will be 4. For 10.11.x, the value will
-# be 5.
+# and ThirdPartyDataSubmitVersion by the OS version. 
+# 
+# For 10.10.x, the value will be 4. 
+# For 10.11.x and 10.12.x, the value will be 5.
 
 if [[ ${osvers} -eq 10 ]]; then
   VERSIONNUMBER=4
