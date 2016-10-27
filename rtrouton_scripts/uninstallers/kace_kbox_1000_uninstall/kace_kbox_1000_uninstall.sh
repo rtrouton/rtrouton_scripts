@@ -8,7 +8,7 @@ if [[ -e "/Library/Application Support/Dell/KACE/bin/AMPTools" ]]; then
    
    if [[ -e "/Library/Application Support/Dell" ]]; then
 	  /bin/rm -rf "/Library/Application Support/Dell"
-   fi
+   fi  
    
 elif [[ ! -e "/Library/Application Support/Dell/KACE/bin/AMPTools" ]]; then
 

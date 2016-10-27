@@ -1,0 +1,1 @@
+This script uninstalls the Kace KBox 1000 client on Mac OS X 10.4.x and later. It should stop the KBox agent software and remove all KBox application and settings files.

@@ -1,1 +1,0 @@
-I've built this script to take care of uninstalling the Mac KBox 1000 agents. It should stop both older and newer KBox 5.x agents on 10.4.x - 10.7.x and clean up all application, settings and receipts files.
