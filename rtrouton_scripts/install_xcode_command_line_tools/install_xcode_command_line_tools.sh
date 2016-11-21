@@ -14,9 +14,13 @@ if [[ "$osx_vers" -ge 9 ]]; then
 	
 	touch "$cmd_line_tools_temp_file"
 	
-	# Find the first listed update in the Software Update feed with "Command Line Tools" in the name
+	# Identify the correct update in the Software Update feed with "Command Line Tools" in the name for the OS version in question.
 	
-	cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | head -n 1 | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
+	if [[ "$osx_vers" -gt 9 ]]; then
+	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | grep "$osx_vers" | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
+	elif [[ "$osx_vers" -eq 9 ]]; then
+	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | grep "Mavericks" | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
+	fi
 	
 	#Install the command line tools
 	
