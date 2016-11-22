@@ -1,4 +1,4 @@
-The Endnote 7 site license is stored in `/Applications/Endnote X7/.license.dat` and has a format that looks like this:
+The EndNote 7 site license is stored in `/Applications/EndNote X7/.license.dat` and has a format that looks like this:
 
 `Company Name`
 
