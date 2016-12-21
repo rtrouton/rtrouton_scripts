@@ -2,9 +2,8 @@ This script is designed to convert an Active Directory mobile account to a local
 
 1. Detects if the Mac is bound to AD and offers to unbind the Mac from AD if desired.
 2. Display a list of the accounts with a UID greater than 1000
-3. Select an account from the list
-4. Back up the password hash of the account from the **AuthenticationAuthority** attribute
-5. Remove the following attributes from the specified account:  
+3. Once an account is selected, back up the password hash of the account from the **AuthenticationAuthority** attribute
+4. Remove the following attributes from the specified account:  
 `cached_groups`,
 `cached_auth_policy`,
 `CopyTimestamp` - This attribute is used by the OS to determine if the account is a mobile account,
@@ -22,11 +21,11 @@ This script is designed to convert an Active Directory mobile account to a local
 `MCXFlags`
 
 
-6. Recreate the **AuthenticationAuthority** attribute and restore the password hash of the account from backup
-7. Restart the directory services process
-8. Check to see if the conversion process succeeded by checking the **OriginalNodeName** attribute for the value `Active Directory`.
-9. If the conversion process succeeded, update the permissions on the account's home folder.
-10. Prompt if admin rights should be granted for the specified account
+5. Recreate the **AuthenticationAuthority** attribute and restore the password hash of the account from backup
+6. Restart the directory services process
+7. Check to see if the conversion process succeeded by checking the **OriginalNodeName** attribute for the value `Active Directory`.
+8. If the conversion process succeeded, update the permissions on the account's home folder.
+9. Prompt if admin rights should be granted for the specified account
 
 This script is adapted from Patrick Gallagher's MigrateUserHomeToDomainAcct.sh script, with additional inspiration by Lisa Davies's Perl script to migrate AD mobile accounts to local accounts:
 
