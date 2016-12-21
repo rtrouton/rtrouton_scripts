@@ -21,7 +21,7 @@ This script is designed to convert an Active Directory mobile account to a local
 `MCXFlags`
 
 
-5. Recreate the AuthenticationAuthority attribute and restore the password hash of the account from backup
+5. Recreate the **AuthenticationAuthority** attribute and restore the password hash of the account from backup
 6. Restart the directory services process
 7. Check to see if the conversion process succeeded by checking the **OriginalNodeName** attribute for the value `Active Directory`.
 8. If the conversion process succeeded, update the permissions on the account's home folder.
