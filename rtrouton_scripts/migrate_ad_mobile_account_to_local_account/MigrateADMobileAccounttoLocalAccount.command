@@ -8,9 +8,9 @@ Version=1.0
 #
 # Version 1.0 - Migrates an Active Directory mobile account to a local account by the following process:
 
-# 1. Display a list of the accounts with a UID greater than 1000
-# 2. Select an account from the list
-# 3. Back up the password hash of the account from the AuthenticationAuthority attribute
+# 1. Detect if the Mac is bound to AD and offer to unbind the Mac from AD if desired
+# 2. Display a list of the accounts with a UID greater than 1000
+# 3. Once an account is selected, back up the password hash of the account from the AuthenticationAuthority attribute
 # 4. Remove the following attributes from the specified account:
 # 
 # cached_groups
