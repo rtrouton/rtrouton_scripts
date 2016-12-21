@@ -58,7 +58,7 @@ RunAsRoot()
 
 RunAsRoot "${0}"
 
-# If the machine is not bound to AD, then there's no purpose going any further. 
+# Check for AD binding and offer to unbind if found. 
 if [[ "${check4AD}" = "Active Directory" ]]; then
 	printf "This machine is bound to Active Directory.\nDo you want to unbind this Mac from AD?\n"
 		select yn in "Yes" "No"; do
