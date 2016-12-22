@@ -4,6 +4,9 @@ Version=1.0
 # Original source is from MigrateUserHomeToDomainAcct.sh
 # Written by Patrick Gallagher - https://twitter.com/patgmac
 #
+# Guidance and inspiration from Lisa Davies:
+# http://lisacherie.com/?p=239
+# 
 # Modified by Rich Trouton
 #
 # Version 1.0 - Migrates an Active Directory mobile account to a local account by the following process:
