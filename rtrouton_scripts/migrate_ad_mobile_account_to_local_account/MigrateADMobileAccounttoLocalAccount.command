@@ -1,8 +1,11 @@
-#!/bin/sh
-# Modified 12/20/2016
-Version=1.0
+#!/bin/bash
+# Modified 12/27/2016
+Version=1.1
 # Original source is from MigrateUserHomeToDomainAcct.sh
 # Written by Patrick Gallagher - https://twitter.com/patgmac
+#
+# Guidance and inspiration from Lisa Davies:
+# http://lisacherie.com/?p=239
 #
 # Modified by Rich Trouton
 #
@@ -34,6 +37,17 @@ Version=1.0
 # 7. Check to see if the conversion process succeeded by checking the OriginalNodeName attribute for the value "Active Directory"
 # 8. If the conversion process succeeded, update the permissions on the account's home folder.
 # 9. Prompt if admin rights should be granted for the specified account
+#
+# Version 1.1
+#
+# Changes:
+# 
+# 1. After conversion, the specified account is added to the staff group.  All local accounts on this Mac are members of the staff group,
+#    but AD mobile accounts are not members of the staff group.
+# 2. The "accounttype" variable is now checking the AuthenticationAuthority attribute instead of the OriginalNodeName attribute. 
+#    The reason for Change 2's attributes change is that the AuthenticationAuthority attribute will exist following the conversion 
+#    process while the OriginalNodeName attribute may not.
+#
 
 clear
 
@@ -43,15 +57,15 @@ ShowVersion="$FullScriptName $Version"
 check4AD=`/usr/bin/dscl localhost -list . | grep "Active Directory"`
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
-echo "********* Running $FullScriptName Version $Version *********"
+/bin/echo "********* Running $FullScriptName Version $Version *********"
 
 RunAsRoot()
 {
         ##  Pass in the full path to the executable as $1
         if [[ "${USER}" != "root" ]] ; then
-                echo
-                echo "***  This application must be run as root.  Please authenticate below.  ***"
-                echo
+                /bin/echo
+                /bin/echo "***  This application must be run as root.  Please authenticate below.  ***"
+                /bin/echo
                 sudo "${1}" && exit 0
         fi
 }
@@ -60,31 +74,37 @@ RunAsRoot "${0}"
 
 # Check for AD binding and offer to unbind if found. 
 if [[ "${check4AD}" = "Active Directory" ]]; then
-	printf "This machine is bound to Active Directory.\nDo you want to unbind this Mac from AD?\n"
+	/usr/bin/printf "This machine is bound to Active Directory.\nDo you want to unbind this Mac from AD?\n"
 		select yn in "Yes" "No"; do
 			case $yn in
-			    Yes) /usr/sbin/dsconfigad -remove -force -u none -p none; echo "AD binding has been removed."; break;;
-			    No) echo "Active Directory binding is still active."; break;;
+			    Yes) /usr/sbin/dsconfigad -remove -force -u none -p none; /bin/echo "AD binding has been removed."; break;;
+			    No) /bin/echo "Active Directory binding is still active."; break;;
 			esac
 		done
 fi
 
 until [ "$user" == "FINISHED" ]; do
 
-	printf "%b" "\a\n\nSelect a user to convert or select FINISHED:\n" >&2
+	/usr/bin/printf "%b" "\a\n\nSelect a user to convert or select FINISHED:\n" >&2
 	select netname in $listUsers; do
 	
 		if [ "$netname" = "FINISHED" ]; then
-			echo "Finished converting users to local accounts"
+			/bin/echo "Finished converting users to local accounts"
 			exit 0
 		fi
 	
-	  accounttype=`/usr/bin/dscl . -read /Users/"$netname" OriginalNodeName | tail -1 | awk -F'/' '{print $2}'`
+	  accounttype=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $2}' | tr -d '\n'`
 			
 		if [[ "$accounttype" = "Active Directory" ]]; then
-			printf "$netname has an AD mobile account.\nConverting to a local account with the same username and UID.\n"
+		    mobileusercheck=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $1}' | tr -d '\n' | sed 's/^[^:]*: //' | sed s/\;/""/g`
+		    if [[ "$mobileusercheck" = "LocalCachedUser" ]]; then
+			   /usr/bin/printf "$netname has an AD mobile account.\nConverting to a local account with the same username and UID.\n"
+			else
+			   /usr/bin/printf "The $netname account is not a AD mobile account\n"
+			   break
+			fi
 		else
-			printf "The $netname account is not a mobile account\n"
+			/usr/bin/printf "The $netname account is not a AD mobile account\n"
 			break
 		fi
 
@@ -122,26 +142,37 @@ until [ "$user" == "FINISHED" ]; do
 			
 			sleep 20
 			
-			accounttype=`/usr/bin/dscl . -read /Users/"$netname" OriginalNodeName | tail -1 | awk -F'/' '{print $2}'`
+			accounttype=`/usr/bin/dscl . -read /Users/"$netname" AuthenticationAuthority | head -2 | awk -F'/' '{print $2}' | tr -d '\n'`
 			if [[ "$accounttype" = "Active Directory" ]]; then
-			   printf "Something went wrong with the conversion process.\nThe $netname account is still an AD mobile account.\n"
+			   /usr/bin/printf "Something went wrong with the conversion process.\nThe $netname account is still an AD mobile account.\n"
 			   exit 1
 			 else
-			   printf "Conversion process was successful.\nThe $netname account is now a local account.\n"
+			   /usr/bin/printf "Conversion process was successful.\nThe $netname account is now a local account.\n"
 			fi
 			
-			/usr/bin/id $netname
 			homedir=`/usr/bin/dscl . -read /Users/"$netname" NFSHomeDirectory  | awk '{print $2}'`
 			if [[ "$homedir" != "" ]]; then
-			   echo "Home directory location: $homedir"
-			   echo "Updating home folder permissions for the $netname account"
+			   /bin/echo "Home directory location: $homedir"
+			   /bin/echo "Updating home folder permissions for the $netname account"
 			   /usr/sbin/chown -R "$netname" "$homedir"		
 			fi
-			echo "Do you want to give the $netname account admin rights?"
+			
+			# Add user to the staff group on the Mac
+			
+			/bin/echo "Adding $netname to the staff group on this Mac."
+			/usr/sbin/dseditgroup -o edit -a "$netname" -t user staff
+			
+			
+			/bin/echo "Displaying user and group information for the $netname account"
+			/usr/bin/id $netname
+			
+			# Prompt to see if the local account should be give admin rights.
+			
+			/bin/echo "Do you want to give the $netname account admin rights?"
 			select yn in "Yes" "No"; do
     				case $yn in
-        				Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; echo "Admin rights given to this account"; break;;
-        				No ) echo "No admin rights given"; break;;
+        				Yes) /usr/sbin/dseditgroup -o edit -a "$netname" -t user admin; /bin/echo "Admin rights given to this account"; break;;
+        				No ) /bin/echo "No admin rights given"; break;;
     				esac
 			done
 			break
