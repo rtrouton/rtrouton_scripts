@@ -6,7 +6,11 @@ Version=1.1
 #
 # Guidance and inspiration from Lisa Davies:
 # http://lisacherie.com/?p=239
+<<<<<<< HEAD
 #
+=======
+# 
+>>>>>>> origin/master
 # Modified by Rich Trouton
 #
 # Version 1.0 - Migrates an Active Directory mobile account to a local account by the following process:
