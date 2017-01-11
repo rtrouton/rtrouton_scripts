@@ -8,12 +8,12 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 # Determine current major version of Adobe Flash for use
 # with the fileURL variable
 
-flash_major_version=`/usr/bin/curl --silent http://fpdownload2.macromedia.com/get/flashplayer/update/current/xml/version_en_mac_pl.xml | cut -d , -f 1 | awk -F\" '/update version/{print $NF}'`
+flash_version=`/usr/bin/curl --silent http://fpdownload2.macromedia.com/get/flashplayer/update/current/xml/version_en_mac_pl.xml | sed -n 's/.*update version="\([^"]*\).*/\1/p' | sed 's/,/./g'`
 
 # Specify the complete address of the Adobe Flash Player
 # disk image
  
-fileURL="http://fpdownload.macromedia.com/get/flashplayer/current/licensing/mac/install_flash_player_"$flash_major_version"_osx_pkg.dmg"
+fileURL="https://fpdownload.adobe.com/get/flashplayer/pdc/"$flash_version"/install_flash_player_osx.dmg"
 
 # Specify name of downloaded disk image
 
@@ -37,7 +37,18 @@ if [[ ${osvers} -ge 6 ]]; then
  
     hdiutil attach "$flash_dmg" -mountpoint "$TMPMOUNT" -nobrowse -noverify -noautoopen
 
-    pkg_path="$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))"
+    # Install Adobe Flash Player using the installer package. This installer may
+    # be stored inside an install application on the disk image, or there may be
+    # an installer package available at the root of the mounted disk image.
+
+    if [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))" ]]; then    
+      pkg_path="$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))"
+    elif [[ -e "$(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))" ]]; then
+         adobe_app=`(/usr/bin/find $TMPMOUNT -maxdepth 1 \( -iname \*\.app \))`
+        if [[ -e "$(/usr/bin/find "$adobe_app"/Contents/Resources -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))" ]]; then
+          pkg_path="$(/usr/bin/find "$adobe_app"/Contents/Resources -maxdepth 1 \( -iname \*Flash*\.pkg -o -iname \*Flash*\.mpkg \))"
+        fi
+    fi
 
     # Before installation on Mac OS X 10.7.x and later, the installer's
     # developer certificate is checked to see if it has been signed by
