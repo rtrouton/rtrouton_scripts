@@ -1,6 +1,6 @@
 #!/bin/bash
-# Modified 12/27/2016
-Version=1.1
+# Modified 2/7/2017
+Version=1.2
 # Original source is from MigrateUserHomeToDomainAcct.sh
 # Written by Patrick Gallagher - https://twitter.com/patgmac
 #
@@ -48,6 +48,18 @@ Version=1.1
 #    The reason for Change 2's attributes change is that the AuthenticationAuthority attribute will exist following the conversion 
 #    process while the OriginalNodeName attribute may not.
 #
+#
+# Version 1.2
+#
+# Changes:
+#
+# Add RemoveAD function to handle the following tasks:
+#
+# 1. Force unbind the Mac from Active Directory
+# 2. Deletes the Active Directory domain from the custom /Search and /Search/Contacts paths
+# 3. Changes the /Search and /Search/Contacts path type from Custom to Automatic
+# 
+# Thanks to Rick Lemmon for the suggested changes to the AD unbind process.
 
 clear
 
@@ -70,6 +82,29 @@ RunAsRoot()
         fi
 }
 
+RemoveAD(){
+
+    # This function force-unbinds the Mac from the existing Active Directory domain
+    # and updates the search path settings to remove references to Active Directory 
+
+    searchPath=`/usr/bin/dscl /Search -read . CSPSearchPath | grep Active\ Directory | sed 's/^ //'`
+
+    # Force unbind from Active Directory
+
+    /usr/sbin/dsconfigad -remove -force -u none -p none
+    
+    # Deletes the Active Directory domain from the custom /Search
+    # and /Search/Contacts paths
+    
+    /usr/bin/dscl /Search/Contacts -delete . CSPSearchPath "$searchPath"
+    /usr/bin/dscl /Search -delete . CSPSearchPath "$searchPath"
+    
+    # Changes the /Search and /Search/Contacts path type from Custom to Automatic
+    
+    /usr/bin/dscl /Search -change . SearchPolicy dsAttrTypeStandard:CSPSearchPath dsAttrTypeStandard:NSPSearchPath
+    /usr/bin/dscl /Search/Contacts -change . SearchPolicy dsAttrTypeStandard:CSPSearchPath dsAttrTypeStandard:NSPSearchPath
+}
+
 RunAsRoot "${0}"
 
 # Check for AD binding and offer to unbind if found. 
@@ -77,7 +112,7 @@ if [[ "${check4AD}" = "Active Directory" ]]; then
 	/usr/bin/printf "This machine is bound to Active Directory.\nDo you want to unbind this Mac from AD?\n"
 		select yn in "Yes" "No"; do
 			case $yn in
-			    Yes) /usr/sbin/dsconfigad -remove -force -u none -p none; /bin/echo "AD binding has been removed."; break;;
+			    Yes) RemoveAD; /bin/echo "AD binding has been removed."; break;;
 			    No) /bin/echo "Active Directory binding is still active."; break;;
 			esac
 		done
