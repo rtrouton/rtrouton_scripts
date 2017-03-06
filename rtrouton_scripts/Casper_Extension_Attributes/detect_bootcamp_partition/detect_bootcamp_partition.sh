@@ -6,7 +6,7 @@
 # "Microsoft Basic Data"
 #
 
-BOOTCAMP_DETECT=$( /usr/sbin/diskutil list | grep -c "Microsoft Basic Data" )
+BOOTCAMP_DETECT=$( /usr/sbin/diskutil list disk0 | grep -c "Microsoft Basic Data" )
 
 #
 # If Microsoft Basic Data partition is
