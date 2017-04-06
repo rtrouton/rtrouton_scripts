@@ -3,7 +3,7 @@
 # fork of Tim Sutton's osx-vm-template script:
 # https://github.com/timsutton/osx-vm-templates/blob/master/scripts/puppet.sh
 
-# Install the latest VMware Tools using AutoPkg recipes
+# Install the latest Parallels Tools using AutoPkg recipes
 # https://github.com/autopkg/autopkg
 #
 # Note: Either Xcode.app or the Xcode command line tools
@@ -16,10 +16,10 @@ AUTOPKG_DIR=$(mktemp -d /tmp/autopkg-XXXX)
 git clone https://github.com/autopkg/autopkg "$AUTOPKG_DIR"
 AUTOPKG="$AUTOPKG_DIR/Code/autopkg"
 
-# Add the recipes repo containing the
-# VMwareTools .download and .pkg recipes
+# Add the recipe repos containing the
+# ParallelsTools .download and .pkg recipes
 
-"${AUTOPKG}" repo-add rtrouton-recipes
+"${AUTOPKG}" repo-add homebysix-recipes rtrouton-recipes
 
 # Redirect the AutoPkg cache to a temp location
 
@@ -29,14 +29,14 @@ defaults write com.github.autopkg CACHE_DIR -string "$(mktemp -d /tmp/autopkg-ca
 
 cache_path=$(defaults read com.github.autopkg CACHE_DIR)
 
-# Downloads the current release version of VMware Tools for OS X
+# Downloads the current release version of Parallels Tools for macOS
 # and builds an installer package.
 
-"${AUTOPKG}" run VMwareTools.pkg
+"${AUTOPKG}" run ParallelsTools.pkg
 
-# Install VMware Tools using the AutoPkg-generated installer package
+# Install Parallels Tools using the AutoPkg-generated installer package
 
-pkg_path="$(/usr/bin/find ${cache_path} -maxdepth 2 \( -iname \VMware*\.pkg -o -iname \VMware*\.mpkg \))"
+pkg_path="$(/usr/bin/find ${cache_path} -maxdepth 2 \( -iname \ParallelsTools*\.pkg -o -iname \ParallelsTools*\.mpkg \))"
 /usr/sbin/installer -pkg "${pkg_path}" -target /
 
 # Clean up
