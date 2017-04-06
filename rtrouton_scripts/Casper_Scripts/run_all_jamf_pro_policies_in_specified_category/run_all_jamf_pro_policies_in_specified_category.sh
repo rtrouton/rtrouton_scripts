@@ -37,6 +37,14 @@ jamf_binary=`/usr/bin/which jamf`
   
   CheckBinary
 
+  # If the jamf binary isn't found, stop the script
+  # and exit with an error status.
+
+  if [[ "$jamf_binary" == "" ]]; then
+     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Casper agent not found. Exiting."
+     exit 1
+  fi
+
   # Identify the URL of the Jamf Pro server using the
   # 'jamf checkJSSConnection' command
   
@@ -58,13 +66,6 @@ jamf_binary=`/usr/bin/which jamf`
   # read all policy IDs into an array
 
   policies=($(/bin/echo "$casper_policy_ids"))
-  
-  CheckBinary
-  
-  if [[ "$jamf_binary" == "" ]]; then
-     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Casper agent not found. Exiting."
-     exit 1
-  fi
  
   # restore IFS to previous state
 
