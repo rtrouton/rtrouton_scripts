@@ -41,7 +41,7 @@ jamf_binary=`/usr/bin/which jamf`
   # and exit with an error status.
 
   if [[ "$jamf_binary" == "" ]]; then
-     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Casper agent not found. Exiting."
+     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Jamf Pro agent not found. Exiting."
      exit 1
   fi
 
