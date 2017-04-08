@@ -1,1 +1,1 @@
-Script for use with Casper when manually triggering a policy. Script uses a manual trigger name (set as **Parameter 4** in the script's parameter list in the JSS) to specify which policy should be run.
+Script for use with Jamf Pro when manually triggering a policy. Script uses a manual trigger name (set as **Parameter 4** in the script's parameter list in the JSS) to specify which policy should be run.
