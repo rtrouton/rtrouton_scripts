@@ -6,7 +6,7 @@
   <string>com.company.initialsetup</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/var/first_boot.sh</string>
+    <string>/var/initialsetup.sh</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
