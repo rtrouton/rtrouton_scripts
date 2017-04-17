@@ -1,4 +1,4 @@
-This script sets the **Open** and **Save** options in Office 2016 apps to default to **On My Mac** instead of **Online Locations**, by running the following:
+This script sets the **Open** and **Save** options in Office 2016 apps to default to **On My Mac** instead of **Online Locations**, by running the following command with root privileges:
 
 `/usr/bin/defaults write /Library/Preferences/com.microsoft.office DefaultsToLocalOpenSave -bool true`
 
