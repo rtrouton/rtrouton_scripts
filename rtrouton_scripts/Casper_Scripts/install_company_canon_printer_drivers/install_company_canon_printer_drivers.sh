@@ -14,20 +14,20 @@ installed_driver=$(defaults read "/Library/Printers/Canon/CUPSPS2/Utilities/Cano
 
 driver_version="$4"
 dialog="The needed Canon printer drivers have not been detected. Installing Canon PS $driver_version Print Drivers before adding the requested printer."
-description=`echo "$dialog"`
+description=$(echo "$dialog")
 button1="OK"
 jamfHelper="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
 icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"
 
-if [[ ${installed_driver} > ${driver_version} ]]; then
+if [ $installed_driver > $driver_version ]; then
   echo "Canon PS $installed_driver Print Drivers installed"
 fi
 
-if [[ ${installed_driver} == ${driver_version} ]]; then
+if [ $installed_driver == $driver_version ]; then
   echo "Canon PS $driver_version Print Drivers installed"
 fi
 
-if [[ ${installed_driver} < ${driver_version} ]]; then
+if [ $installed_driver < $driver_version ]; then
   echo "Canon PS $driver_version Print Drivers not installed. Installing Canon PS $driver_version Print Drivers"
   if [[ ${osvers} -lt 7 ]]; then
 
