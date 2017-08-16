@@ -18,7 +18,7 @@ Note: The search list is currently limited to six domains with a total of 256 ch
 
 ## Jamf Pro
 
-In Jamf, add the script as usual and set the Parameters accordingly.
+In Jamf, add the script as usual and set the Parameters accordingly. As resolver supports up to 6 search domains, it's a good idea to populate the first six parameters. Others will be ignored.
 
 Script:
 ![](jamf_search_domains_script.png)

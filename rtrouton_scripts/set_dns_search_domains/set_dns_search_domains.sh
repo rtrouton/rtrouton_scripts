@@ -11,7 +11,7 @@
 if [[ ${4} == "" ]]; then
     SearchDomains="demo.com int.demo.com ext.demo.com other.com"
 else
-    SearchDomains="${4} ${5} ${6} ${7} ${8}"
+    SearchDomains="${4} ${5} ${6} ${7} ${8} ${9}"
 fi
 # Have the Mac scan for and register 
 # any new network hardware that has 
