@@ -7,10 +7,12 @@
 #
 # SearchDomains="verizon.com comcast.com"
 #
- 
-SearchDomains="demo.com int.demo.com ext.demo.com other.com"
 
-
+if [[ ${4} == "" ]]; then
+    SearchDomains="demo.com int.demo.com ext.demo.com other.com"
+else
+    SearchDomains="${4} ${5} ${6} ${7} ${8}"
+fi
 # Have the Mac scan for and register 
 # any new network hardware that has 
 # not already registered.
@@ -28,7 +30,7 @@ IFS=$'\n'
 
 # read all Ethernet interface names into an array
 
-ethernet_interface=($(networksetup -listallnetworkservices | awk '/Ethernet/'))
+interfaces=($(networksetup -listallnetworkservices | awk '/Ethernet/ || /Wi-Fi/'))
 
 # restore IFS to previous state
 
@@ -36,7 +38,7 @@ IFS=$OLDIFS
 
 # Get length of the array
 
-tLen=${#ethernet_interface[@]}
+tLen=${#interfaces[@]}
 
 # Loops through the list of Ethernet network interfaces
 # available on this Mac and sets the specified DNS search
@@ -44,8 +46,8 @@ tLen=${#ethernet_interface[@]}
 
 for (( i=0; i<${tLen}; i++ ));
   do
-     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Setting "${ethernet_interface[$i]}" on this Mac."
-     /usr/sbin/networksetup -setsearchdomains "${ethernet_interface[$i]}" $SearchDomains >/dev/null 2>&1
+     /bin/echo "`date +%Y-%m-%d\ %H:%M:%S`  Setting "${interfaces[$i]}" on this Mac to '${SearchDomains}'."
+     /usr/sbin/networksetup -setsearchdomains "${interfaces[$i]}" ${SearchDomains} >/dev/null 2>&1
 
   done
 
