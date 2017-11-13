@@ -13,3 +13,5 @@ If not encrypted, the following message is displayed:  `FileVault is Off.`
 
 
 See `Casper_Extension_Attribute_Setup.png` for a screenshot of how the Extension Attribute should be configured.
+
+![Casper_Extension_Attribute_Setup.png](Casper_Extension_Attribute_Setup.png)
