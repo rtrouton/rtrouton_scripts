@@ -11,6 +11,8 @@ If decrypting, the following message is displayed without quotes: `Decryption in
 
 If not encrypted, the following message is displayed:  `FileVault is Off.`
 
+If run on a drive which is not using APFS, the following message is displayed: `Unable to display encryption status for filesystems other than APFS.`
+
 
 See `Casper_Extension_Attribute_Setup.png` for a screenshot of how the Extension Attribute should be configured.
 
