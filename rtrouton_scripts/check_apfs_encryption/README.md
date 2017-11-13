@@ -4,9 +4,11 @@ It first checks to see if a Mac is running 10.13.x or higher. If the Mac is ques
 
 If encrypted, the following message is displayed: `FileVault is On.`
 
-If encrypting, the following message is displayed without quotes: `Encryption in progress:` 
+If encrypting, the following message is displayed: `Encryption in progress:` 
 How much has been encrypted of of the total amount of space is also displayed.
 
-If decrypting, the following message is displayed without quotes: `Decryption in progress:` How much has been decrypted of of the total amount of space is also displayed
+If decrypting, the following message is displayed: `Decryption in progress:` How much has been decrypted of of the total amount of space is also displayed
 
 If not encrypted, the following message is displayed:  `FileVault is Off.`
+
+If run on a drive which is not using APFS, the following message is displayed: `Unable to display encryption status for filesystems other than APFS.`
