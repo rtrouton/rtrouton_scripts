@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# This script is designed to block login access
+# to the root account on macOS. It does this using
+# the following actions:
+#
+# 1. Sets the root account's password to a random 32
+#    character long password using the openssl command.
+# 2. Sets the root account's login shell to /usr/bin/false
+# 3. Disables the root account, since setting the account
+#    password enables the root account.
+
 ERROR=0
 
 # Set root password to randomized 32 character long password
@@ -34,5 +44,9 @@ else
    echo "Changing root shell from $rootshell to /usr/bin/false"
    /usr/bin/dscl . -change /Users/root UserShell "$rootshell" /usr/bin/false
 fi
+
+# Disable the root account, since setting the password enables the root account.
+
+/usr/sbin/dsenableroot -d -u root -p "$rootpassword"
 
 exit "$ERROR"
