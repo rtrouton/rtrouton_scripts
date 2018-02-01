@@ -11,7 +11,7 @@ ERROR=0
 # "Unknown Version Of macOS"
 
 if [[ ${osvers_major} -ne 10 ]]; then
-  echo "<result>Unknown Version Of macOS"
+  echo "<result>Unknown Version Of macOS</result>"
 fi
 
 # Checks to see if the OS on the Mac is 10.13 or higher.
