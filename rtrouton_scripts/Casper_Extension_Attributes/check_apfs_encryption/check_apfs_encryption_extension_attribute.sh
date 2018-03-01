@@ -20,7 +20,7 @@ fi
 # "APFS Encryption Not Available For This Version Of macOS"
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 13 ]]; then
-  echo "<result>APFS Encryption Not Available For This Version Of macOS"
+  echo "<result>APFS Encryption Not Available For This Version Of macOS</result>"
 fi
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 13 ]]; then
