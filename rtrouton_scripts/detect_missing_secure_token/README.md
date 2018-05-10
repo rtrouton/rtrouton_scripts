@@ -15,10 +15,10 @@ Then the following actions take place:
 1. The logged-in user is checked to see if it can be determined.
 2. If the logged-in user can be determined and it is not the `root` user, the `sysadminctl` tool is used to check to see if the account has the Secure Token attribute associated with it.
 
-If the logged-in user account should have a Secure Token attribute associated with it and does not, the Extension Attribute will report the following:
+If the logged-in user account should have a Secure Token attribute associated with it and does not, the script will report the following:
 
 `1` 
 
-Any other outcome, the Extension Attribute will report the following:
+Any other outcome, the script will report the following:
 
 `0`
