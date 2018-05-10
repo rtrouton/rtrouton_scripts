@@ -63,6 +63,6 @@ if [[ ${osvers_minor} -ge 13 ]]; then
 	# 0
 fi
 
-echo "<result>$result</result>"
+echo "$result"
 
 exit 0
