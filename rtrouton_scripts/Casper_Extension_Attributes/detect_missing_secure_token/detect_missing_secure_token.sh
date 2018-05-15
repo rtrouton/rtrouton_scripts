@@ -28,7 +28,7 @@ MissingSecureTokenCheck() {
 
 	  # Get the Secure Token status.
 
-		token_status=$(/usr/sbin/sysadminctl -adminUser "" -adminPassword "" -secureTokenStatus "$current_user" 2>&1 | /usr/bin/grep -ic enabled)
+		token_status=$(/usr/sbin/sysadminctl -secureTokenStatus "$current_user" 2>&1 | /usr/bin/grep -ic enabled)
 
 		# If there is no secure token associated with the logged-in account,
 		# the token_status variable should return "0".
