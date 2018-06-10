@@ -22,6 +22,15 @@ if [[ "$osx_vers" -ge 9 ]]; then
 	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | grep "Mavericks" | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
 	fi
 	
+	# Check to see if the softwareupdate tool has returned more than one Xcode
+	# command line tool installation option. If it has, use the last one listed
+	# as that should be the latest Xcode command line tool installer.
+	
+	if (( $(grep -c . <<<"$cmd_line_tools") > 1 )); then
+	   cmd_line_tools_output="$cmd_line_tools"
+	   cmd_line_tools=$(printf "$cmd_line_tools_output" | tail -1)
+	fi
+	
 	#Install the command line tools
 	
 	softwareupdate -i "$cmd_line_tools" --verbose
