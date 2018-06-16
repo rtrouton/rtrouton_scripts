@@ -1,6 +1,6 @@
 #!/bin/bash
-# Modified 2/7/2017
-Version=1.2
+# Modified 6/15/2018
+Version=1.3
 # Original source is from MigrateUserHomeToDomainAcct.sh
 # Written by Patrick Gallagher - https://twitter.com/patgmac
 #
@@ -60,6 +60,14 @@ Version=1.2
 # 3. Changes the /Search and /Search/Contacts path type from Custom to Automatic
 # 
 # Thanks to Rick Lemmon for the suggested changes to the AD unbind process.
+#
+# Version 1.3
+#
+# Changes:
+#
+# Fix to account password backup and restore process. Previous versions 
+# of the script were adding extra quote marks to the account's plist 
+# file located in /var/db/dslocal/nodes/Default/users/.
 
 clear
 
@@ -145,7 +153,7 @@ until [ "$user" == "FINISHED" ]; do
 
 			# Preserve the account password by backing up password hash
 			
-			shadowhash=`/usr/bin/dscl . -read /Users/$netname AuthenticationAuthority | grep " ;ShadowHash;HASHLIST:<"`
+			shadowhash=$(/usr/bin/dscl -plist . -read /Users/$netname AuthenticationAuthority | xmllint --xpath 'string(//string[contains(text(),"ShadowHash")])' -)
 			
 			# Remove the account attributes that identify it as an Active Directory mobile account
 			
@@ -157,7 +165,7 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete /users/$netname OriginalAuthenticationAuthority
 			/usr/bin/dscl . -delete /users/$netname OriginalNodeName
 			/usr/bin/dscl . -delete /users/$netname AuthenticationAuthority
-			/usr/bin/dscl . -create /users/$netname AuthenticationAuthority \'$shadowhash\'
+			/usr/bin/dscl . -create /users/$netname AuthenticationAuthority "${shadowhash}"
 			/usr/bin/dscl . -delete /users/$netname SMBSID
 			/usr/bin/dscl . -delete /users/$netname SMBScriptPath
 			/usr/bin/dscl . -delete /users/$netname SMBPasswordLastSet
