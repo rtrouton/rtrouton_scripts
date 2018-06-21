@@ -176,6 +176,10 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete /users/$netname MCXSettings
 			/usr/bin/dscl . -delete /users/$netname MCXFlags
 
+			# Ensure the user has a Password attribute
+
+			/usr/bin/dscl . -create /Users/$netname Password '********'
+
 			# Refresh Directory Services
 			if [[ ${osvers} -ge 7 ]]; then
 				/usr/bin/killall opendirectoryd
