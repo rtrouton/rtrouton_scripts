@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 # This script will add multiple servers to the Oracle Java Exception Site List. 
 # If the servers are already in the whitelist, it will note that in the log, then exit.
