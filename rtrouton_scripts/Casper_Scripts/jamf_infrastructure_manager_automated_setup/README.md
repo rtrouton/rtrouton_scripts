@@ -4,7 +4,7 @@ onto the following OSs:
 * CentOS 7.x
 * Red Hat Enterprise Linux 7.x
 
-Following installation, the JIM is enrolled with a specified Jamf Pro server, using credentials provided in the script.
+Following installation, the JIM is enrolled with a specified Jamf Pro server, using credentials provided in the script. If the JIM hostname, Jamf Pro URL, the account username or the account password aren't available in the script, the script will prompt the user to enter the requested hostname, URL or account credentials.
 
 **Note:** The hostname of the JIM server must resolve both for the machine 
 hosting the JIM and for the remote Jamf Pro server, so there can’t be 

@@ -9,7 +9,7 @@
 # Following installation, the JIM is enrolled with a specified Jamf Pro 
 # server, using credentials provided in the script.
 
-# Set URL, username and password for the JIM enrollment process
+# Set Jamf Pro URL, username and password for the JIM enrollment process
 
 jamfProURL="https://jamf.pro.server.here:8443"
 jamfProUsername="jamf_pro_account_username_goes_here"
@@ -33,6 +33,27 @@ jamfProPassword="jamf_pro_account_password_goes_here"
 # ip.address.goes.here    blehbleh.ext.company.com
 
 jimHostname="jim_hostname_goes_here"
+
+# If the JIM hostname, Jamf Pro URL, the account username or the account password aren't available
+# otherwise, you will be prompted to enter the requested hostname, URL or account credentials.
+
+if [[ -z "$jamfProURL" ]]; then
+     read -p "Please enter your Jamf Pro server URL : " jamfProURL
+fi
+
+if [[ -z "$jimHostname" ]]; then
+     read -p "Please enter the hostname of your Jamf Infrastructure Manager: " jimHostname
+fi
+
+if [[ -z "$jamfProUsername" ]]; then
+     read -p "Please enter your Jamf Pro user account : " jamfProUsername
+fi
+
+if [[ -z "$jamfProPassword" ]]; then
+     read -p "Please enter the password for the $jamfProUsername account: " -s jamfProPassword
+fi
+
+echo ""
 
 # Set directory to store the JIM software installer
 
@@ -91,7 +112,7 @@ if [[ -d "/etc/jamf-im" ]]; then
 
     # Enroll Jamf Infrastructure Manager into Jamf Pro
 
-    jamf-im enroll --hostname "$jimHostname" --jss-url "$jamfProURL" --password "$jamfProPassword" --username "$jamfProUsername"
+    jamf-im enroll --hostname ${jimHostname} --jss-url ${jamfProURL} --password ${jamfProPassword} --username ${jamfProUsername}
 
     if [[ $? -ne 0 ]]; then
         echo "Enrollment failed. Please recheck settings and retry enrollment."
