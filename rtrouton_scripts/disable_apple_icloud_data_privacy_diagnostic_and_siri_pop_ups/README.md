@@ -4,6 +4,7 @@ Starting in 10.7.2, Apple has added several pop-up windows which appear at the f
 * OS X 10.10: Diagnostic agreement window
 * macOS 10.12: Siri setup window
 * macOS 10.13.4: Data & Privacy information window 
+* macOS 10.14: Appearance (Light/Dark) selector window
 
 Since having this appear may not be desirable in all Mac environments, it makes sense to be able to turn the the iCloud, Data & Privacy, Diagnostic and Siri pop-up windows off for new user accounts. 
 
