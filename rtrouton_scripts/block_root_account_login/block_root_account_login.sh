@@ -4,9 +4,7 @@ ERROR=0
 
 # Set root password to randomized 32 character long password
 
-rootpassword=$(openssl rand -base64 32)
-
-/usr/bin/dscl . -passwd /Users/root "$rootpassword"
+/usr/bin/dscl . -passwd /Users/root "$(env LC_CTYPE=C tr -dc 'A-Za-z0-9_\ \!\@\#\$\%\^\&\*\(\)-+=' < /dev/urandom | head -c 32)"
 
 # Disable root login by setting root's shell to /usr/bin/false.
 # The original UserShell value is as follows:
