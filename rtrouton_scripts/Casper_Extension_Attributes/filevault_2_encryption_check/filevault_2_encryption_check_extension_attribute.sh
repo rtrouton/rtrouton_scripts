@@ -35,14 +35,14 @@ else
   #
   # "FileVault 2 Encryption Not Enabled"
   fileSystemPersonality=$(echo "$diskutilInfo" | awk -F: '/File System Personality/ {print $NF}' | sed 's/^ *//')
-  if [[ "$fileSystemPersonality" =~ "APFS" ]]; then
-    diskType="APFS"
-  elif [[ "$fileSystemPersonality" =~ "Journaled HFS+" ]]; then
+  if [[ ${osvers_minor} -lt 13 ]] || [[ "$fileSystemPersonality" =~ "Journaled HFS+" ]]; then
     if [[ $("/usr/sbin/diskutil" coreStorage info / 2>&1) =~ "is not a CoreStorage disk" ]]; then
       fvCheck="FileVault 2 Encryption Not Enabled"
     else
       diskType="CoreStorage"
     fi
+  elif [[ "$fileSystemPersonality" =~ "APFS" ]]; then
+    diskType="APFS"
   else
     diskType="Classic"
     fvCheck="Unrecognized File System Personality"
