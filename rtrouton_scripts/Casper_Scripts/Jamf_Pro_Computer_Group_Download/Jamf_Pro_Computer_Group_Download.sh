@@ -106,21 +106,23 @@ ComputerGroupDownloadDirectory=${ComputerGroupDownloadDirectory%%/}
 
 DownloadComputerGroup(){
 
-	# Download the profile as encoded XML, then decode and format it
+	# Download the group information as XML, then strip out
+	# the group membership and format it.
 	echo "Downloading computer group from $jamfpro_url..."
 	FormattedComputerGroup=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computergroups/id/${ID}" -X GET | tr $'\n' $'\t' | sed -E 's|<computers>.*</computers>||' |  tr $'\t' $'\n' | xmllint --format - )
 
-	# Identify and display the profile's name
+	# Identify and display the group's name.
 	DisplayName=$(echo "$FormattedComputerGroup" | xpath "/computer_group/name/text()" 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
 	echo "Downloaded computer group is named: $DisplayName"
 	
+	# Identify if it's a smart or static group.
 	if [[ $(echo "$FormattedComputerGroup" | xpath "/computer_group/is_smart/text()" 2>/dev/null) == "true" ]]; then
 	   GroupType="Smart"
 	else
 	   GroupType="Static"
 	fi
 
-	## Save the downloaded computer group
+	# Save the downloaded computer group.
 	echo "$DisplayName is a $GroupType group."
 	echo "Saving ${DisplayName}.xml file to $ComputerGroupDownloadDirectory/$GroupType Groups."
 	if [[ "$GroupType" = "Smart" ]]; then

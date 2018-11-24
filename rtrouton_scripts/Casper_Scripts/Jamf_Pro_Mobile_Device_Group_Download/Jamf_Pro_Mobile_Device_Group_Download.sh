@@ -106,21 +106,23 @@ MobileDeviceGroupDownloadDirectory=${MobileDeviceGroupDownloadDirectory%%/}
 
 DownloadMobileDeviceGroup(){
 
-	# Download the profile as encoded XML, then decode and format it
+	# Download the group information as XML, then strip out
+	# the group membership and format it.
 	echo "Downloading mobile device group from $jamfpro_url..."
 	FormattedMobileDeviceGroup=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/mobiledevicegroups/id/${ID}" -X GET | tr $'\n' $'\t' | sed -E 's|<mobile_devices>.*</mobile_devices>||' |  tr $'\t' $'\n' | xmllint --format - )
 
-	# Identify and display the profile's name
+	# Identify and display the group's name.
 	DisplayName=$(echo "$FormattedMobileDeviceGroup" | xpath "/mobile_device_group/name/text()" 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
 	echo "Downloaded mobile device group is named: $DisplayName"
-	
+
+	# Identify if it's a smart or static group.	
 	if [[ $(echo "$FormattedMobileDeviceGroup" | xpath "/mobile_device_group/is_smart/text()" 2>/dev/null) == "true" ]]; then
 	   GroupType="Smart"
 	else
 	   GroupType="Static"
 	fi
 
-	## Save the downloaded mobile device group
+	# Save the downloaded mobile device group.
 	echo "$DisplayName is a $GroupType group."
 	echo "Saving ${DisplayName}.xml file to $MobileDeviceGroupDownloadDirectory/$GroupType Groups."
 	if [[ "$GroupType" = "Smart" ]]; then
