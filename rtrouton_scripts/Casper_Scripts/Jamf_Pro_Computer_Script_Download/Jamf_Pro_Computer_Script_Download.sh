@@ -26,8 +26,8 @@ ScriptDownloadDirectory=""
 
 if [[ -z "$ScriptDownloadDirectory" ]]; then
    ScriptDownloadDirectory=$(mktemp -d)
-   echo "A location to store downloaded groups has not been specified."
-   echo "Downloaded groups will be stored in $ScriptDownloadDirectory."
+   echo "A location to store downloaded scripts has not been specified."
+   echo "Downloaded scripts will be stored in $ScriptDownloadDirectory."
 fi
 
 # If you choose to hardcode API information into the script, set one or more of the following values:
