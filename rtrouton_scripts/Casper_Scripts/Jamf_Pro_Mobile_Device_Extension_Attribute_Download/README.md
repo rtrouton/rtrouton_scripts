@@ -1,4 +1,4 @@
-This script is designed to use the Jamf Pro API to identify the individual IDs of the computer extension attributes stored on a Jamf Pro server then do the following:
+This script is designed to use the Jamf Pro API to identify the individual IDs of the mobile device extension attributes stored on a Jamf Pro server then do the following:
 
 1. Download the extension attribute as XML.
 2. Identify the extension attribute name.
