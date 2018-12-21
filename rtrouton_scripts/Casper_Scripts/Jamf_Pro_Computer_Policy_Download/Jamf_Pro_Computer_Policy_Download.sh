@@ -125,8 +125,7 @@ else
 		archive_file="PolicyDownloadDirectoryArchive-`date +%Y%m%d%H%M%S`.zip"
 		echo "Archiving previous policy download directory to ${PolicyDownloadDirectory%/*}/$archive_file"
 		ditto -ck "$PolicyDownloadDirectory" "${PolicyDownloadDirectory%/*}/$archive_file"
-		#ditto -ck $PolicyDownloadDirectory "$PolicyDownloadDirectory/../$archive_file"
-		if (( $? == 0 )) && [[ -f "${PolicyDownloadDirectory%/*}/$archive_file" ]]; then
+		if (( $? == 0 ))
 				echo "Successfully created ${PolicyDownloadDirectory%/*}/$archive_file"
 			else
 				echo "Could not create $archive_file. Exiting...."
