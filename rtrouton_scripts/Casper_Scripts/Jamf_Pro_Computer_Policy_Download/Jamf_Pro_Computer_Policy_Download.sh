@@ -121,18 +121,18 @@ else
    # Remove the trailing slash from the PolicyDownloadDirectory variable if needed.
    PolicyDownloadDirectory=${PolicyDownloadDirectory%%/}
 
-   if [[ -d "$PolicyDownloadDirectory" ]]; then
+   if [[ -d "$PolicyDownloadDirectory" ]] && [[ -n "$(ls -A $PolicyDownloadDirectory)" ]]; then
 		archive_file="PolicyDownloadDirectoryArchive-`date +%Y%m%d%H%M%S`.zip"
 		echo "Archiving previous policy download directory to ${PolicyDownloadDirectory%/*}/$archive_file"
 		ditto -ck "$PolicyDownloadDirectory" "${PolicyDownloadDirectory%/*}/$archive_file"
-		if (( $? == 0 ))
+		if (( $? == 0 )); then
 				echo "Successfully created ${PolicyDownloadDirectory%/*}/$archive_file"
 			else
 				echo "Could not create $archive_file. Exiting...."
 				ERROR=1
 				exit $ERROR
 		fi
-		
+
 		# Removing existing directory after archiving is complete.
 		rm -rf $PolicyDownloadDirectory
 		
@@ -147,8 +147,21 @@ else
 				ERROR=1
 				exit $ERROR
 		fi
-
+   elif [[ -d "$PolicyDownloadDirectory" ]] && [[ -z "$(ls -A $PolicyDownloadDirectory)" ]]; then
+		echo  "$PolicyDownloadDirectory exists but is empty. Using existing directory for downloading policies."
+   elif [[ -n "$PolicyDownloadDirectory" ]] && [[ ! -d "$PolicyDownloadDirectory" ]]; then
+		echo  "$PolicyDownloadDirectory does not exist. Creating $PolicyDownloadDirectory for downloading policies."
+		mkdir -p $PolicyDownloadDirectory
+			if (( $? == 0 )); then
+				echo "Successfully created new $PolicyDownloadDirectory"
+			else
+				echo "Could not create new $PolicyDownloadDirectory"
+				echo "Please make sure the parent directory is writable. Exiting...."
+				ERROR=1
+				exit $ERROR
+			fi
 	fi
+
 fi
 }
 
