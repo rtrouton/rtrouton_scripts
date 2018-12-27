@@ -121,7 +121,7 @@ else
    # Remove the trailing slash from the PolicyDownloadDirectory variable if needed.
    PolicyDownloadDirectory=${PolicyDownloadDirectory%%/}
 
-   if [[ -d "$PolicyDownloadDirectory" ]] && [[ -n "$(ls -A $PolicyDownloadDirectory)" ]]; then
+   if [[ -d "$PolicyDownloadDirectory" ]] && [[ -n "$(ls -A "$PolicyDownloadDirectory")" ]]; then
 		archive_file="PolicyDownloadDirectoryArchive-`date +%Y%m%d%H%M%S`.zip"
 		echo "Archiving previous policy download directory to ${PolicyDownloadDirectory%/*}/$archive_file"
 		ditto -ck "$PolicyDownloadDirectory" "${PolicyDownloadDirectory%/*}/$archive_file"
