@@ -6,4 +6,4 @@ This script enables automatic OS X / macOS software update installation on OS X 
 * Automatic download and installation of automatic security updates
 * Automatic installation of OS X / macOS updates for OS X Yosemite through macOS Mojave
 
-Blog post: 
+Blog post: [https://derflounder.wordpress.com/2018/12/28/enabling-automatic-macos-software-updates-for-os-x-yosemite-through-macos-mojave/](https://derflounder.wordpress.com/2018/12/28/enabling-automatic-macos-software-updates-for-os-x-yosemite-through-macos-mojave/)
