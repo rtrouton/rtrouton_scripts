@@ -147,7 +147,7 @@ else
 				ERROR=1
 				exit $ERROR
 		fi
-   elif [[ -d "$PolicyDownloadDirectory" ]] && [[ -z "$(ls -A $PolicyDownloadDirectory)" ]]; then
+   elif [[ -d "$PolicyDownloadDirectory" ]] && [[ -z "$(ls -A "$PolicyDownloadDirectory")" ]]; then
 		echo  "$PolicyDownloadDirectory exists but is empty. Using existing directory for downloading policies."
    elif [[ -n "$PolicyDownloadDirectory" ]] && [[ ! -d "$PolicyDownloadDirectory" ]]; then
 		echo  "$PolicyDownloadDirectory does not exist. Creating $PolicyDownloadDirectory for downloading policies."
