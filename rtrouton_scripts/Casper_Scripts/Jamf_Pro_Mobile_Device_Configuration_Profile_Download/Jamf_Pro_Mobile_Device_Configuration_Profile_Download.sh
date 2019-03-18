@@ -4,7 +4,7 @@
 # please enter the complete directory path into the ProfileDownloadDirectory
 # variable below.
 
-ProfileDownloadDirectory="/Users/i858772/work_github/Jamf_Pro/jamf_pro_iOS_and_tvOS_profiles/applebucket_jamfcloud_com_downloaded_profiles"
+ProfileDownloadDirectory=""
 
 # If the ProfileDownloadDirectory isn't specified above, a directory will be
 # created and the complete directory path displayed by the script.
