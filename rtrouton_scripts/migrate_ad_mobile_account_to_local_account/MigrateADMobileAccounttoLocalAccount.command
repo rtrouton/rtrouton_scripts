@@ -13,8 +13,7 @@ Version=1.4
 
 # 1. Detect if the Mac is bound to AD and offer to unbind the Mac from AD if desired
 # 2. Display a list of the accounts with a UID greater than 1000
-# 3. Once an account is selected, back up the password hash of the account from the AuthenticationAuthority attribute
-# 4. Remove the following attributes from the specified account:
+# 3. Remove the following attributes from the specified account:
 # 
 # cached_groups
 # cached_auth_policy
@@ -22,7 +21,6 @@ Version=1.4
 # SMBPrimaryGroupSID
 # OriginalAuthenticationAuthority
 # OriginalNodeName
-# AuthenticationAuthority
 # SMBSID
 # SMBScriptPath
 # SMBPasswordLastSet
@@ -32,11 +30,11 @@ Version=1.4
 # MCXSettings
 # MCXFlags
 #
-# 5. Recreate the AuthenticationAuthority attribute and restore the password hash of the account from backup
-# 6. Restart the directory services process
-# 7. Check to see if the conversion process succeeded by checking the OriginalNodeName attribute for the value "Active Directory"
-# 8. If the conversion process succeeded, update the permissions on the account's home folder.
-# 9. Prompt if admin rights should be granted for the specified account
+# 4. Selectively modify the account's AuthenticationAuthority attribute to remove AD-specific attributes.
+# 5. Restart the directory services process
+# 6. Check to see if the conversion process succeeded by checking the OriginalNodeName attribute for the value "Active Directory"
+# 7. If the conversion process succeeded, update the permissions on the account's home folder.
+# 8. Prompt if admin rights should be granted for the specified account
 #
 # Version 1.1
 #
