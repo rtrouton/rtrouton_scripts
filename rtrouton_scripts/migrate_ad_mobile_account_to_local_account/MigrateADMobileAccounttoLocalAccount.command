@@ -183,10 +183,6 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/printf "The $netname account is not a AD mobile account\n"
 			break
 		fi
-
-			# Preserve the account password by backing up password hash
-			
-			shadowhash=$(/usr/bin/dscl -plist . -read /Users/$netname AuthenticationAuthority | xmllint --xpath 'string(//string[contains(text(),"ShadowHash")])' -)
 			
 			# Remove the account attributes that identify it as an Active Directory mobile account
 			
