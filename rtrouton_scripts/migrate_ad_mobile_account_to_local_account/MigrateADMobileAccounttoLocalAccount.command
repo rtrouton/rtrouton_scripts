@@ -1,6 +1,6 @@
 #!/bin/bash
-# Modified 6/15/2018
-Version=1.3
+# Modified 4/5/2019
+Version=1.4
 # Original source is from MigrateUserHomeToDomainAcct.sh
 # Written by Patrick Gallagher - https://twitter.com/patgmac
 #
@@ -68,6 +68,18 @@ Version=1.3
 # Fix to account password backup and restore process. Previous versions 
 # of the script were adding extra quote marks to the account's plist 
 # file located in /var/db/dslocal/nodes/Default/users/.
+#
+# Version 1.4
+#
+# Changes:
+#
+# macOS 10.14.4 will remove the the actual ShadowHashData key immediately 
+# if the AuthenticationAuthority array value which references the ShadowHash
+# is removed from the AuthenticationAuthority array. To address this, the
+# existing AuthenticationAuthority array will be modified to remove the Kerberos
+# and LocalCachedUser user values.
+#
+# Thanks to the anonymouse reporter who provided the bug report and fix.
 
 clear
 
@@ -111,6 +123,29 @@ RemoveAD(){
     
     /usr/bin/dscl /Search -change . SearchPolicy dsAttrTypeStandard:CSPSearchPath dsAttrTypeStandard:NSPSearchPath
     /usr/bin/dscl /Search/Contacts -change . SearchPolicy dsAttrTypeStandard:CSPSearchPath dsAttrTypeStandard:NSPSearchPath
+}
+
+PasswordMigration(){
+
+    # macOS 10.14.4 will remove the the actual ShadowHashData key immediately 
+    # if the AuthenticationAuthority array value which references the ShadowHash
+    # is removed from the AuthenticationAuthority array. To address this, the
+    # existing AuthenticationAuthority array will be modified to remove the Kerberos
+    # and LocalCachedUser user values.
+ 
+
+    AuthenticationAuthority=$(/usr/bin/dscl -plist . -read /Users/$netname AuthenticationAuthority)
+    Kerberosv5=$(echo "${AuthenticationAuthority}" | xmllint --xpath 'string(//string[contains(text(),"Kerberosv5")])' -)
+    LocalCachedUser=$(echo "${AuthenticationAuthority}" | xmllint --xpath 'string(//string[contains(text(),"LocalCachedUser")])' -)
+    
+    # Remove Kerberosv5 and LocalCachedUser
+    if [[ ! -z "${Kerberosv5}" ]]; then
+        /usr/bin/dscl -plist . -delete /Users/$netname AuthenticationAuthority "${Kerberosv5}"
+    fi
+    
+    if [[ ! -z "${LocalCachedUser}" ]]; then
+        /usr/bin/dscl -plist . -delete /Users/$netname AuthenticationAuthority "${LocalCachedUser}"
+    fi
 }
 
 RunAsRoot "${0}"
@@ -164,8 +199,6 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete /users/$netname SMBPrimaryGroupSID
 			/usr/bin/dscl . -delete /users/$netname OriginalAuthenticationAuthority
 			/usr/bin/dscl . -delete /users/$netname OriginalNodeName
-			/usr/bin/dscl . -delete /users/$netname AuthenticationAuthority
-			/usr/bin/dscl . -create /users/$netname AuthenticationAuthority "${shadowhash}"
 			/usr/bin/dscl . -delete /users/$netname SMBSID
 			/usr/bin/dscl . -delete /users/$netname SMBScriptPath
 			/usr/bin/dscl . -delete /users/$netname SMBPasswordLastSet
@@ -175,6 +208,10 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete /users/$netname PrimaryNTDomain
 			/usr/bin/dscl . -delete /users/$netname MCXSettings
 			/usr/bin/dscl . -delete /users/$netname MCXFlags
+
+           # Migrate password and remove AD-related attributes
+           
+           PasswordMigration
 
 			# Refresh Directory Services
 			if [[ ${osvers} -ge 7 ]]; then
