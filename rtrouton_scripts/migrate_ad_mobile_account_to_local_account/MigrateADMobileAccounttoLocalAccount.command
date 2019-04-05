@@ -203,9 +203,9 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete /users/$netname MCXSettings
 			/usr/bin/dscl . -delete /users/$netname MCXFlags
 
-           # Migrate password and remove AD-related attributes
+			# Migrate password and remove AD-related attributes
            
-           PasswordMigration
+			PasswordMigration
 
 			# Refresh Directory Services
 			if [[ ${osvers} -ge 7 ]]; then
