@@ -77,7 +77,7 @@ Version=1.4
 # existing AuthenticationAuthority array will be modified to remove the Kerberos
 # and LocalCachedUser user values.
 #
-# Thanks to the anonymouse reporter who provided the bug report and fix.
+# Thanks to the anonymous reporter who provided the bug report and fix.
 
 clear
 
