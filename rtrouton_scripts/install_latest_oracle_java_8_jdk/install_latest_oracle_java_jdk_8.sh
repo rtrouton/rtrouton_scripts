@@ -10,9 +10,9 @@ IdentifyLatestJDKRelease(){
 
 # Determine the download URL for the latest CPU release or PSU release.
 
-Java_8_JDK_CPU_URL=`/usr/bin/curl -s https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html | grep -ioE "https://download.oracle.com/otn-pub/java/jdk/.*?/jdk-8u.*?x64.dmg" | head -1`
+Java_8_JDK_CPU_URL=`/usr/bin/curl -s https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html | grep -ioE "https://download.oracle.com/otn/java/jdk/8u.*?/.*?/jdk-8u.*?x64.dmg" | head -1`
 
-Java_8_JDK_PSU_URL=`/usr/bin/curl -s https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html | grep -ioE "https://download.oracle.com/otn-pub/java/jdk/.*?/jdk-8u.*?x64.dmg" | tail -1`
+Java_8_JDK_PSU_URL=`/usr/bin/curl -s https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html | grep -ioE "https://download.oracle.com/otn/java/jdk/8u.*?/.*?/jdk-8u.*?x64.dmg" | tail -1`
 
 # Use the Version variable to determine if the script should install the latest CPU release or PSU release.
 
