@@ -32,7 +32,7 @@ for userName in ${allLocalUsers}; do
 
  	    /usr/bin/defaults write "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist" AcknowledgedDataCollectionPolicy RequiredDataOnly
 
- 	    # This script may be run as root, so the ownership of the com.microsoft.autoupdate2.plist file
+ 	    # This script is designed to be run with root privileges, so the ownership of the com.microsoft.autoupdate2.plist file
  	    # and the enclosing directories are re-set to that of the account which owns the home folder. 
 
  	    /usr/sbin/chown "$userName" "${userHome}/Library/"
