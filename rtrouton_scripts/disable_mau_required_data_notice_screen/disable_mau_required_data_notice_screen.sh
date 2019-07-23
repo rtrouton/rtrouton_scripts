@@ -39,6 +39,6 @@ for userName in ${allLocalUsers}; do
  	    /usr/sbin/chown "$userName" "${userHome}/Library/Preferences"
  	    /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
       
-      fi
+	  fi
 
 done
