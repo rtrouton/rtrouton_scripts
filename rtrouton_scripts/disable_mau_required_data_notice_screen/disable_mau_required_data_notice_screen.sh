@@ -32,5 +32,5 @@ for userName in ${allLocalUsers}; do
  	  # This script may be run as root, so the ownership of the com.microsoft.autoupdate2.plist file
  	  # is re-set to that of the account which owns the home folder. 
 
-      /usr/sbin/chown "$userName" "${userHome}/Library/com.microsoft.autoupdate2.plist"
+      /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
 done
