@@ -30,14 +30,14 @@ for userName in ${allLocalUsers}; do
 
  	    # If the home folder exists, sets the com.microsoft.autoupdate2.plist file with the needed key and value.
 
-        /usr/bin/defaults write "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist" AcknowledgedDataCollectionPolicy RequiredDataOnly
+ 	    /usr/bin/defaults write "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist" AcknowledgedDataCollectionPolicy RequiredDataOnly
 
  	    # This script may be run as root, so the ownership of the com.microsoft.autoupdate2.plist file
  	    # and the enclosing directories are re-set to that of the account which owns the home folder. 
 
-        /usr/sbin/chown "$userName" "${userHome}/Library/"
-        /usr/sbin/chown "$userName" "${userHome}/Library/Preferences"
-        /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
+ 	    /usr/sbin/chown "$userName" "${userHome}/Library/"
+ 	    /usr/sbin/chown "$userName" "${userHome}/Library/Preferences"
+ 	    /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
       
       fi
 
