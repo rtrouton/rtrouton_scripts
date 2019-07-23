@@ -12,7 +12,7 @@
 #
 #    Key: AcknowledgedDataCollectionPolicy
 #    Value: RequiredDataOnly
-#
+
 
 # Identify all users on the Mac with a UID greater than 500
 
