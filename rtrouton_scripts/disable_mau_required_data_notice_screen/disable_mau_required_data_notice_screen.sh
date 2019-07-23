@@ -12,7 +12,6 @@
 #
 #    Key: AcknowledgedDataCollectionPolicy
 #    Value: RequiredDataOnly
-#
 
 # Identify all users on the Mac with a UID greater than 500
 
@@ -20,16 +19,24 @@ allLocalUsers=$(/usr/bin/dscl . -list /Users UniqueID | awk '$2>500 {print $1}')
 
 for userName in ${allLocalUsers}; do
 
-	  # Identify the home folder location of all users with a UID greater than 500
+	  # Identify the home folder location of all users with a UID greater than 500.
 
 	  userHome=$(/usr/bin/dscl . -read "/Users/$userName" NFSHomeDirectory 2>/dev/null | /usr/bin/sed 's/^[^\/]*//g')
+	  
+	  # Verify that home folder actually exists.
+	  
+	  if [[ -d  "$userHome" ]]; then
 
- 	  # Sets the com.microsoft.autoupdate2.plist file with the needed key and value
+ 	    # If the home folder exists, sets the com.microsoft.autoupdate2.plist file with the needed key and value.
 
-      /usr/bin/defaults write "${userHome}/Library/com.microsoft.autoupdate2.plist" AcknowledgedDataCollectionPolicy RequiredDataOnly
+        /usr/bin/defaults write "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist" AcknowledgedDataCollectionPolicy RequiredDataOnly
 
- 	  # This script may be run as root, so the ownership of the com.microsoft.autoupdate2.plist file
- 	  # is re-set to that of the account which owns the home folder. 
+ 	    # This script may be run as root, so the ownership of the com.microsoft.autoupdate2.plist file
+ 	    # and the enclosing directories are re-set to that of the account which owns the home folder. 
 
-      /usr/sbin/chown "$userName" "${userHome}/Library/com.microsoft.autoupdate2.plist"
+        /usr/sbin/chown "$userName" "${userHome}/Library/"
+        /usr/sbin/chown "$userName" "${userHome}/Library/Preferences"
+        /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
+      
+      fi
 done
