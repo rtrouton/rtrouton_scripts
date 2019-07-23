@@ -13,6 +13,7 @@
 #    Key: AcknowledgedDataCollectionPolicy
 #    Value: RequiredDataOnly
 
+
 # Identify all users on the Mac with a UID greater than 500
 
 allLocalUsers=$(/usr/bin/dscl . -list /Users UniqueID | awk '$2>500 {print $1}')
@@ -39,4 +40,5 @@ for userName in ${allLocalUsers}; do
         /usr/sbin/chown "$userName" "${userHome}/Library/Preferences/com.microsoft.autoupdate2.plist"
       
       fi
+
 done
