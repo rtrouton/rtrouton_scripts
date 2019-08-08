@@ -66,7 +66,7 @@ if [[ -n "$logged_in_user" ]]; then
     # Identify the UID of the logged-in user
     logged_in_user_uid=$(id -u "$logged_in_user")
     
-    /bin/launchctl asuser "$logged_in_user_uid" /bin/launchctl unload /Library/LaunchAgents/com.zscaler.tray.plist
+    /bin/launchctl bootout gui/"$logged_in_user_uid" /Library/LaunchAgents/com.zscaler.tray.plist
 else
     echo "No user accounts are logged in at the login window. LaunchAgent does not need to be unloaded"
 fi
@@ -79,10 +79,10 @@ fi
 
 echo "Unloading LaunchDaemons"
 
-/bin/launchctl unload /Library/LaunchDaemons/com.zscaler.service.plist
-/bin/launchctl unload /Library/LaunchDaemons/com.zscaler.tunnel.plist
+/bin/launchctl bootout system /Library/LaunchDaemons/com.zscaler.service.plist
+/bin/launchctl bootout system /Library/LaunchDaemons/com.zscaler.tunnel.plist
 
-echo "Removing LaunchAgents"
+echo "Removing LaunchDaemons"
 
 if [[ -f "/Library/LaunchDaemons/com.zscaler.service.plist" ]]; then
   rm "/Library/LaunchDaemons/com.zscaler.service.plist"
