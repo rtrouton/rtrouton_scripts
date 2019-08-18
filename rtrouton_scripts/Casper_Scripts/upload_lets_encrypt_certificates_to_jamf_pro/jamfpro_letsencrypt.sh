@@ -154,10 +154,10 @@ if [[ -f /etc/webmin/letsencrypt-key.pem ]] && [[ -f /etc/webmin/letsencrypt-cer
 fi
 
 # Stopping Tomcat while making changes. The script will restart Tomcat when finished.
-	CHECK_JSS_SERVICE=$(service "$JSS_SERVICE" status | awk '/tomcat/ {print $2,$3}' | head -1)
-	if [ "$CHECK_JSS_SERVICE" = "tomcat running" ]; then
+	CHECK_JSS_SERVICE=$(systemctl status "$JSS_SERVICE" | awk '/Active/ {print $3}' | head -2 | tr -d '()')
+	if [ "$CHECK_JSS_SERVICE" = "running" ]; then
 		echo "$(date "+%a %h %d %H:%M:%S"): $JSS_SERVICE is running. Stopping service now." 2>&1 | tee -a "$LOG"
-		service "$JSS_SERVICE" stop
+		systemctl stop "$JSS_SERVICE"
 	else
 		echo "$(date "+%a %h %d %H:%M:%S"): $JSS_SERVICE not found. Exiting script!" 2>&1 | tee -a "$LOG"
 		echo "$(date "+%a %h %d %H:%M:%S"): If this has worked before for you, please check and see if Tomcat is running." 2>&1 | tee -a "$LOG"
@@ -194,9 +194,9 @@ fi
 
 # Restarting Tomcat
 	CHECK_JSS_SERVICE=""
-	service "$JSS_SERVICE" start
-	CHECK_JSS_SERVICE=$(service "$JSS_SERVICE" status | awk '/tomcat/ {print $2,$3}' | head -1)
-	if [ "$CHECK_JSS_SERVICE" = "tomcat running" ]; then
+	systemctl start "$JSS_SERVICE"
+	CHECK_JSS_SERVICE=$(systemctl status "$JSS_SERVICE" | awk '/Active/ {print $3}' | head -2 | tr -d '()')
+	if [ "$CHECK_JSS_SERVICE" = "running" ]; then
 		echo "$(date "+%a %h %d %H:%M:%S"): $JSS_SERVICE is running." 2>&1 | tee -a "$LOG"
 		exit 0
 	else
