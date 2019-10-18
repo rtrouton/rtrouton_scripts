@@ -3,9 +3,9 @@ Starting in 10.7.2, Apple has added several pop-up windows which appear at the f
 * Mac OS X 10.7.2: iCloud sign-in window
 * OS X 10.10: Diagnostic agreement window
 * macOS 10.12: Siri setup window
+* macOS 10.13.0: Touch ID Setup window
 * macOS 10.13.4: Data & Privacy information window
 * macOS 10.14.0: Dark or Light Appearance window
-* macOS 10.15.0: Touch ID Setup window
 * macOS 10.15.0: Activation Lock window
 * macOS 10.15.0: Screentime window
 
