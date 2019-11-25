@@ -79,11 +79,11 @@ CheckSelfServicePolicyCheckIcons(){
 		local SelfServicePolicyCheck=$(echo "$DownloadedXMLData" | xmllint --xpath '/policy/self_service/use_for_self_service/text()' - 2>/dev/null)
 		local SelfServiceIcon=$(echo "$DownloadedXMLData" | xmllint --xpath '/policy/self_service/self_service_icon/id/text()' - 2>/dev/null)
 
-		# If a policy is detected as being a Self Service policy with an
-		# empty description, the policy name is saved to a temp file.
+		# If a policy is detected as being a Self Service policy without
+		# an icon, the policy name is saved to a temp file.
 
 		if [[ "$SelfServicePolicyCheck" = "true" ]] && [[ -z "$SelfServiceIcon" ]]; then
-			echo "The following Self Service policy doesn't have an associated icon: $PolicyName" >> "$PolicyCountFile"
+			echo "The following Self Service policy does not have an icon: $PolicyName" >> "$PolicyCountFile"
 		fi
 	fi
 }
@@ -94,7 +94,7 @@ PolicyIDList=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: applic
 PolicyIDs=$(echo "$PolicyIDList" | grep -Eo "[0-9]+")
 PoliciesCount=$(echo "$PolicyIDs" | grep -c ^)
 
-echo "Checking $PoliciesCount policies for Self Service policies with blank icons ..."
+echo "Checking $PoliciesCount policies for Self Service policies for missing icons ..."
 echo
 
 # Download latest version of all computer policies using their ID numbers. 
@@ -126,7 +126,7 @@ done
 PolicyCountNumber=$(grep -c ^ "$PolicyCountFile")
 echo
 echo
-echo "$PolicyCountNumber Self Service policies detected with blank icons"
+echo "$PolicyCountNumber Self Service policies detected without icons"
 cat "$PolicyCountFile"
 
 echo
