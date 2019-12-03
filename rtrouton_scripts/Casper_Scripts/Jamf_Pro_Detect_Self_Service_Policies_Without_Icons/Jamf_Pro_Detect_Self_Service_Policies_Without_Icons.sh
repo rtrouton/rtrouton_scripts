@@ -91,6 +91,10 @@ CheckSelfServicePolicyCheckIcons(){
 # Download all Jamf Pro policy ID numbers
 
 PolicyIDList=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xpath "//id" 2>/dev/null)
+if [ -z "$PolicyIDList" ]; then
+echo "WARNING:No Policy ID List downloaded, trying again without validating SSL security certificate."
+PolicyIDList=$(curl -ksu "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xpath "//id" 2>/dev/null)
+fi
 PolicyIDs=$(echo "$PolicyIDList" | grep -Eo "[0-9]+")
 PoliciesCount=$(echo "$PolicyIDs" | grep -c ^)
 
