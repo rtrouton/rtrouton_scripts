@@ -13,7 +13,7 @@
 # Download AutoPkg from GitHub using git
 
 AUTOPKG_DIR=$(mktemp -d /tmp/autopkg-XXXX)
-git clone https://github.com/autopkg/autopkg "$AUTOPKG_DIR"
+git clone --single-branch --branch AutoPkg_1.x https://github.com/autopkg/autopkg "$AUTOPKG_DIR"
 AUTOPKG="$AUTOPKG_DIR/Code/autopkg"
 
 # Add the recipes repo containing the
