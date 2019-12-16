@@ -2,7 +2,7 @@
 
 clear
 
-# This script enables all polices in a specified category
+# This script disables all polices in a specified category
 # Script is adapted from purgeAllPoliciesInCategory.bash by Jeffrey Compton, https://twitter.com/igeekjsc
 # https://github.com/igeekjsc/JSSAPIScripts/blob/master/purgeAllPoliciesInCategory.bash
 
