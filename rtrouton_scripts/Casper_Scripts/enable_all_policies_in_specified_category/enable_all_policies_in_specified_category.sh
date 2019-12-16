@@ -58,7 +58,7 @@ else
 	exit 1
 fi
 
-#List policies to delete before proceeding
+#List policies to enable before proceeding
 echo -e "\nThe following policies are about to be enabled on your JSS:\n"
 cat /private/tmp/jssPolicyListFormatted.xml | grep "<name>" | awk -F '<name>|</name>' '{print $2}'
 echo -e "\nAre you absolutely certain you want to enable these $numberOfPoliciesInCategory policies ?\n"
