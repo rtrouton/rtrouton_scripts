@@ -2,7 +2,7 @@
 
 clear
 
-# This script enables all polices in a specified category
+# This script disables all polices in a specified category
 # Script is adapted from purgeAllPoliciesInCategory.bash by Jeffrey Compton, https://twitter.com/igeekjsc
 # https://github.com/igeekjsc/JSSAPIScripts/blob/master/purgeAllPoliciesInCategory.bash
 
@@ -58,7 +58,7 @@ else
 	exit 1
 fi
 
-#List policies to delete before proceeding
+#List policies to disable before proceeding
 echo -e "\nThe following policies are about to be disabled on your JSS:\n"
 cat /private/tmp/jssPolicyListFormatted.xml | grep "<name>" | awk -F '<name>|</name>' '{print $2}'
 echo -e "\nAre you absolutely certain you want to disable these $numberOfPoliciesInCategory policies ?\n"

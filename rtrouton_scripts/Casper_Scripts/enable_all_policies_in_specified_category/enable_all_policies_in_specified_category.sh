@@ -9,7 +9,7 @@ clear
 #Authenticate
 read -p "Please enter your JSS URL (e.g. https://myJSS.myCompany.com:8443/)   : " jssURL
 echo -e "\nPlease enter the name of the category"
-echo "containing all policies you wish to disable."
+echo "containing all policies you wish to enable."
 echo -e "\nBE CAREFUL ABOUT SPECIAL CHARACTERS"
 echo -e "\nFor instance, you MUST replace any spaces in your category name with \"%20\""
 echo "e.g. a policy named \"My Policy\" should be entered as \"My%20Policy\""
@@ -58,7 +58,7 @@ else
 	exit 1
 fi
 
-#List policies to delete before proceeding
+#List policies to enable before proceeding
 echo -e "\nThe following policies are about to be enabled on your JSS:\n"
 cat /private/tmp/jssPolicyListFormatted.xml | grep "<name>" | awk -F '<name>|</name>' '{print $2}'
 echo -e "\nAre you absolutely certain you want to enable these $numberOfPoliciesInCategory policies ?\n"
