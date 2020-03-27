@@ -43,11 +43,11 @@ if [[ -n "$CURRENT_USER" && "$CURRENT_USER" != "root" ]]; then
         sudo -u "$CURRENT_USER" /bin/mkdir -p "$USER_HOME/Library/Application Support/Code/User"
       fi
       vscode_settings="$USER_HOME/Library/Application Support/Code/User/settings.json"
-      /usr/bin/touch "$vscode_settings"
-      echo "{}" >>"$vscode_settings"
-      vscode_tmp=$(mktemp)
-      "$jq" -M '. +{ "telemetry.enableTelemetry": false }' "$vscode_settings" >"vscode_tmp"
-      /bin/mv "vscode_tmp" "$vscode_settings"
+      /bin/cat > "$vscode_settings" << 'VSCODE_TELEMETRY_DISABLED'
+{
+  "telemetry.enableTelemetry": false
+}
+VSCODE_TELEMETRY_DISABLED
       /usr/sbin/chown -R "$CURRENT_USER" "$vscode_settings"
     fi
   else
