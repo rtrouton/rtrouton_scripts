@@ -3,7 +3,7 @@
 # Enables the Mac to boot into the following:
 # 
 # * Recovery 
-# * Internet recovery
+# * Internet Recovery
 # * Diagnostics
 # * Internet Diagnostics
 #
