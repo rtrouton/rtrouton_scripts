@@ -95,7 +95,6 @@ configuration_profile_buildfile=$(mktemp)
 </plist>
 TERMINAL_PROFILE_CONFIGURATION_PROFILE
 
-#cat "$configuration_profile_buildfile" | tidy -xml -iq > "$exported_temp_directory"/"${terminal_profile_name} Terminal Settings.mobileconfig"
 cat "$configuration_profile_buildfile" | xmllint --format - > "$exported_temp_directory"/"${terminal_profile_name} Terminal Settings.mobileconfig"
 echo "Exported ${terminal_profile_name} Terminal Settings.mobileconfig file is available at the following location: $exported_temp_directory"
 open "$exported_temp_directory"
