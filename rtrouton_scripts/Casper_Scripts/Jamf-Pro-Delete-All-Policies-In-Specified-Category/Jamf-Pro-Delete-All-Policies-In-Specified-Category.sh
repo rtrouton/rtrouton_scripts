@@ -4,7 +4,7 @@ clear
 
 error=0
 
-# This script removes the restart options from all policies in a specified category.
+# This script deletes all policies in a specified category.
 # Script is adapted from purgeAllPoliciesInCategory.bash by Jeffrey Compton, https://twitter.com/igeekjsc
 # https://github.com/igeekjsc/JSSAPIScripts/blob/master/purgeAllPoliciesInCategory.bash
 
@@ -58,8 +58,7 @@ if [[ -r "$PLIST" ]]; then
 
 fi
 
-echo -e "\nThis script removes the restart options from "
-echo -e "all Jamf Pro policies in a specified category.\n"
+echo -e "\nThis script deletes all Jamf Pro policies in a specified category.\n"
 
 # If the Jamf Pro URL, the account username or the account password aren't available
 # otherwise, you will be prompted to enter the requested URL or account credentials.
@@ -123,12 +122,11 @@ fi
 
 # List policies to disable before proceeding
 echo -e "\nThe following policies in the $display_jamfpro_category category"
-echo -e "on $jamfpro_url are going to "
-echo -e "have their restart options removed:\n"
+echo -e "on $jamfpro_url are going to be deleted:\n"
 echo "$(echo "$FormattedCategoryXML" | awk -F "[><]" '/name/{print $3}')"
 
-echo -e "\nAre you absolutely certain you want to remove the "
-echo -e "restart options from these $numberOfPoliciesInCategory policies ?\n"
+echo -e "\nAre you absolutely certain you want to delete "
+echo -e "these $numberOfPoliciesInCategory policies ?\n"
 read -p "Yes or No (y or n) : " confirmationChoice
 
 case $confirmationChoice in
@@ -142,13 +140,13 @@ PoliciesInCategory_id_list=$(echo "$FormattedCategoryXML" | awk -F "[><]" '/id/{
 PoliciesInCategory_id=$(echo "$PoliciesInCategory_id_list" | grep -Eo "[0-9]+")
 
 for policyID in ${PoliciesInCategory_id}; do
-    echo -e "\nRemoving the restart options from policy ID $policyID ..."
-    curl -su "$jamfpro_user:$jamfpro_password" "$jamfpro_url"/JSSResource/policies/id/$policyID -H "Content-Type: application/xml" -X PUT -d "<policy><reboot><no_user_logged_in>Do not restart</no_user_logged_in><user_logged_in>Do not restart</user_logged_in></reboot></policy>" 
+    echo -e "\nDeleting policy ID $policyID ..."
+    curl -su "$jamfpro_user:$jamfpro_password" "$jamfpro_url"/JSSResource/policies/id/$policyID -X DELETE 
 
     if [[ $? -eq 0 ]]; then
-	    echo -e "\nRemoved the restart options from policy ID $policyID."
+	    echo -e "\nDeleted policy ID $policyID."
     else
-	    echo -e "\nERROR! Failed to remove the restart options from policy ID $policyID."
+	    echo -e "\nERROR! Failed to delete policy ID $policyID."
     fi
 done
 
