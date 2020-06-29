@@ -85,7 +85,16 @@ listUsers="$(/usr/bin/dscl . list /Users UniqueID | awk '$2 > 1000 {print $1}') 
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
 check4AD=`/usr/bin/dscl localhost -list . | grep "Active Directory"`
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 /bin/echo "********* Running $FullScriptName Version $Version *********"
 
@@ -208,10 +217,10 @@ until [ "$user" == "FINISHED" ]; do
 			PasswordMigration
 
 			# Refresh Directory Services
-			if [[ ${osvers} -ge 7 ]]; then
-				/usr/bin/killall opendirectoryd
-			else
+			if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 				/usr/bin/killall DirectoryService
+			else
+				/usr/bin/killall opendirectoryd
 			fi
 			
 			sleep 20

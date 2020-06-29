@@ -4,7 +4,15 @@
 # Code adapted from DeployStudio's rc130 ds_finalize script, from the section where DeployStudio is disabling the iCloud and gestures demos
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Get today's date
 
@@ -26,7 +34,7 @@ JAVA_PLUGIN=`/usr/bin/defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin
 # If the directory is not found, it is created and then the
 # Java whitelist settings are created.
 
-if [[ ${osvers} -ge 6 ]];
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 6 ) ]]; then
 then
   for USER_TEMPLATE in "/System/Library/User Template"/*
   do
@@ -57,7 +65,7 @@ fi
 # If the directory is not found, it is created and then the
 # Java whitelist settings are created.
 
-if [[ ${osvers} -ge 6 ]];
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 6 ) ]]; then
 then
   for USER_HOME in /Users/*
   do

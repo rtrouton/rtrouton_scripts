@@ -2,8 +2,13 @@
 
 XProtectCheck(){
 
-osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 6 ]]; then
 
@@ -24,7 +29,7 @@ elif [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 6 ]] && [[ ${osvers_
   last_xprotect_update_human_readable_time=`/bin/date -r "$last_xprotect_update_epoch_time" '+%m-%d-%Y %H:%M:%S'`
   result="$last_xprotect_update_human_readable_time"
   
-elif [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 9 ]]; then
+else
 
    # This section of the function will check the installer package receipts for 
    # XProtect update installer packages for the relevant version of Mac OS X and 

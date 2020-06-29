@@ -6,7 +6,15 @@
 # other scripts and policy actions.
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 browser_plugin_name="$4"
 dialog="The $browser_plugin_name plug-in has now been installed on your Mac. You will need to quit and relaunch your browser for the new plug-in to work properly."
@@ -15,15 +23,13 @@ button1="OK"
 jamfHelper="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
 icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 
-  "$jamfHelper" -windowType utility -description "$description" -button1 "$button1" -icon "$icon"
+    "$jamfHelper" -windowType utility -description "$description" -button1 "$button1" -icon "$icon" -timeout 10
 
-fi
+else
 
-if [[ ${osvers} -ge 7 ]]; then
-
-  jamf displayMessage -message "$dialog"
+    jamf displayMessage -message "$dialog"
 
 fi
 

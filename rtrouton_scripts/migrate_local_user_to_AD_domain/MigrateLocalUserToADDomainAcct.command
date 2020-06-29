@@ -28,7 +28,15 @@ ShowVersion="$FullScriptName $Version"
 check4AD=`/usr/bin/dscl localhost -list . | grep "Active Directory"`
 osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 lookupAccount=helpdesk
-OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 echo "********* Running $FullScriptName Version $Version *********"
 
@@ -104,10 +112,10 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete "/Users/$user"
 
 				# Refresh Directory Services
-				if [[ ${osvers} -ge 7 ]]; then
-					/usr/bin/killall opendirectoryd
-				else
+				if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 					/usr/bin/killall DirectoryService
+				else
+					/usr/bin/killall opendirectoryd
 				fi
 				sleep 20
 				/usr/bin/id $netname

@@ -2,8 +2,15 @@
 
 # This script downloads and installs the latest Flash player for compatible Macs
 
-# Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Determine current major version of Adobe Flash for use
 # with the fileURL variable
@@ -19,11 +26,9 @@ fileURL="https://fpdownload.adobe.com/get/flashplayer/pdc/"$flash_version"/insta
 
 flash_dmg="$3/tmp/flash.dmg"
 
-if [[ ${osvers} -lt 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 6 ) ]]; then
   echo "Adobe Flash Player is not available for Mac OS X 10.5.8 or below."
-fi
-
-if [[ ${osvers} -ge 6 ]]; then
+else
  
     # Download the latest Adobe Flash Player software disk image
 
@@ -56,7 +61,7 @@ if [[ ${osvers} -ge 6 ]]; then
     # passed, the package is then installed.
 
     if [[ ${pkg_path} != "" ]]; then
-       if [[ ${osvers} -ge 7 ]]; then
+       if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
          signature_check=`/usr/sbin/pkgutil --check-signature "$pkg_path" | awk /'Developer ID Installer/{ print $5 }'`
          if [[ ${signature_check} = "Adobe" ]]; then
            # Install Adobe Flash Player from the installer package stored inside the disk image
@@ -67,7 +72,7 @@ if [[ ${osvers} -ge 6 ]]; then
     # On Mac OS X 10.6.x, the developer certificate check is not an
     # available option, so the package is just installed.
     
-       if [[ ${osvers} -eq 6 ]]; then
+       if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 6 ) ]]; then
            # Install Adobe Flash Player from the installer package stored inside the disk image
            /usr/sbin/installer -dumplog -verbose -pkg "${pkg_path}" -target "$3"
        fi

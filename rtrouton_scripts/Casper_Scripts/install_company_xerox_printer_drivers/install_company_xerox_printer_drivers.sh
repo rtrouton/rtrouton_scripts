@@ -1,7 +1,16 @@
 #!/bin/bash
 
 # Determine OS version
-OSVERS=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
 # Check /Library/Printers/Xerox/PDEs/XeroxFeatures.plugin for the CFBundleShortVersionString
 # key value. It should match the version of the installed drivers.
@@ -12,7 +21,7 @@ button1="OK"
 jamfHelper="/Library/Application Support/JAMF/bin/jamfHelper.app/Contents/MacOS/jamfHelper"
 icon="/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns"
 
-if [[ ${OSVERS} -eq 5 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 5 ) ]]; then
 
 # If the Mac is running 10.5.x, specify the current driver version
 # by setting parameter 5 in the script on the JSS
@@ -33,7 +42,7 @@ if [[ ${OSVERS} -eq 5 ]]; then
  fi
 fi
 
-if [[ ${OSVERS} -eq 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 6 ) ]]; then
 
 # If the Mac is running 10.6.x, specify the current driver version
 # by setting parameter 6 in the script on the JSS
@@ -54,7 +63,7 @@ if [[ ${OSVERS} -eq 6 ]]; then
  fi
 fi
 
-if [[ ${OSVERS} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
 # If the Mac is running 10.7.x or higher, specify the current driver version
 # by setting parameter 7 in the script on the JSS

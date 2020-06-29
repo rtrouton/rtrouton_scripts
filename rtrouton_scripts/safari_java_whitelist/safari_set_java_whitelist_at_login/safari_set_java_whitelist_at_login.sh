@@ -4,7 +4,15 @@
 TODAY=$(/bin/date "+%FT%TZ")
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Server1's address
 SERVER1=server1.name.here
@@ -21,7 +29,7 @@ SERVER1_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.ap
 # Check com.apple.Safari.plist for Server2 address
 SERVER2_WHITELIST_CHECK=`/usr/bin/defaults read $HOME/Library/Preferences/com.apple.Safari WhitelistedBlockedPlugins | grep PluginHostname | awk '{print $3}' | grep $SERVER2 | tr -d '";'`
 
-if [[ ${osvers} -ge 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
   if [[ -n ${SERVER1_WHITELIST_CHECK} ]]; then
 
         # Server1 settings are present

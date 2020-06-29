@@ -1,7 +1,15 @@
 #!/bin/bash
 
-osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
 # Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
 # following message is displayed without quotes:

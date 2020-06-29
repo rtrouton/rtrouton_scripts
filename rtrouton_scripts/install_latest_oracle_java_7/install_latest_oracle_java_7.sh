@@ -3,13 +3,16 @@
 # This script downloads and installs the latest Oracle Java 7 for compatible Macs
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
-# Including an OS check to pull the minor version number.
-# This is to help provide a check for 10.7.0 through 10.7.2,
-# as Oracle's Java 7 only runs on 10.7.3 and higher.
+# Save current IFS state
 
-osminorvers=$(sw_vers -productVersion | awk -F. '{print $3}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Specify the "OracleUpdateXML" variable by adding the "SUFeedURL" value included in the
 # /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info.plist file. 
@@ -39,18 +42,15 @@ fileURL=`/usr/bin/curl --silent $OracleUpdateXML | awk -F \" /enclosure/'{print 
 
 java_seven_dmg="/tmp/java_seven.dmg"
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   echo "Oracle Java 7 is not available for Mac OS X 10.6.8 or below."
 fi
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
-    if [[ ${osvers} -eq 7 ]]; then
-      if [[ ${osminorvers} -lt 3 ]]; then
+    if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 && ${osvers_dot_version} -lt 3 ) ]]; then
         echo "Oracle Java 7 is not available for Mac OS X 10.7.2 or below."
-        exit 0
-      fi
-    fi
+    else
  
     # Download the latest Oracle Java 7 software disk image
     # The curl -L option is needed because there is a redirect 

@@ -4,26 +4,25 @@
 # Script to force AD unbinding
 #
 
-# Determine OS version
+# Save current IFS state
 
-osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Unbinding from Active Directory on 10.6.x and earlier
 
 # Use dsconfigad to force AD unbinding. Using a bogus user and password
 # since dsconfigad wants a specified user account.
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   /bin/echo "Unbinding from Active Directory on 10.6.x and earlier."
   /usr/sbin/dsconfigad -f -r -u nousernamehere -p nopasswordhere
-fi
-
-
-# Unbinding from Active Directory on 10.7.x and later
-
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
-
+else
   # Check for an Active Directory configuration profile installed by DeployStudio
 
   ds_ad_profile=`/usr/bin/profiles -L | awk '/com.deploystudio.adbindingtask/{print $NF}'`

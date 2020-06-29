@@ -1,18 +1,14 @@
 #!/bin/bash
 
-osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
 
-# Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
-# following message is displayed without quotes:
-#
-# "NA"
-#
-# NA stands for Not Applicable.
+OLDIFS=$IFS
 
-if [[ ${osvers_major} -ne 10 ]]; then
-  result="NA"
-fi
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Checks to see if the OS on the Mac is 10.7.x or higher.
 # If it is not, the following message is displayed without quotes:
@@ -21,11 +17,11 @@ fi
 #
 # NA stands for Not Applicable.
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 7 ]]; then
+if [[  ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   result="NA"
 fi
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) || ( ${osvers_major} -eq 11 && ${osvers_minor} -ge 0 ) ]]; then
  
 # Checks the Apple Push Notification Service certificate identifier
 # on Macs running 10.7.x or higher. If an Apple Push Notification 

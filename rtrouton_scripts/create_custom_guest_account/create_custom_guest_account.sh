@@ -7,8 +7,16 @@ DSCL="/usr/bin/dscl"
 SECURITY="/usr/bin/security"
 LOGGER="/usr/bin/logger"
 
-# Determine OS version
-OSVERS=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
 # Set the account shortname
 USERNAME="kiosk"
@@ -22,11 +30,11 @@ GUESTUID="600"
 # Set the account's GID
 GUESTGROUPID="600"
 
-if [[ ${OSVERS} -lt 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 6 ) ]]; then
   ${LOGGER} -s -t create"${USERNAME}".sh "ERROR: The version of OS X running on this Mac is not supported by this script. User account not created."
 fi
 
-if [[ ${OSVERS} -eq 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 6 ) ]]; then
 	${LOGGER} -s -t create"${USERNAME}".sh "INFO: Creating the "${USERNAME}" user account on Mac OS X 10.${OSVERS}.x"
 	${DSCL} . -create /Users/"${USERNAME}"
 	${DSCL} . -create /Users/"${USERNAME}" UserShell /bin/bash
@@ -48,7 +56,7 @@ if [[ ${OSVERS} -eq 6 ]]; then
 	sleep 2
 fi
 
-if [[ ${OSVERS} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 		${LOGGER} -s -t create"${USERNAME}".sh "INFO: Creating the "${USERNAME}" user account on Mac OS X 10.${OSVERS}.x"
 		${DSCL} . -create /Users/"${USERNAME}"
 		${DSCL} . -create /Users/"${USERNAME}" dsAttrTypeNative:_defaultLanguage en
@@ -56,7 +64,7 @@ if [[ ${OSVERS} -ge 7 ]]; then
 		${DSCL} . -create /Users/"${USERNAME}" dsAttrTypeNative:_writers__defaultLanguage "${USERNAME}"
 		# Adding the _writers_LinkedIdentity attribute for Macs running Mac OS X 10.7.x. This
 		# attribute is not needed on 10.8.x and later.
-		if [[ ${OSVERS} -eq 7 ]]; then
+		if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) ]]; then
 			${DSCL} . -create /Users/"${USERNAME}" dsAttrTypeNative:_writers_LinkedIdentity "${USERNAME}"
 		fi
 		${DSCL} . -create /Users/"${USERNAME}" dsAttrTypeNative:_writers_UserCertificate "${USERNAME}"

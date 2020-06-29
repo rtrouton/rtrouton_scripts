@@ -61,11 +61,11 @@ fi
 
 if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
 
-	if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) ]]; then
+	q	
 	    DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_xcode_os_x_lion_april_2013.dmg
 	fi
 	
-	if [[  ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
+	if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
 	     DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_osx_mountain_lion_april_2014.dmg
 	fi
 

@@ -1,9 +1,17 @@
 #!/bin/sh
 
-osversionlong=`sw_vers -productVersion`
-osvers=${osversionlong:3:1}
+# Determine OS version
+# Save current IFS state
 
-if [ $osvers -eq 3 || 4 ]; then
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 3 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 4 ) ]]; then
 	/usr/openv/netbackup/bin/bp.kill_all
 	rm -rf /usr/openv
 	rm -rf /Library/StartupItems/netbackup
@@ -13,7 +21,7 @@ if [ $osvers -eq 3 || 4 ]; then
 	rm /etc/xinetd.d/vopied
 	# Restart xinetd - 10.4 and lower only
 	kill -HUP `cat /var/run/xinetd.pid`
-else if [[ ${osvers} -eq 5 || 6 || 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 5 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 6 || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
 	/usr/openv/netbackup/bin/bp.kill_all
 	rm -rf /usr/openv
 	launchctl unload /Library/LaunchDaemons/bpcd.plist

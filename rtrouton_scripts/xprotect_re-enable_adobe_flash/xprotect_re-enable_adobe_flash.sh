@@ -13,9 +13,6 @@
 #
 # Original script is from here:
 # https://gist.github.com/scifiman/5109047
-#
-
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 # javaVendor=`/usr/bin/defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info" CFBundleIdentifier`
 

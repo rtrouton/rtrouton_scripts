@@ -1,15 +1,22 @@
 #!/bin/bash
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
 
-if [[ ${osvers} -lt 7 ]]; then
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   echo "Gatekeeper Not Available For This Version Of Mac OS X"
-fi
+else
  
 # Checks Gatekeeper status on Macs
 # running 10.7.x or higher
 
-if [[ ${osvers} -ge 7 ]]; then
     gatekeeper_status=`spctl --status | awk '/assessments/ {print $2}'`
    if [ $gatekeeper_status = "disabled" ]; then
       result=Disabled

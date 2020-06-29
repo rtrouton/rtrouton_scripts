@@ -8,10 +8,17 @@
 # This script works on Mac OS X 10.7.0 and higher
 #
 
-# Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
 
-if [[ ${osvers} -ge 7 ]]; then
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
  # Checks the current Java version and displays the results
 

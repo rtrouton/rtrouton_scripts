@@ -1,7 +1,14 @@
 #!/bin/sh
 
-# Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Environment settings
 oddomain="ldap.server.here" 	# Fully qualified DNS of your LDAP server
@@ -46,7 +53,7 @@ echo ""
 
 echo "Binding to LDAP Domain "$oddomain
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
    if [ ! -d '/Library/Preferences/DirectoryService' ]; then
     	echo "mkdir /Library/Preferences/DirectoryService"
    fi
@@ -56,7 +63,7 @@ if [[ ${osvers} -lt 7 ]]; then
    fi
 fi
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 /bin/cat > /tmp/$oddomain.plist << 'NEW_LDAP_BIND'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -732,7 +739,7 @@ NEW_LDAP_BIND
 fi
 
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 	if [ ! -d /Library/Preferences/OpenDirectory/Configurations/LDAPv3 ]; then
     	mkdir /Library/Preferences/OpenDirectory/Configurations/LDAPv3
 	fi
@@ -742,7 +749,7 @@ if [[ ${osvers} -ge 7 ]]; then
 	fi
 fi
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 /bin/cat > /tmp/$oddomain.plist << 'NEW_LDAP_BIND'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -831,7 +838,7 @@ echo "Finished OD Binding."
 # Give DS a chance to catch up
 sleep 5
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
     echo "Removing previous bindings"
     dscl localhost -delete Search CSPSearchPath '/Active Directory/DOMAIN/All Domains'
     dscl localhost -merge Search CSPSearchPath '/LDAPv3/ldap.server.here'
@@ -850,7 +857,7 @@ if [[ ${osvers} -ge 7 ]]; then
     killall opendirectoryd
 fi
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   echo "Removing AD binding"
   dscl localhost -delete Search CSPSearchPath '/Active Directory/All Domains'
   dscl localhost -merge Search CSPSearchPath '/LDAPv3/ldap.server.here'

@@ -3,8 +3,15 @@
 # Set the the "Enable applet plug-in and Web Start Applications" setting for Java in your Mac's default user template and for all existing users.
 # Code adapted from DeployStudio's rc130 ds_finalize script, from the section where DeployStudio is disabling the iCloud and gestures demos
 
-osversionlong=`sw_vers -productVersion`
-osvers=${osversionlong:3:1}
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 
 # Get the system's UUID to set ByHost prefs
@@ -17,8 +24,7 @@ MAC_UUID=$(system_profiler SPHardwareDataType | awk -F" " '/UUID/{print $3}')
 # "Enable applet plug-in and Web Start Applications" setting for Java
 # setting is enabled.
 
-if [[ ${osvers} -eq 7 || 8 ]];
-then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
   for USER_TEMPLATE in "/System/Library/User Template"/*
   do
      if [ ! -d "${USER_TEMPLATE}"/Library/Preferences ]
@@ -47,8 +53,7 @@ fi
 # "Enable applet plug-in and Web Start Applications" setting for Java
 # setting is enabled.
 
-if [[ ${osvers} -eq 7 || 8 ]];
-then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
   for USER_HOME in /Users/*
   do
     USER_UID=`basename "${USER_HOME}"`

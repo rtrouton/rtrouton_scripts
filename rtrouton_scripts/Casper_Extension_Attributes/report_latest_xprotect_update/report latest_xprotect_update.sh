@@ -2,8 +2,16 @@
 
 XProtectCheck(){
 
-osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
 if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 6 ]]; then
 

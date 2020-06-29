@@ -24,11 +24,19 @@ LaunchCtlMethod(){
 # https://derflounder.wordpress.com/2016/03/25/running-processes-in-os-x-as-the-logged-in-user-from-outside-the-users-account/
 # https://babodee.wordpress.com/2016/04/09/launchctl-2-0-syntax/
 
- osvers_major=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $1}')
- osvers_minor=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
  # Identify the username of the logged-in user
- logged_in_user=`python -c 'from SystemConfiguration import SCDynamicStoreCopyConsoleUser; import sys; username = (SCDynamicStoreCopyConsoleUser(None, None, None) or [None])[0]; username = [username,""][username in [u"loginwindow", None, u""]]; sys.stdout.write(username + "\n");'`
+ logged_in_user=`scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/  { print $3 }'`
 
  if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 10 ]]; then
 

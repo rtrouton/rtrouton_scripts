@@ -2,9 +2,15 @@
 
 # This script downloads and installs the latest available Oracle Java 8 JDK CPU release or PSU release for compatible Macs
 
-# Determine OS version
+# Save current IFS state
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 IdentifyLatestJDKRelease(){
 
@@ -34,11 +40,9 @@ Java_8_JDK_PSU_URL=`/usr/bin/curl -s https://www.oracle.com/technetwork/java/jav
 
 }
 
-if [[ ${osvers} -lt 8 ]]; then
+if [[  ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 8 )  ]]; then
   echo "Oracle Java 8 JDK is not available for Mac OS X 10.7.5 or earlier."
-fi
-
-if [[ ${osvers} -ge 8 ]]; then
+else
 
     # Specify name of downloaded disk image
 

@@ -1,14 +1,22 @@
 #!/bin/bash
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # If the Mac is running 10.8.5 or earlier, the
 # script will return the following output:
 # "Mac is not running 10.9. Not affected by this issue."
 
-if [[ ${osvers} -lt 9 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 9 ) ]]; then
   echo "Mac is not running 10.9. Not affected by this issue."
-fi
+else
 
 # If the Mac is running 10.9.0 or later, the
 # script will return the following output if
@@ -20,7 +28,6 @@ fi
 # 
 # defaults write /Library/Preferences/com.apple.mdmclient BypassPreLoginCheck -bool YES
 
-if [[ ${osvers} -ge 9 ]]; then
 	mdmbypass=`defaults read /Library/Preferences/com.apple.mdmclient BypassPreLoginCheck`
 	if [[ "$mdmbypass" = 1 ]]; then
           echo "Fix has already been applied."

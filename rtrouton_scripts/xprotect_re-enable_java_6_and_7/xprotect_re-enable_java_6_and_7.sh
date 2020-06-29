@@ -11,7 +11,15 @@
 # browser plug-in to run in Safari without being blocked.
 
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 javaVendor=`/usr/bin/defaults read "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Info" CFBundleIdentifier`
 
@@ -92,7 +100,7 @@ if [[ -e /System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/XProte
 # browser plug-in.
 # 
    
-    if [[ ${osvers} -ge 7 ]]; then
+    if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
       if [[ "$javaVendor" = "com.oracle.java.JavaAppletPlugin" ]]; then 
 	 	if [[ ${CURRENT_JAVA_7_BUILD} != ${XPROTECT_JAVA_7_BUILD} ]]; then
 

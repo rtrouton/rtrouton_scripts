@@ -1,7 +1,17 @@
 #!/bin/bash
  
 available_free_space=$(df -g / | tail -1 | awk '{print $4}')
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 needed_free_space="$4"
 os_name="$5"
 insufficient_free_space_for_install_dialog="Your boot drive must have $needed_free_space gigabytes of free space available in order to install $os_name using Self Service. It has $available_free_space gigabytes available. If you need assistance with freeing up space, please contact the help desk."
@@ -21,7 +31,7 @@ if [[ "$available_free_space" -ge "$needed_free_space" ]]; then
    # automatic login should  be disabled  when installing additional packages at first boot. 
    # If automatic login is not disabled, the additional packages will be skipped over.
 
-   if [[ ${osvers} -eq 7 ]]; then
+   if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) ]]; then
 	ENCRYPTION=`diskutil cs list | grep -E "Encryption Type" | sed -e's/\|//' | awk '{print $3}'`
 	   if [ "$ENCRYPTION" = "AES-XTS" ]; then
 		   echo "FileVault 2 is enabled. Disabling FDEAutoLogin."
@@ -31,7 +41,7 @@ if [[ "$available_free_space" -ge "$needed_free_space" ]]; then
 	   fi
    fi
 
-   if [[ ${osvers} -ge 8 ]]; then
+   if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 8 ) ]]; then
 	   FDE=`fdesetup status | grep "Off"`
 	   if [ "$FDE" = "" ]; then
 		   echo "FileVault 2 is enabled. Disabling FDEAutoLogin."

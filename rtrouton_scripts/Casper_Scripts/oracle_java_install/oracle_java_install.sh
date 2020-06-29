@@ -1,7 +1,14 @@
 #!/bin/bash
 
-osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # This script checks the OS of the machine running it
 # and triggers the following policies based on OS version

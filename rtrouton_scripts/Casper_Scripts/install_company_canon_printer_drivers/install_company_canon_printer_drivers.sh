@@ -1,7 +1,15 @@
 #!/bin/bash
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Check /Library/Printers/Canon/CUPSPS2/Utilities/Canon CUPS PS Printer Utility.app/Contents/Info.plist
 # for the CFBundleVersion key value. It should match the version of the installed drivers.
@@ -28,17 +36,15 @@ elif [[ ${installed_driver_int} -eq ${driver_version_int} ]]; then
   echo "Canon PS $driver_version Print Drivers installed."
 elif [[ ${installed_driver_int} -lt ${driver_version_int} ]]; then
   echo "Canon PS $driver_version not found or drivers are not installed. Installing Canon PS $driver_version Print Drivers."
-  if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 
     "$jamfHelper" -windowType utility -description "$description" -button1 "$button1" -icon "$icon" -timeout 10
 
-  fi
-
-  if [[ ${osvers} -ge 7 ]]; then
+else
 
     jamf displayMessage -message "$dialog"
 
-  fi
+fi
  jamf policy -event companycanondrivers
 fi
 

@@ -1,7 +1,12 @@
 #!/bin/sh
 
-# Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Environment settings
 LDAPdomain="new_ldap_server_here" 		# Fully qualified DNS of new LDAP server
@@ -81,7 +86,7 @@ echo ""
 
 echo "Binding to LDAP Domain "$LDAPdomain
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
    if [[ ! -d '/Library/Preferences/DirectoryService' ]]; then
     	echo "mkdir /Library/Preferences/DirectoryService"
    fi
@@ -91,7 +96,7 @@ if [[ ${osvers} -lt 7 ]]; then
    fi
 fi
 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 /bin/cat > /tmp/$LDAPdomain.plist << 'NEW_LDAP_BIND'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -767,7 +772,7 @@ NEW_LDAP_BIND
 fi
 
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 	if [[ ! -d /Library/Preferences/OpenDirectory/Configurations/LDAPv3 ]]; then
     	mkdir /Library/Preferences/OpenDirectory/Configurations/LDAPv3
 	fi
@@ -777,7 +782,7 @@ if [[ ${osvers} -ge 7 ]]; then
 	fi
 fi
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 /bin/cat > /tmp/$LDAPdomain.plist << 'NEW_LDAP_BIND'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -870,17 +875,7 @@ sleep 5
 if [[ -n "$check4oldAD" ]]; then
  if [[ $check4oldAD == "${oldADdomain}" ]]; then
 
-  if [[ ${osvers} -ge 7 ]]; then
-    echo "Removing previous bindings"
-    dscl localhost -delete Search CSPSearchPath /Active\ Directory/"${oldADdomainname}"/All\ Domains
-    dscl localhost -delete Contact CSPSearchPath /Active\ Directory/"${oldADdomainname}"/All\ Domains
-    echo "Adding new LDAP binding"
-    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
-    echo "Killing opendirectoryd"
-    killall opendirectoryd
-  fi
-
-  if [[ ${osvers} -lt 7 ]]; then
+  if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
    echo "Removing remaining AD entries"
    dscl localhost -delete Search CSPSearchPath '/Active Directory/All Domains'
    dscl localhost -delete Contact CSPSearchPath '/Active Directory/All Domains'
@@ -888,6 +883,14 @@ if [[ -n "$check4oldAD" ]]; then
    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
    echo "Killing DirectoryService"
    killall DirectoryService
+  else
+    echo "Removing previous bindings"
+    dscl localhost -delete Search CSPSearchPath /Active\ Directory/"${oldADdomainname}"/All\ Domains
+    dscl localhost -delete Contact CSPSearchPath /Active\ Directory/"${oldADdomainname}"/All\ Domains
+    echo "Adding new LDAP binding"
+    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
+    echo "Killing opendirectoryd"
+    killall opendirectoryd
   fi
 
   echo -n "Now bound to OD Domain: "
@@ -901,7 +904,15 @@ fi
 if [[ -n "$check4newAD" ]]; then
  if [[ $check4newAD == "${newADdomain}" ]]; then
 
-  if [[ ${osvers} -ge 7 ]]; then
+  if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
+   echo "Removing AD binding"
+   dscl localhost -delete Search CSPSearchPath '/Active Directory/All Domains'
+   echo "Adding new LDAP binding"
+   dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
+   dscl localhost -merge Search CSPSearchPath '/Active Directory/All Domains'
+   echo "Killing DirectoryService"
+   killall DirectoryService
+  else
     echo "Removing previous bindings"
     dscl localhost -delete Search CSPSearchPath /Active\ Directory/"${newADdomainname}"/All\ Domains
     echo "Adding new LDAP binding"
@@ -918,17 +929,7 @@ if [[ -n "$check4newAD" ]]; then
 
     dscl localhost -delete Search CSPSearchPath /Active\ Directory/"${newADdomainname}"
     echo "Killing opendirectoryd"
-    killall opendirectoryd
-  fi
-
-  if [[ ${osvers} -lt 7 ]]; then
-   echo "Removing AD binding"
-   dscl localhost -delete Search CSPSearchPath '/Active Directory/All Domains'
-   echo "Adding new LDAP binding"
-   dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
-   dscl localhost -merge Search CSPSearchPath '/Active Directory/All Domains'
-   echo "Killing DirectoryService"
-   killall DirectoryService
+    killall opendirectoryd  
   fi
 
   echo -n "Now bound to OD Domain: "
@@ -944,18 +945,17 @@ if [[ -n "$check4newAD" ]]; then
 fi
 
 if [[ $check4oldAD == "" ]] && [[ $check4newAD == "" ]]; then
-  if [[ ${osvers} -ge 7 ]]; then
-    echo "Adding new LDAP binding"
-    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
-    echo "Killing opendirectoryd"
-    killall opendirectoryd
-  fi
 
-  if [[ ${osvers} -lt 7 ]]; then
+  if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
    echo "Adding new LDAP binding"
    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
    echo "Killing DirectoryService"
    killall DirectoryService
+  else
+    echo "Adding new LDAP binding"
+    dscl localhost -merge Search CSPSearchPath /LDAPv3/"${LDAPdomain}"
+    echo "Killing opendirectoryd"
+    killall opendirectoryd  
   fi
 
   echo -n "Now bound to OD Domain: "
