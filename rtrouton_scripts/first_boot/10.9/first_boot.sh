@@ -183,7 +183,17 @@ for USER_HOME in /Users/*
 # as part of the following actions to 
 # disable the iCloud pop-up window
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 sw_vers=$(sw_vers -productVersion)
 
 
@@ -194,7 +204,7 @@ sw_vers=$(sw_vers -productVersion)
 # If the directory is not found, it is created and then the
 # iCloud pop-up settings are set to be disabled.
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
  for USER_TEMPLATE in "/System/Library/User Template"/*
   do

@@ -10,8 +10,6 @@ IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_ver
 
 IFS=$OLDIFS
 
-osvers_dot_version=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $3}')
-
 IRKHashCheck(){
 
 # This function checks for the SHA-1 hash of a FileVault 2 institutional recovery key's public 

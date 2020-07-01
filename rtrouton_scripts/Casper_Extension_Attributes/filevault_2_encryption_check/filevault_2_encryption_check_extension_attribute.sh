@@ -4,16 +4,24 @@ CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
 ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
 
-osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
 # following message is displayed without quotes:
 #
-# "Unknown Version Of Mac OS X"
+# "macOS 11 and later not supported"
 
 if [[ ${osvers_major} -ne 10 ]]; then
-  echo "<result>Unknown Version Of Mac OS X</result>"
+  echo "<result>macOS 11 and later not supported.</result>"
 fi
 
 # Checks to see if the OS on the Mac is 10.7 or higher.

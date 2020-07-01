@@ -1,27 +1,27 @@
 #!/bin/bash
 
-osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
 
-# Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
-# following message is displayed without quotes:
-#
-# "Unknown Version Of Mac OS X"
+OLDIFS=$IFS
 
-if [[ ${osvers_major} -ne 10 ]]; then
-  /bin/echo "Unknown Version of Mac OS X"
-fi
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 
 # Checks to see if the OS on the Mac is 10.11.x or higher.
 # If it is not, the following message is displayed without quotes:
 #
 # "System Integrity Protection Not Available For" followed by the version of OS X.
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 11 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 11 ) ]]; then
   /bin/echo "System Integrity Protection Not Available For `sw_vers -productVersion`"
 fi
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 11 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 11 ) || ${osvers_major} -eq 11 ]]; then
  
 # Checks System Integrity Protection status on Macs
 # running 10.11.x or higher

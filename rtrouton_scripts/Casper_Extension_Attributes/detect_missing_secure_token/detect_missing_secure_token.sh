@@ -4,7 +4,15 @@
 # current logged-in user has a Secure Token attribute
 # associated with their account.
 
-osvers_minor=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
 result=0
 
 MissingSecureTokenCheck() {
@@ -47,7 +55,7 @@ MissingSecureTokenCheck() {
 
 # Check to see if the OS version of the Mac supports running APFS boot volumes.
 
-if [[ ${osvers_minor} -ge 13 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 13 ) ]]; then
 
 	# If the OS check passes, check to see if the boot volume has an APFS filesystem
 	# with FileVault turned on.

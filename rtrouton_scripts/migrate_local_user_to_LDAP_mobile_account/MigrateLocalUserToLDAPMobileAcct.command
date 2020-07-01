@@ -31,9 +31,17 @@ listUsers="$(/usr/bin/dscl . list /Users | grep -v _ | grep -v root | grep -v uu
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
 check4LDAP=`/usr/bin/dscl localhost -list . | grep LDAPv3`
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 lookupAccount=helpdesk
-OS=`/usr/bin/sw_vers | grep ProductVersion | cut -c 17-20`
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 echo "********* Running $FullScriptName Version $Version *********"
 
@@ -110,10 +118,10 @@ until [ "$user" == "FINISHED" ]; do
 			/usr/bin/dscl . -delete "/Users/$user"
 
 				# Refresh Directory Services
-				if [[ ${osvers} -ge 7 ]]; then
-					/usr/bin/killall opendirectoryd
-				else
+				if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 6 ) ]]; then
 					/usr/bin/killall DirectoryService
+				else
+					/usr/bin/killall opendirectoryd
 				fi
 				sleep 20
 				/usr/bin/id $netname
@@ -122,8 +130,8 @@ until [ "$user" == "FINISHED" ]; do
 					echo "Oops, theres a home folder there already for $netname.\nIf you don't want that one, delete it in the Finder first,\nthen run this script again."
 					exit 1
 				else
-                                        /System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n $netname
-                                        /bin/rm -rf /Users/$netname
+					/System/Library/CoreServices/ManagedClient.app/Contents/Resources/createmobileaccount -n $netname
+					/bin/rm -rf /Users/$netname
 					/bin/mv /Users/old_$user /Users/$netname
 					/usr/sbin/chown -R ${netname} /Users/$netname
 					echo "Home for $netname now located at /Users/$netname"

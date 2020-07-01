@@ -175,7 +175,17 @@ for USER_HOME in /Users/*
 # as part of the following actions to disable
 # the iCloud and Diagnostic pop-up windows
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
 sw_vers=$(sw_vers -productVersion)
 sw_build=$(sw_vers -buildVersion)
 
@@ -187,7 +197,7 @@ sw_build=$(sw_vers -buildVersion)
 # If the directory is not found, it is created and then the
 # iCloud and Diagnostic pop-up settings are set to be disabled.
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
  for USER_TEMPLATE in "/System/Library/User Template"/*
   do
@@ -252,7 +262,7 @@ SUBMIT_DIAGNOSTIC_DATA_TO_APP_DEVELOPERS=FALSE
 # Checks first to see if the Mac is running 10.10.0 or higher. 
 # If so, the desired diagnostic submission settings are applied.
 
-if [[ ${osvers} -ge 10 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 10 ) ]]; then
 
   CRASHREPORTER_SUPPORT="/Library/Application Support/CrashReporter"
  
