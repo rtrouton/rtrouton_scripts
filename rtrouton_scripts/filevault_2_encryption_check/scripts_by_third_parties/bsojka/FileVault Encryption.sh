@@ -7,16 +7,27 @@ CORESTORAGESTATUS="/private/tmp/corestorage.txt"
 ENCRYPTSTATUS="/private/tmp/encrypt_status.txt"
 ENCRYPTDIRECTION="/private/tmp/encrypt_direction.txt"
 
-OS_MAJOR=$(sw_vers -productVersion | awk -F. '{print $1}')
-OS_MINOR=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
+osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
 
 # Checks if the OS on the Mac is 10.x:
-if [[ ${OS_MAJOR} -ne 10 ]]; then
-	echo "<result>Unknown version of Mac OS X</result>"
+if [[ ${osvers_major} -ne 10 ]]; then
+	echo "<result>macOS 11 and later not supported.</result>"
 	exit 0
 else
 	# Checks if the OS on the Mac is 10.7 or higher:
-	if [[ ${OS_MINOR} -lt 7 ]]; then
+	if [[ ${osvers_minor} -lt 7 ]]; then
 		echo "<result>Not available</result>"
 		exit 0
 	else
@@ -59,11 +70,11 @@ else
 			# Get the Logical Volume Family UUID (aka "Parent LVF UUID" in diskutil cs info) for the boot drive's CoreStorage volume.
 			LV_FAMILY_UUID=$(diskutil cs info / | awk '/Parent LVF UUID/ {print $4;exit}')
 
-			if [[ ${OS_MINOR} -eq 7 || ${OS_MINOR} -eq 8 ]]; then
+			if [[ ${osvers_minor} -eq 7 || ${osvers_minor} -eq 8 ]]; then
 				CONVERTED=$(diskutil cs list $LV_UUID | awk '/Size \(Converted\)/ {print $5,$6;exit}')
 			fi
 
-			if [[ ${OS_MINOR} -ge 9 ]]; then
+			if [[ ${osvers_minor} -ge 9 ]]; then
 				CONVERTED=$(diskutil cs list $LV_UUID | awk '/Conversion Progress/ {print $3;exit}')
 			fi
 
@@ -91,7 +102,7 @@ else
 
 	# FileVault 2 status on 10.7.x:
 
-	if [[ ${OS_MINOR} -eq 7 ]]; then
+	if [[ ${osvers_minor} -eq 7 ]]; then
 		CONTEXT=$(diskutil cs list $LV_FAMILY_UUID | awk '/Encryption Context/ {print $3;exit}')
 		if [ "$CONTEXT" = "Present" ]; then
 			if [ "$ENCRYPTION" = "AES-XTS" ]; then
@@ -119,7 +130,7 @@ else
 		
 	# FileVault 2 status on 10.8.x through 10.10.x:
 
-	if [[ ${OS_MINOR} -ge 8 ]] && [[ ${OS_MINOR} -lt 11 ]]; then
+	if [[ ${osvers_minor} -ge 8 ]] && [[ ${osvers_minor} -lt 11 ]]; then
 		if [[ "$ENCRYPTIONEXTENTS" = "No" ]]; then
 			echo "<result>Not enabled</result>"
 		elif [[ "$ENCRYPTIONEXTENTS" = "Yes" ]]; then
@@ -141,7 +152,7 @@ else
 
 	# FileVault 2 status on 10.11.x and higher:
 
-	if [[ ${OS_MINOR} -ge 11 ]]; then
+	if [[ ${osvers_minor} -ge 11 ]]; then
 		if [[ "$FILESYSTEM" != "apfs" ]]; then
 			# HFS:
 			if [[ "$ENCRYPTION" = "None" ]] && [[ $(diskutil cs list "$LV_UUID" | awk '/Conversion Progress/ {print $3;exit}') == "" ]]; then

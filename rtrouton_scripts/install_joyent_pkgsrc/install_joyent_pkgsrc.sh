@@ -1,7 +1,12 @@
 #!/bin/bash
 
-osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Function to provide custom curl options
 myCurl () { /usr/bin/curl -k --retry 3 --silent --show-error "$@"; }
@@ -25,10 +30,10 @@ bootstrap_kit="/tmp/pkgsrc.tar.gz"
 # Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
 # following message is displayed without quotes:
 #
-# "Unknown Version Of Mac OS X"
+# "macOS 11 and later not supported."
 
 if [[ ${osvers_major} -ne 10 ]]; then
-  echo "Unknown Version Of Mac OS X"
+  echo "macOS 11 and later not supported."
   exit 0
 fi
 

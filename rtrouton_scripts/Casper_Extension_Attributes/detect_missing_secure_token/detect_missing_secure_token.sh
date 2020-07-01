@@ -13,6 +13,8 @@ IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_ver
 
 # restore IFS to previous state
 
+IFS=$OLDIFS
+
 result=0
 
 MissingSecureTokenCheck() {

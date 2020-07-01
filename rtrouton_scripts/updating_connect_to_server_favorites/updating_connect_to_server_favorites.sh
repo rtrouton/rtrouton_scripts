@@ -1,7 +1,15 @@
 #!/bin/sh
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Get current date
 FILE_DATE=`date +%Y%m%d`
@@ -9,13 +17,13 @@ FILE_DATE=`date +%Y%m%d`
 
 # If the Mac is running 10.5.8 or lower, the script should exit
 
-if [[ ${osvers} -lt 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 6 ) ]]; then
    exit 0
 fi
 
 # If the Mac is running 10.6.0 or higher, the script should should run
 
-if [[ ${osvers} -ge 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 6 ) ]]; then
    
    # Check for the /Users/username/Library/Preferences/com.apple.sidebarlists.plist file
 

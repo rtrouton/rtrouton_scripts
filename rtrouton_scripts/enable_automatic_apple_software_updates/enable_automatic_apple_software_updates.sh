@@ -1,7 +1,17 @@
 #!/bin/bash
 
+set -x
+
 # Check for macOS version
-osvers=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Enable automatic download and install of system updates
 # for OS X Yosemite and later.
@@ -22,7 +32,7 @@ plist_file="/Library/Preferences/com.apple.SoftwareUpdate.plist"
 
 # For macOS Mojave and later, enable the automatic installation of macOS updates.
 
-if [[ "$osvers" -ge 14 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 14 ) || ( ${osvers_major} -eq 11 ) ]]; then
 	/usr/bin/defaults write "$plist_file" AutomaticallyInstallMacOSUpdates -bool true
 fi
 
@@ -31,6 +41,6 @@ fi
 
 plist_file="/Library/Preferences/com.apple.commerce.plist"
 
-if [[ "$osvers" -ge 10 ]] && [[ "$osvers" -lt 14 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ( ${osvers_minor} -ge 10 && ${osvers_minor} -lt 14 ) ) ]]; then
 	/usr/bin/defaults write "$plist_file" AutoUpdateRestartRequired -bool true
 fi

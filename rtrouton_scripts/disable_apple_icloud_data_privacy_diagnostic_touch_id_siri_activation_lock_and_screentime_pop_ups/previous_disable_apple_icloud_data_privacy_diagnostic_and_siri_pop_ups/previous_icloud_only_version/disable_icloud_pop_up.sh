@@ -1,7 +1,15 @@
 #!/bin/sh
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 sw_vers=$(sw_vers -productVersion)
 
 # Checks first to see if the Mac is running 10.7.0 or higher. 
@@ -11,7 +19,7 @@ sw_vers=$(sw_vers -productVersion)
 # If the directory is not found, it is created and then the
 # iCloud pop-up settings are set to be disabled.
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
  for USER_TEMPLATE in "/System/Library/User Template"/*
   do

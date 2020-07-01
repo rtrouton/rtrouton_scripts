@@ -1,7 +1,15 @@
 #!/bin/bash
 
 # Determine OS version
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 sw_vers=$(sw_vers -productVersion)
 
 # Determine OS build number
@@ -14,7 +22,7 @@ sw_build=$(sw_vers -buildVersion)
 # found, the iCloud, Data & Privacy, Diagnostic and Siri pop-up
 # settings are set to be disabled.
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
 
  for USER_TEMPLATE in "/System/Library/User Template"/*
   do

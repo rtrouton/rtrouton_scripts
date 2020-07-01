@@ -10,7 +10,16 @@
 Version=1.2
 FullScriptName=`basename "$0"`
 ShowVersion="$FullScriptName $Version"
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Enter your Active Directory domain
 # in the AD_domain variable. For example,
@@ -56,14 +65,14 @@ echo ""         # force a carriage return to be output
 echo ""
 echo "Home folder is located at the following address:"
 echo ""
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
      windows_path=`/usr/bin/dscl localhost -read /Active\ Directory/$AD_Domain/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print $2}'`
      mac_path=`/usr/bin/dscl localhost -read /Active\ Directory/$AD_Domain/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print "smb:" $2}' | tr '\\' '/'`
 	 echo "Windows:" $windows_path
 	 echo "Mac:" $mac_path
 fi
 	                 
-if [[ ${osvers} -lt 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
 	windows_path=`/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/awk '{print $2}'`
 	mac_path=`/usr/bin/dscl localhost -read /Active\ Directory/All\ Domains/Users/$udn SMBHome | /usr/bin/awk {'print "smb:" $2'} | tr '\\' '/'`
 	echo "Windows:" $windows_path

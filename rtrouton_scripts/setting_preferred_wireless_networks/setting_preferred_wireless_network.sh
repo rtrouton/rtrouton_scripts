@@ -12,8 +12,16 @@
 # add the correct variables as needed. The
 # wireless network name should not contain spaces.
 
-# Determines which OS the script is running on
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # On 10.7 and higher, the Wi-Fi interface needs to be identified.
 # On 10.5 and 10.6, the Wi-Fi interface should be named as "AirPort"
@@ -45,7 +53,7 @@ PASSWORD=
 # Once the running OS is determined, the settings for the specified
 # wireless network are created and set as the first preferred network listed
   
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
     networksetup -addpreferredwirelessnetworkatindex $wifiDevice $SSID $INDEX $SECURITY $PASSWORD
 else
     networksetup -addpreferredwirelessnetworkatindex AirPort $SSID $INDEX $SECURITY $PASSWORD
