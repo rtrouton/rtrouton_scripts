@@ -1,8 +1,17 @@
 #!/bin/bash
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
 
-if [[ ${osvers} -lt 5 ]]; then
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 5 ) ]]; then
   echo "<result>Unaffected</result>"
 fi
 
@@ -12,7 +21,7 @@ fi
  
 # Checks AD password interval on 10.5.x Macs
 
-if [[ ${osvers} -eq 5 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 5 ) ]]; then
    passinterval=`/usr/libexec/PlistBuddy -c "Print ':AD Advanced Options:Password Change Interval'" /Library/Preferences/DirectoryService/ActiveDirectory.plist`
    if [ $passinterval -eq 0 ]; then
       result=Yes
@@ -24,7 +33,7 @@ fi
 
 # Checks AD password interval on 10.6.x Macs
 
-if [[ ${osvers} -eq 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 6 ) ]]; then
    passinterval=`/usr/libexec/PlistBuddy -c "Print ':AD Advanced Options:Password Change Interval'" /Library/Preferences/DirectoryService/ActiveDirectory.plist`
    if [ $passinterval -eq 0 ]; then
       result=Yes

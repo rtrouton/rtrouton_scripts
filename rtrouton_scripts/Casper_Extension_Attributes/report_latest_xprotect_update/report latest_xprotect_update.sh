@@ -2,6 +2,7 @@
 
 XProtectCheck(){
 
+# Determine OS version
 # Save current IFS state
 
 OLDIFS=$IFS

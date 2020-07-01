@@ -19,15 +19,23 @@ wifiNetwork="Secure_WiFi_SSID_Here"
 
 rootCertificate="Certificate_Common_Name_Here"
 
-# Determines which OS the script is running on
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # On 10.7 and higher, the Wi-Fi interface needs to be identified.
 # On 10.5 and 10.6, the Wi-Fi interface should be named as "AirPort"
 
 wifiDevice=`/usr/sbin/networksetup -listallhardwareports | awk '/^Hardware Port: Wi-Fi/,/^Ethernet Address/' | head -2 | tail -1 | cut -c 9-`
 
-if [[ ${osvers} -ge 7 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
    wifiNetworkCheck=`networksetup -listpreferredwirelessnetworks $wifiDevice | grep "$wifiNetwork" | awk '{print $1}'`
 else
    wifiNetworkCheck=`networksetup -listpreferredwirelessnetworks AirPort | grep "$wifiNetwork" | awk '{print $1}'`

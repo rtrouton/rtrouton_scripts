@@ -1,8 +1,15 @@
 #!/bin/bash
 
 # Determine OS version
+# Save current IFS state
 
-osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 # Oracle did not release their own JDK for Mac OS X 10.5.8 
 # or earlier. Instead, Apple handled this and released their
@@ -11,7 +18,7 @@ osvers=$(sw_vers -productVersion | awk -F. '{print $2}')
 # running 10.5.8 or earlier, this EA will always return 
 # "Apple" as the vendor.
 
-if [[ ${osvers} -lt 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 6 ) ]]; then
   jdk_installed=`/usr/libexec/java_home 2>/dev/null`
      if [[ "$jdk_installed" == "" ]]; then
         result="No Java JDK Available"
@@ -30,7 +37,7 @@ fi
 # Apple
 # Oracle
 
-if [[ ${osvers} -ge 6 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) ]]; then
    
    jdk_installed=`/usr/libexec/java_home 2>/dev/null`
    

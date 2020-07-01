@@ -1,29 +1,28 @@
 #!/bin/bash
 
-osvers_major=$(sw_vers -productVersion | awk -F. '{print $1}')
-osvers_minor=$(sw_vers -productVersion | awk -F. '{print $2}')
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
 
 ERROR=0
-
-# Checks to see if the OS on the Mac is 10.x.x. If it is not, the 
-# following message is displayed without quotes:
-#
-# "Unknown Version Of macOS"
-
-if [[ ${osvers_major} -ne 10 ]]; then
-  echo "<result>Unknown Version Of macOS</result>"
-fi
 
 # Checks to see if the OS on the Mac is 10.13 or higher.
 # If it is not, the following message is displayed without quotes:
 #
 # "APFS Encryption Not Available For This Version Of macOS"
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -lt 13 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 13 ) ]]; then
   echo "<result>APFS Encryption Not Available For This Version Of macOS</result>"
 fi
 
-if [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 13 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 13 ) || ${osvers_major} -ge 11 ]]; then
 
 # If the OS on the Mac is 10.13 or higher, check to see if the
 # boot drive is formatted with APFS or HFS+
