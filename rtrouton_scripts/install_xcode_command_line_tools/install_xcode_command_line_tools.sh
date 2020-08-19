@@ -61,7 +61,7 @@ fi
 
 if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) || ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 8 ) ]]; then
 
-	q	
+	if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) ]]; then	
 	    DMGURL=http://devimages.apple.com/downloads/xcode/command_line_tools_for_xcode_os_x_lion_april_2013.dmg
 	fi
 	
