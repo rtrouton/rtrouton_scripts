@@ -172,7 +172,7 @@ if [[ -n "$ComputerXML" ]]; then
 					SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
 					UDIDIdentifier=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/udid/text()' - 2>/dev/null)				
 					
-					#curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$anID" -X DELETE
+					curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$anID" -X DELETE
 					
 					if [[ $? -eq 0 ]]; then
 						echo "Deleted computer record with id $anID"
