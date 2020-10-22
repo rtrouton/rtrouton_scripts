@@ -66,6 +66,16 @@ echo
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+xpath() {
+    # xpath in Big Sur changes syntax
+    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
+    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
+        /usr/bin/xpath -e "$@"
+    else
+        /usr/bin/xpath "$@"
+    fi
+}
+
 # The following function downloads individual Jamf Pro policy as XML data
 # then mines the policy data for the relevant information.
 

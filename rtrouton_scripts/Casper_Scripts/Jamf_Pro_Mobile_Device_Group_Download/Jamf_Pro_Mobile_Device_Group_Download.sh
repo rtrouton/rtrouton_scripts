@@ -104,6 +104,16 @@ jamfpro_url=${jamfpro_url%%/}
 # Remove the trailing slash from the MobileDeviceGroupDownloadDirectory variable if needed.
 MobileDeviceGroupDownloadDirectory=${MobileDeviceGroupDownloadDirectory%%/}
 
+xpath() {
+    # xpath in Big Sur changes syntax
+    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
+    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
+        /usr/bin/xpath -e "$@"
+    else
+        /usr/bin/xpath "$@"
+    fi
+}
+
 DownloadMobileDeviceGroup(){
 
 	# Download the group information as XML, then strip out

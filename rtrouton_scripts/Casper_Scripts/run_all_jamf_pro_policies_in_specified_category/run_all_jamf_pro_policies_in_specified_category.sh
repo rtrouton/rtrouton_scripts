@@ -21,15 +21,23 @@ CheckBinary (){
 
 # Identify location of jamf binary.
 
-jamf_binary=`/usr/bin/which jamf`
+jamf_binary=$(/usr/bin/which jamf)
 
- if [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ ! -e "/usr/local/bin/jamf" ]]; then
-    jamf_binary="/usr/sbin/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ ! -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
-    jamf_binary="/usr/local/bin/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ -e "/usr/sbin/jamf" ]] && [[ -e "/usr/local/bin/jamf" ]]; then
+ if [[ "$jamf_binary" == "" ]] && [[ ! -x "/usr/local/bin/jamf" ]] && [[ -x "/usr/local/jamf/bin/jamf" ]]; then
+    jamf_binary="/usr/local/jamf/bin/jamf"
+ elif [[ "$jamf_binary" == "" ]] && [[ -x "/usr/local/bin/jamf" ]] && [[ -x "/usr/local/jamf/bin/jamf" ]]; then
     jamf_binary="/usr/local/bin/jamf"
  fi
+}
+
+xpath() {
+    # xpath in Big Sur changes syntax
+    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
+    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
+        /usr/bin/xpath -e "$@"
+    else
+        /usr/bin/xpath "$@"
+    fi
 }
 
   # Run the CheckBinary function to identify the location
@@ -61,11 +69,11 @@ jamf_binary=`/usr/bin/which jamf`
 
    IFS=$'\n'
   
-   casper_policy_ids=`/usr/bin/curl -ksf -u "${apiUsername}:${apiPassword}" -H "Accept: application/xml" "${JamfProPolicyURL}" | xpath "policies/policy/id" | sed 's/\<id>//g' | tr '</id>' '\n' | sed '/^s*$/d'`
+   jamfpro_policy_ids=$(/usr/bin/curl -sf -u "${apiUsername}:${apiPassword}" -H "Accept: application/xml" "${JamfProPolicyURL}" | xpath "policies/policy/id" | sed 's/\<id>//g' | tr '</id>' '\n' | sed '/^s*$/d')
   
   # read all policy IDs into an array
 
-  policies=($(/bin/echo "$casper_policy_ids"))
+  policies=($(/bin/echo "$jamfpro_policy_ids"))
  
   # restore IFS to previous state
 
