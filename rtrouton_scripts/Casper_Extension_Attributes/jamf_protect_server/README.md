@@ -1,21 +1,16 @@
-This Jamf Pro Extension Attribute checks to see if Jamf Protect is installed and executable. 
+This Jamf Pro Extension Attribute checks to see if Jamf Protect's `protectctl`
+tool is installed. If the `protectctl` tool is installed, check for the Jamf Protect
+tenant name.
 
-If Jamf Protect is installed:
+If Jamf Protect's `protectctl` tool is installed:
 
-`/Library/Application Support/JamfProtect/JamfProtect.app` will be present.
+Output similar to that shown below will be returned:
 
-
-If Jamf Protect is not installed::
-
-`/Library/Application Support/JamfProtect/JamfProtect.app` will not be found.
-
-If Jamf Protect is installed, the following message is displayed:
-
-`1`
+`jamf_protect_server_name_here.protect`
 
 Otherwise, the following result is returned:
 
-`0`
+`NA`
 
 See `Jamf_Pro_Extension_Attribute_Setup.png` for a screenshot of how the Extension Attribute should be configured.
 
