@@ -49,7 +49,7 @@ IFS=$OLDIFS
 
  fi
 
- if [[ "$osvers_major" -eq 11 ]] || [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 10 ]]; then
+ if [[ ${osvers_major} -eq 11 ]] || [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 10 ]]; then
 
    # The launchctl verb for the indicated OS version
    
