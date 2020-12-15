@@ -30,18 +30,18 @@ jamfpro_user=""
 # Set the password here if you want it hardcoded.
 jamfpro_password=""	
 
-# Read the appropriate values from ~/Library/Preferences/corp.sap.jamfcloud-info.plist
+# Read the appropriate values from ~/Library/Preferences/com.github.jamfpro-info.plist
 # if the file is available. To create the file, run the following commands:
 #
-# defaults write $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_url https://jamf.pro.server.here
-# defaults write $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_user API_account_username_goes_here
-# defaults write $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_password API_account_password_goes_here
+# defaults write $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_url https://jamf.pro.server.here
+# defaults write $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_user API_account_username_goes_here
+# defaults write $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_password API_account_password_goes_here
 #
 
-if [[ -f "$HOME/Library/Preferences/corp.sap.jamfcloud-info.plist" ]]; then
-     jamfpro_user=$(defaults read $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_user)
-     jamfpro_password=$(defaults read $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_password)
-     jamfpro_url=$(defaults read $HOME/Library/Preferences/corp.sap.jamfcloud-info jamfpro_url)
+if [[ -f "$HOME/Library/Preferences/com.github.jamfpro-info.plist" ]]; then
+     jamfpro_user=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_user)
+     jamfpro_password=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_password)
+     jamfpro_url=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_url)
 fi
 
 # If the Jamf Pro URL, the account username or the account password aren't available
