@@ -37,7 +37,7 @@ fi
 
 if [[ -e "/Library/Internet Plug-Ins/PepperFlashPlayer/PepperFlashPlayer.plugin" ]]; then
     echo "Deleting PPAPI browser plug-in files."
-    rm "/Library/Internet Plug-Ins/PepperFlashPlayer/PepperFlashPlayer.plugin"
+    rm -Rf "/Library/Internet Plug-Ins/PepperFlashPlayer/PepperFlashPlayer.plugin"
     rm "/Library/Internet Plug-Ins/PepperFlashPlayer/manifest.json"
 fi
 
