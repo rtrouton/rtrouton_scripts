@@ -65,7 +65,7 @@ pkgutil --forget com.adobe.pkg.FlashPlayer 2>&1 > /dev/null
 
 # Remove Adobe Flash Player Install Manager.app
 
-if [ -e "/Applications/Utilities/Adobe Flash Player Install Manager.app" ]; then
+if [[ -e "/Applications/Utilities/Adobe Flash Player Install Manager.app" ]]; then
    echo "Deleting the Adobe Flash Player Install Manager app."
    rm -Rf "/Applications/Utilities/Adobe Flash Player Install Manager.app"
 fi
