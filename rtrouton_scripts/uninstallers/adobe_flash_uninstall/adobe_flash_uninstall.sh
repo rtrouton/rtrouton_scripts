@@ -61,7 +61,8 @@ done
 #Remove receipts
 
 rm -Rf /Library/Receipts/*FlashPlayer*
-pkgutil --forget com.adobe.pkg.FlashPlayer 2>&1 > /dev/null
+pkgutil --forget com.adobe.pkg.FlashPlayer >/dev/null 2>&1
+pkgutil --forget com.adobe.pkg.PepperFlashPlayer >/dev/null 2>&1
 
 # Remove Adobe Flash Player Install Manager.app
 
