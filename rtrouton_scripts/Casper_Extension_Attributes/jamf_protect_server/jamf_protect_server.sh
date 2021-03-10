@@ -15,7 +15,7 @@
 # NA
 
 if [[ -x /usr/local/bin/protectctl ]]; then
-  JAMF_PROTECT_SERVER=$(protectctl info | head -1 | awk '{print $2}')
+  JAMF_PROTECT_SERVER=$(protectctl info | awk '/Tenant/ {print $2}')
   echo "<result>$JAMF_PROTECT_SERVER</result>"
 else
   echo "<result>NA</result>"
