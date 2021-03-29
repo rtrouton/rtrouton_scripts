@@ -28,6 +28,9 @@ log()
 # use its icon, otherwise we check for the existence of the system's
 # AlertNoteIcon and use this, if available. If none of those icons 
 # are available, we use a generic one.
+
+imagelocation="/Users/Shared/yourimage.jpg" #Defile your own brand Icon
+
 displayDialog()
 {
 	local dialogMessage="$1"
@@ -64,7 +67,10 @@ displayDialog()
 		local iconName=$(/usr/bin/defaults read "/Applications/Self Service.app/Contents/Info" CFBundleIconFile 2>/dev/null)
 		dialogIcon="1"
 
-		if [[ -n "$iconName" && -r "$selfServicePath/Contents/Resources/$iconName.icns" ]]; then
+	if [[ -r "$imagelocation" ]]; then
+			dialogIcon="alias POSIX file \"$imagelocation\""
+
+		elif [[ -n "$iconName" && -r "$selfServicePath/Contents/Resources/$iconName.icns" ]]; then
 			dialogIcon="alias POSIX file \"$selfServicePath/Contents/Resources/$iconName.icns\""
 		
 		elif [[ -r "/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/AlertNoteIcon.icns" ]]; then
