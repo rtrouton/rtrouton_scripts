@@ -121,7 +121,7 @@ if [[ -n $filename && -r $filename ]]; then
 		  # Remove comment from line below to actually run
 		  # the deletion command.
 
-		  /usr/bin/curl -su ${jamfpro_user}:${jamfpro_password} "${jamfproIDURL}/$PackagesID" -X DELETE
+		  #/usr/bin/curl -su ${jamfpro_user}:${jamfpro_password} "${jamfproIDURL}/$PackagesID" -X DELETE
 		  
 		  if [[ $? -eq 0 ]]; then
 	         printf "$PackagesID\t %s\n" "$PackagesName" >> "$report_file"
