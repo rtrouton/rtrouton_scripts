@@ -106,7 +106,7 @@ if [[ -z "$PolicyDownloadDirectory" ]]; then
    echo "A location to store downloaded policies has not been specified."
    echo "Downloaded policies will be stored in $PolicyDownloadDirectory."
    echo "$PolicyDownloadDirectory not found.  Creating..."
-   mkdir -p $PolicyDownloadDirectory
+   mkdir -p "$PolicyDownloadDirectory"
    if (( $? == 0 ))
    	then
    		echo "Successfully created $PolicyDownloadDirectory"
@@ -137,7 +137,7 @@ else
 		rm -rf $PolicyDownloadDirectory
 		
 		# Creating a new directory with the same name.
-		mkdir -p $PolicyDownloadDirectory
+		mkdir -p "$PolicyDownloadDirectory"
 				if (( $? == 0 ))
 			then
 				echo "Successfully created new $PolicyDownloadDirectory"
@@ -151,7 +151,7 @@ else
 		echo  "$PolicyDownloadDirectory exists but is empty. Using existing directory for downloading policies."
    elif [[ -n "$PolicyDownloadDirectory" ]] && [[ ! -d "$PolicyDownloadDirectory" ]]; then
 		echo  "$PolicyDownloadDirectory does not exist. Creating $PolicyDownloadDirectory for downloading policies."
-		mkdir -p $PolicyDownloadDirectory
+		mkdir -p "$PolicyDownloadDirectory"
 			if (( $? == 0 )); then
 				echo "Successfully created new $PolicyDownloadDirectory"
 			else
