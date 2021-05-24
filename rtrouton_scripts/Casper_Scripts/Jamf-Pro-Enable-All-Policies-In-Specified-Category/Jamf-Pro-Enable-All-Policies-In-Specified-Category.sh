@@ -92,16 +92,6 @@ display_jamfpro_category="$jamfpro_category"
 # Replace spaces with %20 in the category input if needed.
 jamfpro_category=${jamfpro_category// /%20}
 
-xpath() {
-    # xpath in Big Sur changes syntax
-    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
-    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
-        /usr/bin/xpath -e "$@"
-    else
-        /usr/bin/xpath "$@"
-    fi
-}
-
 EnableComputerPolicy(){
 
 curloutput=$(mktemp)
