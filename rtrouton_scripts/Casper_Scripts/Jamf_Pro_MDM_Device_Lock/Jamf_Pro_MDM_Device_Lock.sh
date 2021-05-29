@@ -188,7 +188,7 @@ if [[ -r $filename ]]; then
          fi
 
       # If the Jamf Pro ID number is not all positive numbers,
-      # a warning message is displayed that an Jamf Pro ID number
+      # a warning message is displayed that an invalid Jamf Pro ID number
       # has been provided.
 
 	  else
