@@ -133,7 +133,7 @@ fi
 echo
 
 # Remove the trailing slash from the Jamf Pro URL if needed.
-jamfproURL=${jamfproURL%%/}
+jamfpro_url=${jamfpro_url%%/}
 
 # Verify that the file exists and is readable
 
