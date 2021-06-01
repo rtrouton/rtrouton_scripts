@@ -50,7 +50,7 @@ Failures should look similar to this:
 ``Invalid Jamf Pro ID data provided: AA2319``
 
 
-This script will also generate a report in .tsv format with the following information:
+This script will also generate a report in .tsv format with information similar to what's shown below:
 
 |Jamf Pro ID Number|Make |Model                      |Serial Number|UDID                                |Jamf Pro URL                                             |MDM Lock Successful|
 |------------------|-----|---------------------------|-------------|------------------------------------|---------------------------------------------------------|-------------------|
