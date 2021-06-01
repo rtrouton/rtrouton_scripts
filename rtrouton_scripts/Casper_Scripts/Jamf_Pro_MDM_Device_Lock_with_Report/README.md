@@ -66,7 +66,7 @@ for the account on the Jamf Pro server:
 
 **Jamf Pro Server Objects**:
 
-`Computers: Create`
+`Computers: Create, Read`
 
 **Jamf Pro Server Action**:
 
