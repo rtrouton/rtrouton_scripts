@@ -177,7 +177,7 @@ if [[ -r $filename ]]; then
 	         MachineModel=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/model/text()' - 2>/dev/null)
 	         SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
 	         UDIDIdentifier=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/udid/text()' - 2>/dev/null)						
-	         jamfpro_url=$(echo "$jamfpro_url"/computers.html?id="$jamf_pro_id")
+	         jamfproURL=$(echo "$jamfpro_url"/computers.html?id="$jamf_pro_id")
 	         
 	         if [[ ! -f "$report_file" ]]; then
 	         	touch "$report_file"
@@ -201,13 +201,13 @@ if [[ -r $filename ]]; then
 	         echo -e "\nSuccessfully locked computer with Jamf Pro ID $jamf_pro_id with PIN code $pin_code."
          
 	         if [[ $? -eq 0 ]]; then
-	         	printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfpro_url}\tYes\n" >> "$report_file"
+	         	printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfproURL}\tYes\n" >> "$report_file"
 	         else
 	         	echo "ERROR! Failed to read computer record with id $jamf_pro_id"
 	         fi
 		    else
 	         echo -e "\nERROR! MDM lock of computer with Jamf Pro ID $jamf_pro_id failed."
-	         printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfpro_url}\tNo\n" >> "$report_file"
+	         printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfproURL}\tNo\n" >> "$report_file"
 		    fi
 
       # If the PIN code is not all positive numbers
