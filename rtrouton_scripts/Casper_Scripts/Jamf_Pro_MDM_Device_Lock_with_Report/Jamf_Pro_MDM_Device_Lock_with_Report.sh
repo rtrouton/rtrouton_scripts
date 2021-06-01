@@ -1,0 +1,245 @@
+#!/bin/bash
+
+# Sends MDM lock commands using Jamf Pro's Classic API.
+
+# This script reads a .csv file formatted as follows:
+#
+# "Jamf Pro ID, PIN Code" as the first line
+# 
+# Subsequent lines:
+# Column 1: A Mac's Jamf Pro ID
+# Column 2: Device Lock PIN code
+# 
+# Example:
+#
+# Jamf Pro ID, PIN Code
+# 26,165234
+# 52,197898
+# 1226,201145
+#
+# This script is designed to run as shown below:
+#
+# /path/to/Jamf_Pro_MDM_Device_Lock_with_Report.sh /path/to/filename_goes_here.csv
+#
+# Once executed, the script will then do the following:
+#
+# Skip the first line of the .csv file (this is the "Jamf Pro ID, PIN Code" line.)
+# Read each subsequent line of the .csv one at a time and assign the values of column 1
+# and column 2 to separate variables.
+#
+# Use the variables in an API PUT call to identify a Jamf Pro computer inventory record
+# using the Jamf Pro ID listed in the .csv file and lock the Mac in question using the 
+# the PIN code listed in the .csv file.
+#
+# A successful MDM lock should produce output similar to that shown below:
+#
+# Attempting to send MDM lock to Jamf Pro ID 2935 with PIN code 348202.
+# <?xml version="1.0" encoding="UTF-8"?><computer_command><command><name>DeviceLock</name><command_uuid>98d915a4-6132-4535-b474-c8381e48425a</command_uuid><computer_id>2935</computer_id></command></computer_command>
+# Successfully locked computer with Jamf Pro ID 2935 with PIN code 348202.
+#
+# Failures should look similar to this:
+#
+# Attempting to send MDM lock to Jamf Pro ID 1234567890 with PIN code 348201.
+#
+# ERROR! MDM lock of computer with Jamf Pro ID 1234567890 failed.
+# 
+# Attempting to send MDM lock to Jamf Pro ID 29352935 with PIN code 12345.
+#
+# Invalid PIN code data provided: 12345
+# 
+# Attempting to send MDM lock to Jamf Pro ID AA2319 with PIN code 348206.
+#
+# Invalid Jamf Pro ID data provided: AA2319
+#
+# This script will also generate a report in .tsv format with information similar to what's shown below:
+#
+#
+# |Jamf Pro ID Number|Make |Model                      |Serial Number|UDID                                |Jamf Pro URL                                             |MDM Lock Successful|
+# |------------------|-----|---------------------------|-------------|------------------------------------|---------------------------------------------------------|-------------------|
+# |10734             |Apple|MacBook Pro (13-inch, 2018)|C02TW0WAHX874|C66B7C82-9CAB-4C89-85BE-7271121592A8|https://jamf.pro.server.here/computers.html?id=10734     |Yes                |
+# |858               |Apple|MacBook Pro (13-inch, 2018)|C027251024N23|159C6524-5069-41EC-9EDE-81158843F2EC|https://jamf.pro.server.here/computers.html?id=858       |No                 |
+# |421               |Apple|MacBook Pro (13-inch, 2018)|Q027251024R23|A5C73F1F-35BD-4E27-BE63-E5760F886A1A|https://jamf.pro.server.here/computers.html?id=421       |Yes                |
+# |1217              |Apple|MacBook Pro (13-inch, 2018)|C02F0U5WAHX54|D59F50C3-3559-4B6A-AE04-81FF6BF25349|https://jamf.pro.server.here/computers.html?id=1217      |Yes                |
+#
+# If setting up a specific user account with limited rights, here are the required API privileges
+# for the account on the Jamf Pro server:
+#
+# Jamf Pro Server Objects:
+#
+# Computers: Create
+#
+# Jamf Pro Server Action:
+#
+# Send Computer Remote Lock Command
+
+# If you choose to hardcode API information into the script, set one or more of the following values:
+#
+# The username for an account on the Jamf Pro server with sufficient API privileges
+# The password for the account
+# The Jamf Pro URL
+
+# Set the Jamf Pro URL here if you want it hardcoded.
+jamfpro_url=""	    
+
+# Set the username here if you want it hardcoded.
+jamfpro_user=""
+
+# Set the password here if you want it hardcoded.
+jamfpro_password=""	
+
+# If you do not want to hardcode API information into the script, you can also store
+# these values in a ~/Library/Preferences/com.github.jamfpro-info.plist file.
+#
+# To create the file and set the values, run the following commands and substitute
+# your own values where appropriate:
+#
+# To store the Jamf Pro URL in the plist file:
+# defaults write com.github.jamfpro-info jamfpro_url https://jamf.pro.server.goes.here:port_number_goes_here
+#
+# To store the account username in the plist file:
+# defaults write com.github.jamfpro-info jamfpro_user account_username_goes_here
+#
+# To store the account password in the plist file:
+# defaults write com.github.jamfpro-info jamfpro_password account_password_goes_here
+#
+# If the com.github.jamfpro-info.plist file is available, the script will read in the
+# relevant information from the plist file.
+
+jamfpro_plist="$HOME/Library/Preferences/com.github.jamfpro-info1.plist"
+filename="$1"
+exitCode=0
+report_file="$(mktemp).tsv"
+
+if [[ -r "$jamfpro_plist" ]]; then
+
+     if [[ -z "$jamfpro_url" ]]; then
+          jamfpro_url=$(defaults read "${jamfpro_plist%.*}" jamfpro_url)
+     fi
+
+     if [[ -z "$jamfpro_user" ]]; then
+          jamfpro_user=$(defaults read "${jamfpro_plist%.*}" jamfpro_user)
+     fi
+
+     if [[ -z "$jamfpro_password" ]]; then
+          jamfpro_password=$(defaults read "${jamfpro_plist%.*}" jamfpro_password)
+     fi
+
+fi
+
+# If the Jamf Pro URL, the account username or the account password aren't available
+# otherwise, you will be prompted to enter the requested URL or account credentials.
+
+if [[ -z "$jamfpro_url" ]]; then
+     read -p "Please enter your Jamf Pro server URL : " jamfpro_url
+fi
+
+if [[ -z "$jamfpro_user" ]]; then
+     read -p "Please enter your Jamf Pro user account : " jamfpro_user
+fi
+
+if [[ -z "$jamfpro_password" ]]; then
+     read -p "Please enter the password for the $jamfpro_user account: " -s jamfpro_password
+fi
+
+echo
+
+# Remove the trailing slash from the Jamf Pro URL if needed.
+jamfpro_url=${jamfpro_url%%/}
+
+# Verify that the file exists and is readable
+
+if [[ -r $filename ]]; then
+
+# Set IFS to read the .csv file by setting commas as the character
+# which separates fields in the .csv file
+
+	while IFS=, read jamf_pro_id pin_code || [ -n "$jamf_pro_id" ]; do
+      
+      # Due to IFS redefining field separation, the $pin_code
+      # value has a carriage return included. The next check
+      # below trims that off before it can cause problems for both
+      # curl and the echo message immediately below.
+
+	  pin_code=$(echo $pin_code | tr -d '\r')
+	  
+	  echo "Attempting to send MDM lock to Jamf Pro ID $jamf_pro_id with PIN code $pin_code."
+
+      # All Jamf Pro IDs should be positive numbers and 
+      # PIN codes should be all positive numbers that are
+      # exactly six digits, so we check for those conditions
+      # before proceeding.
+	  
+	  if [[ "$jamf_pro_id" =~ ^[0-9]+$ ]]; then
+	     if [[ "$pin_code" =~ ^[0-9]{6} ]]; then
+
+	         ComputerRecord=$(curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$jamf_pro_id" -H "Accept: application/xml" 2>/dev/null)
+	         Make=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/make/text()' - 2>/dev/null)
+	         MachineModel=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/model/text()' - 2>/dev/null)
+	         SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
+	         UDIDIdentifier=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/udid/text()' - 2>/dev/null)						
+	         jamfpro_url=$(echo "$jamfpro_url"/computers.html?id="$jamf_pro_id")
+	         
+	         if [[ ! -f "$report_file" ]]; then
+	         	touch "$report_file"
+	         	printf "Jamf Pro ID Number\tMake\tModel\tSerial Number\tUDID\tJamf Pro URL\tMDM Lock Successful\n" > "$report_file"
+	         fi
+
+      # If the previous checks succeeded, the curl command below
+      # sends the DeviceLock command, which will then be sent out
+      # by the Jamf Pro server. The curl command uses the "--fail"
+      # function to enable curl to send out an exit code, which we
+      # use to test if the API call was successful.
+
+		     /usr/bin/curl --fail -su ${jamfpro_user}:${jamfpro_password} "$jamfpro_url/JSSResource/computercommands/command/DeviceLock/passcode/$pin_code/id/$jamf_pro_id" -H "Content-Type: application/xml" -X POST
+
+      # curl's exit status is checked below. If curl has an exit status of zero, 
+      # the API call was sent and received successfully. If curl has a non-zero 
+      # exit status, a warning message is displayed which indicates that the API call
+      # has failed. 
+		     
+		    if [[ $? -eq 0 ]]; then
+	         echo -e "\nSuccessfully locked computer with Jamf Pro ID $jamf_pro_id with PIN code $pin_code."
+         
+	         if [[ $? -eq 0 ]]; then
+	         	printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfpro_url}\tYes\n" >> "$report_file"
+	         else
+	         	echo "ERROR! Failed to read computer record with id $jamf_pro_id"
+	         fi
+		    else
+	         echo -e "\nERROR! MDM lock of computer with Jamf Pro ID $jamf_pro_id failed."
+	         printf "$jamf_pro_id\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${jamfpro_url}\tNo\n" >> "$report_file"
+		    fi
+
+      # If the PIN code is not all positive numbers
+      # and exactly six digits, a warning message is
+      # displayed that an invalid PIN code has been
+      # provided.
+
+	     else
+            echo -e "\nInvalid PIN code provided: $pin_code"
+         fi
+
+      # If the Jamf Pro ID number is not all positive numbers,
+      # a warning message is displayed that an Jamf Pro ID number
+      # has been provided.
+
+	  else
+	      echo -e "\nInvalid Jamf Pro ID provided: $jamf_pro_id"
+	  fi
+	 echo ""
+	done < <(tail -n +2 "$filename")
+  
+else
+	
+	# If the provided .csv is not readable, a warning message
+	# is displayed that the file does not exist or is not readable.
+	
+	echo "Input file does not exist or is not readable"
+	exitCode=1
+fi
+
+if [[ -f "$report_file" ]]; then
+     echo "Report on Macs available here: $report_file"
+fi
+
+exit "$exitCode"
