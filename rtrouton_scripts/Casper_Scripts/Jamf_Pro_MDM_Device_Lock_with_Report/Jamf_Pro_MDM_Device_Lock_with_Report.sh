@@ -105,7 +105,7 @@ jamfpro_password=""
 # If the com.github.jamfpro-info.plist file is available, the script will read in the
 # relevant information from the plist file.
 
-jamfpro_plist="$HOME/Library/Preferences/com.github.jamfpro-info1.plist"
+jamfpro_plist="$HOME/Library/Preferences/com.github.jamfpro-info.plist"
 filename="$1"
 exitCode=0
 report_file="$(mktemp).tsv"
