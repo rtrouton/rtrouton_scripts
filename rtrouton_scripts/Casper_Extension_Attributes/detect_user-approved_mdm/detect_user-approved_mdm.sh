@@ -40,7 +40,7 @@ IFS=$OLDIFS
 
 osvers_dot_version=$(/usr/bin/sw_vers -productVersion | awk -F. '{print $3}')
 
-if [[ ( ${osvers_major} -eq 10 && (( ${osvers_minor} -eq 13 && ${osvers_dot_version} -ge 4 ) || ${osvers_minor} -ge 14 )) || ${osvers_major} -eq 11 ]]; then
+if [[ ( ${osvers_major} -eq 10 && (( ${osvers_minor} -eq 13 && ${osvers_dot_version} -ge 4 ) || ${osvers_minor} -ge 14 )) || ${osvers_major} -ge 11 ]]; then
     UAMDMCheck
 else
 
