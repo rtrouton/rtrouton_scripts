@@ -96,7 +96,7 @@ EnableComputerPolicy(){
 
 curloutput=$(mktemp)
 
-echo "Disabling policy ID number $ID."
+echo "Enabling policy ID number $ID."
 curl --write-out '%{http_code}\t' --silent --output "$curloutput" -H "Content-Type: application/xml" -X PUT -d '<policy><general><enabled>true</enabled></general></policy>' "$jamfpro_url"/JSSResource/policies/id/"$policyID" --user "$jamfpro_user:$jamfpro_password"
 printf "$(cat "$curloutput")\n"
 }
