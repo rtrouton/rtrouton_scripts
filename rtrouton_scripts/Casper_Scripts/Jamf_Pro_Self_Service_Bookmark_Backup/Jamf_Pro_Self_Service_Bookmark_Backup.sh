@@ -21,8 +21,8 @@ error=0
 
 if [[ -z "$SelfServiceBookmarkBackupDirectory" ]]; then
    SelfServiceBookmarkBackupDirectory=$(mktemp -d)
-   echo "A location to store downloaded groups has not been specified."
-   echo "Downloaded groups will be stored in $SelfServiceBookmarkBackupDirectory."
+   echo "A location to store downloaded bookmarks has not been specified."
+   echo "Downloaded bookmarks will be stored in $SelfServiceBookmarkBackupDirectory."
 fi
 
 self_service_bookmark_file="$HOME/Library/Application Support/com.jamfsoftware.selfservice.mac/CocoaAppCD.storedata"
