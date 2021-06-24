@@ -27,7 +27,7 @@ fi
 
 self_service_bookmark_file="$HOME/Library/Application Support/com.jamfsoftware.selfservice.mac/CocoaAppCD.storedata"
 
-if [[ -f "$self_service_bookmark_file" ]]; then
+if [[ -r "$self_service_bookmark_file" ]]; then
     tmp_dir="/private/tmp/bookmark-workdir-$(date +%y%m%d%H%M%S)"
     mkdir -p "$tmp_dir"
     
@@ -68,6 +68,8 @@ if [[ -f "$self_service_bookmark_file" ]]; then
     done
     
     rm -rf "$tmp_dir"
+else
+    echo "Cannot read $self_service_bookmark_file"
 fi
 
 exit $error
