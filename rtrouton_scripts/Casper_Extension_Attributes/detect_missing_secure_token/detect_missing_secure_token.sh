@@ -16,6 +16,15 @@ IFS=$OLDIFS
 
 result=5
 
+# Potential results of this extension attribute:
+#
+# 0 = Secure Token not enabled for the logged-in user on an encrypted APFS boot volume
+# 1 = Secure Token enabled for the logged-in user on an encrypted APFS boot volume
+# 2 = OS, filesystem or encryption checks returned as having one or more failed criteria
+# 3 = Boot volume is not using APFS for its filesystem with FileVault is on
+# 4 = Unable to determine the logged-in user or if the logged-in user is root
+# 5 = Nothing changed the original "result" variable from the original value of "5" by the time the script finished its run.
+
 MissingSecureTokenCheck() {
 
 	# Get the currently logged-in user and go ahead if not root.
@@ -23,15 +32,11 @@ MissingSecureTokenCheck() {
 	current_user=$(/bin/ls -l /dev/console | /usr/bin/awk '{ print $3 }')
 
 	# This function checks if the logged-in user has Secure Token attribute associated
-	# with their account. If the token_status variable returns "0", then the following
+	# with their account. If the logged-in user has a Secure Token, then the following
 	# status is returned from the Extension Attribute:
 	#
 	# 1
 	#
-	# If anything else is returned, the following status is
-	# returned from the Extension Attribute:
-	#
-	# 0
 
 	if [[ -n "$current_user" && "$current_user" != "root" ]]; then
 
@@ -44,15 +49,20 @@ MissingSecureTokenCheck() {
 
 		if [[ "$token_status" -eq 1 ]]; then
 			result=1
+		elif [[ "$token_status" -eq 0 ]]; then
+		    result=0
 		fi
+
+		# If unable to determine the logged-in user
+		# or if the logged-in user is root, then the following
+		# status is returned from the Extension Attribute:
+		#
+		# 4
+
 		else result=4
 	fi
 
-	# If unable to determine the logged-in user
-	# or if the logged-in user is root, then the following
-	# status is returned from the Extension Attribute:
-	#
-	# 2, 3 or 4
+
 }
 
 # Check to see if the OS version of the Mac supports running APFS boot volumes.
@@ -68,15 +78,27 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 13 ) || ${osvers_major} -g
 		# run the MissingSecureTokenCheck function.
 		MissingSecureTokenCheck
         else
+        
+        # If the boot volume is not using APFS for its filesystem with FileVault is on,
+        # then the following status is returned from the Extension Attribute:
+		#  
+		# 3
+		
         result=3
 	fi
 
 	# If the OS, filesystem or encryption check did not pass, the Extension Attribute sets the following string for the "result" value:
 	#
 	# 2
+
     else 
     result=2
 fi
+
+# If nothing has changed the original "result" variable by the time the 
+# script finishes its run, then the following status is returned from the Extension Attribute:
+#  
+# 5
 
 echo "<result>$result</result>"
 

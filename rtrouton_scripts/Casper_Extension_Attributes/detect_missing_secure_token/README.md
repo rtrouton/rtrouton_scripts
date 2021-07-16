@@ -19,10 +19,11 @@ Then the following actions take place:
 1. The logged-in user is checked to see if it can be determined.
 2. If the logged-in user can be determined and it is not the `root` user, the `sysadminctl` tool is used to check to see if the account has the Secure Token attribute associated with it.
 
-If the logged-in user account should have a Secure Token attribute associated with it and does not, the Extension Attribute will report the following:
+Potential results of this extension attribute:
 
-`1` 
-
-Any other outcome, the Extension Attribute will report the following:
-
-`0`
+* 0 = Secure Token not enabled for the logged-in user on an encrypted APFS boot volume
+* 1 = Secure Token enabled for the logged-in user on an encrypted APFS boot volume
+* 2 = OS, filesystem or encryption checks returned as having one or more failed criteria
+* 3 = Boot volume is not using APFS for its filesystem with FileVault is on
+* 4 = Unable to determine the logged-in user or if the logged-in user is root
+* 5 = Nothing changed the original "result" variable from the original value of "5" by the time the script finished its run.
