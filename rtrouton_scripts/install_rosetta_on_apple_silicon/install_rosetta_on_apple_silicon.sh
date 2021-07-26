@@ -27,10 +27,12 @@ if [[ ${osvers_major} -ge 11 ]]; then
     echo "$processor processor installed. No need to install Rosetta."
   else
 
-    # Check Rosetta LaunchDaemon. If no LaunchDaemon is found,
+    # Check for Rosetta "oahd" process. If not found,
     # perform a non-interactive install of Rosetta.
     
-    if [[ ! -f "/Library/Apple/System/Library/LaunchDaemons/com.apple.oahd.plist" ]]; then
+    if /usr/bin/pgrep oahd >/dev/null 2>&1; then
+        echo "Rosetta is already installed and running. Nothing to do."
+    else
         /usr/sbin/softwareupdate --install-rosetta --agree-to-license
        
         if [[ $? -eq 0 ]]; then
@@ -39,9 +41,6 @@ if [[ ${osvers_major} -ge 11 ]]; then
         	echo "Rosetta installation failed!"
         	exitcode=1
         fi
-   
-    else
-    	echo "Rosetta is already installed. Nothing to do."
     fi
   fi
   else
