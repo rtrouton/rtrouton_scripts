@@ -169,7 +169,7 @@ while read -r UserToMatch; do
 
 # Get all computers associated with usernames
 
-/usr/bin/curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/match/$UserToMatch" -H "Accept: application/xml" | xmllint --format - >> "$xmltempfile"
+/usr/bin/curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/match/${UserToMatch}" -H "Accept: application/xml" | xmllint --format - >> "$xmltempfile"
 
 done < "$filename"
 
