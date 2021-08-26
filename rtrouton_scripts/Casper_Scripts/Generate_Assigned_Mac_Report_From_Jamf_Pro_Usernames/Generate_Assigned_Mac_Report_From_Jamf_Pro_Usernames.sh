@@ -61,7 +61,7 @@ jamfpro_user=""
 jamfpro_password=""	
 
 # If you do not want to hardcode API information into the script, you can also store
-# these values in a ~/Library/Preferences/com.githubjamfpro-info.plist file.
+# these values in a ~/Library/Preferences/com.github.jamfpro-info.plist file.
 #
 # To create the file and set the values, run the following commands and substitute
 # your own values where appropriate:
@@ -75,9 +75,9 @@ jamfpro_password=""
 # To store the account password in the plist file:
 # defaults write com.githubjamfpro-info jamfpro_password account_password_goes_here
 #
-# If the com.githubjamfpro-info.plist file is available, the script will read in the
+# If the com.github.jamfpro-info.plist file is available, the script will read in the
 # relevant information from the plist file.
-jamf_plist="$HOME/Library/Preferences/com.githubjamfpro-info.plist"
+jamf_plist="$HOME/Library/Preferences/com.github.jamfpro-info.plist"
 
 if [[ -r "$jamf_plist" ]]; then
 
