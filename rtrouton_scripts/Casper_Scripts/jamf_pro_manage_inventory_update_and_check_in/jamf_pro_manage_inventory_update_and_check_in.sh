@@ -147,13 +147,13 @@ fi
  
 }
  
-UpdateInventoryAndRunCheckin (){
+UpdateManagementAndInventory (){
  
 # Verifies that the Mac can communicate with the Jamf Pro server.
 # Once communication is verified, it takes the following actions:
 #
-# 1. Runs jamf recon to send an updated inventory to the Jamf Pro server
-# 2. Runs jamf policy to run any policies which run on check-in
+# 1. Runs jamf manage to enforce the Jamf Pro management framework
+# 2. Runs jamf recon to send an updated inventory to the Jamf Pro server
 #
  
 jss_comm_chk=$($jamf_binary checkJSSConnection > /dev/null; echo $?)
@@ -194,7 +194,7 @@ if [[ "$site_network" == "True" ]]; then
     /usr/bin/logger "Access to site network verified"
     CheckTomcat
     CheckLogAge
-    UpdateInventoryAndRunCheckin
+    UpdateManagementAndInventory
     SelfDestruct
 fi
 exit 0
