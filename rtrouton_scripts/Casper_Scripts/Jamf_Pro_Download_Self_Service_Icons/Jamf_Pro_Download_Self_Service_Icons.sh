@@ -176,7 +176,7 @@ echo
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
-if [[ -z "NoBearerToken" ]]; then
+if [[ -z "$NoBearerToken" ]]; then
    GetJamfProAPIToken
 fi
 
@@ -189,7 +189,7 @@ CheckSelfServicePolicyIcons(){
 
 	if [[ -n "$PolicyId" ]]; then
 		
-		if [[ -z "NoBearerToken" ]]; then
+		if [[ -z "$NoBearerToken" ]]; then
 		   APITokenValidCheck
 		   local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/$PolicyId")		   
 		else
@@ -216,7 +216,7 @@ CheckSelfServicePolicyIcons(){
 
 # Download all Jamf Pro policy ID numbers
 
-if [[ -z "NoBearerToken" ]]; then
+if [[ -z "$NoBearerToken" ]]; then
 
    APITokenValidCheck
    PolicyIDList=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath '//id' - 2>/dev/null)  
@@ -243,7 +243,7 @@ for anID in ${PolicyIDs}; do
 done
 
 # Wait for remaining concurrent jobs to finish
-sleep 3
+sleep 10
 
 DirectoryCount=$(ls ${SelfServiceIconDownloadDirectory} | wc -l | awk '$1=$1')
 
@@ -252,7 +252,7 @@ DirectoryCount=$(ls ${SelfServiceIconDownloadDirectory} | wc -l | awk '$1=$1')
 echo ""
 echo "$DirectoryCount Self Service icon files downloaded to $SelfServiceIconDownloadDirectory."
 
-if [[ -z "NoBearerToken" ]]; then
+if [[ -z "$NoBearerToken" ]]; then
    InvalidateToken
 fi
 
