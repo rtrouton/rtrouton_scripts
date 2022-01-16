@@ -22,6 +22,102 @@
 filename="$1"
 ERROR=0
 
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
+
 if [[ -n $filename && -r $filename ]]; then
 
 	# If you choose to hardcode API information into the script, uncomment the lines below
@@ -31,9 +127,9 @@ if [[ -n $filename && -r $filename ]]; then
 	# The password for the account
 	# The Jamf Pro URL
 
-	#jamfproURL=""	## Set the Jamf Pro URL here if you want it hardcoded.
-	#apiUser=""		## Set the username here if you want it hardcoded.
-	#apiPass=""		## Set the password here if you want it hardcoded.
+	#jamfpro_url=""	## Set the Jamf Pro URL here if you want it hardcoded.
+	#jamfpro_user=""		## Set the username here if you want it hardcoded.
+	#jamfpro_password=""		## Set the password here if you want it hardcoded.
 
 
 	# If you do not want to hardcode API information into the script, you can also store
@@ -56,16 +152,16 @@ if [[ -n $filename && -r $filename ]]; then
 
 	if [[ -f "$HOME/Library/Preferences/com.github.jamfpro-info.plist" ]]; then
 
-	     if [[ -z "$jamfproURL" ]]; then
-	          jamfproURL=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_url)
+	     if [[ -z "$jamfpro_url" ]]; then
+	          jamfpro_url=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_url)
 	     fi
 
-	     if [[ -z "$apiUser" ]]; then
-	          apiUser=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_user)
+	     if [[ -z "$jamfpro_user" ]]; then
+	          jamfpro_user=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_user)
 	     fi
 
-	     if [[ -z "$apiPass" ]]; then
-	          apiPass=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_password)
+	     if [[ -z "$jamfpro_password" ]]; then
+	          jamfpro_password=$(defaults read $HOME/Library/Preferences/com.github.jamfpro-info jamfpro_password)
 	     fi
 
 	fi
@@ -73,26 +169,30 @@ if [[ -n $filename && -r $filename ]]; then
 	# If the Jamf Pro URL, the account username or the account password aren't available
 	# otherwise, you will be prompted to enter the requested URL or account credentials.
 
-	if [[ -z "$jamfproURL" ]]; then
-	     read -p "Please enter your Jamf Pro server URL : " jamfproURL
+	if [[ -z "$jamfpro_url" ]]; then
+	     read -p "Please enter your Jamf Pro server URL : " jamfpro_url
 	fi
 
-	if [[ -z "$apiUser" ]]; then
-	     read -p "Please enter your Jamf Pro user account : " apiUser
+	if [[ -z "$jamfpro_user" ]]; then
+	     read -p "Please enter your Jamf Pro user account : " jamfpro_user
 	fi
 
-	if [[ -z "$apiPass" ]]; then
-	     read -p "Please enter the password for the $apiUser account: " -s apiPass
+	if [[ -z "$jamfpro_password" ]]; then
+	     read -p "Please enter the password for the $jamfpro_user account: " -s jamfpro_password
 	fi
 	
 	echo ""
 
 	# Remove the trailing slash from the Jamf Pro URL if needed.
 
-	jamfproURL=${jamfproURL%%/}
+	jamfpro_url=${jamfpro_url%%/}
 
 	# Set up the Jamf Pro Computer ID URL
-	jamfproIDURL="${jamfproURL}/JSSResource/computers/id"
+	jamfproIDURL="${jamfpro_url}/JSSResource/computers/id"
+	
+	if [[ -z "$NoBearerToken" ]]; then
+	   GetJamfProAPIToken
+	fi
 
 	while read -r ID
 	do
@@ -109,11 +209,16 @@ if [[ -n $filename && -r $filename ]]; then
 
 		  echo "curl -X DELETE ${jamfproIDURL}/$ID"
 
-		  # The line below runs the deletion command.
-		  # Comment out the line below if you want to
+		  # The lines below runs the deletion command.
+		  # Comment out the lines below if you want to
 		  # only simulate running the deletion command.
 
-		  curl -X DELETE "${jamfproIDURL}/$ID" -u $apiUser:${apiPass}
+		  if [[ -z "$NoBearerToken" ]]; then
+		  	  APITokenValidCheck
+		  	  /usr/bin/curl --header "Authorization: Bearer ${api_token}" -X DELETE "${jamfproIDURL}/$ID"   
+		  else
+		  	  /usr/bin/curl -u "${jamfpro_user}:${jamfpro_password}" -X DELETE "${jamfproIDURL}/$ID"
+		  fi
 
 		else
 		   echo "All Jamf Pro IDs are expressed as numbers. The following input is not a number: $ID"
