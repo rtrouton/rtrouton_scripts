@@ -214,7 +214,7 @@ if [[ -n $filename && -r $filename ]]; then
 		  # only simulate running the deletion command.
 
 		  if [[ -z "$NoBearerToken" ]]; then
-		  	  APITokenValidCheck
+		  	  CheckAndRenewAPIToken
 		  	  /usr/bin/curl --header "Authorization: Bearer ${api_token}" -X DELETE "${jamfproIDURL}/$ID"   
 		  else
 		  	  /usr/bin/curl -u "${jamfpro_user}:${jamfpro_password}" -X DELETE "${jamfproIDURL}/$ID"

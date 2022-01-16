@@ -190,7 +190,7 @@ CheckSelfServicePolicyIcons(){
 	if [[ -n "$PolicyId" ]]; then
 		
 		if [[ -z "$NoBearerToken" ]]; then
-		   APITokenValidCheck
+		   CheckAndRenewAPIToken
 		   local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/$PolicyId")		   
 		else
 		   local DownloadedXMLData=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/$PolicyId")		
@@ -218,7 +218,7 @@ CheckSelfServicePolicyIcons(){
 
 if [[ -z "$NoBearerToken" ]]; then
 
-   APITokenValidCheck
+   CheckAndRenewAPIToken
    PolicyIDList=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath '//id' - 2>/dev/null)  
 else
    PolicyIDList=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath '//id' - 2>/dev/null)		
