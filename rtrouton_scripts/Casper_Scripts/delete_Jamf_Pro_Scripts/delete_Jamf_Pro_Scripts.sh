@@ -24,6 +24,102 @@ filename="$1"
 ERROR=0
 report_file="$(mktemp).tsv"
 
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
+
 if [[ -n $filename && -r $filename ]]; then
 
 	# If you choose to hardcode API information into the script, uncomment the lines below
@@ -91,6 +187,10 @@ if [[ -n $filename && -r $filename ]]; then
 
 	# Remove the trailing slash from the Jamf Pro URL if needed.
 	jamfpro_url=${jamfpro_url%%/}
+	
+	if [[ -z "$NoBearerToken" ]]; then
+		GetJamfProAPIToken
+	fi
 
 	# Set up the Jamf Pro Computer ID URL
 	jamfproIDURL="${jamfpro_url}/JSSResource/scripts/id"
@@ -110,18 +210,27 @@ if [[ -n $filename && -r $filename ]]; then
 		  fi
 
 		  # Get script display name
-		  
-		  ScriptsName=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/$ScriptsID" | xmllint --xpath '//script/name/text()' - 2>/dev/null)
+		  if [[ -z "$NoBearerToken" ]]; then
+		  	  CheckAndRenewAPIToken
+		      ScriptsName=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/$ScriptsID" | xmllint --xpath '//script/name/text()' - 2>/dev/null)
+		  else
+		  	  ScriptsName=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/$ScriptsID" | xmllint --xpath '//script/name/text()' - 2>/dev/null)
+		  fi
 		  
 		  # Remove comment from line below to preview
 		  # the results of the deletion command.
 
 		  echo -e "Deleting $ScriptsName - script ID $ScriptsID."
 
-		  # Remove comment from line below to actually run
+		  # Remove comments from lines below to actually run
 		  # the deletion command.
 
-		  #/usr/bin/curl -su ${jamfpro_user}:${jamfpro_password} "${jamfproIDURL}/$ScriptsID" -X DELETE
+		  #if [[ -z "$NoBearerToken" ]]; then
+		  #	  CheckAndRenewAPIToken
+		  #    /usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ScriptsID" -X DELETE
+		  #else
+		  #	  /usr/bin/curl -su ${jamfpro_user}:${jamfpro_password} "${jamfproIDURL}/$ScriptsID" -X DELETE
+		  #fi
 		  
 		  if [[ $? -eq 0 ]]; then
 	         printf "$ScriptsID\t %s\n" "$ScriptsName" >> "$report_file"
