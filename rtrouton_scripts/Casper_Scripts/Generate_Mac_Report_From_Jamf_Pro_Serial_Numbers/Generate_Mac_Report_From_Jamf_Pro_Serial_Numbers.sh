@@ -195,6 +195,8 @@ filename="$1"
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+# If configured to get one, get a Jamf Pro API Bearer Token
+
 if [[ -z "$NoBearerToken" ]]; then
     GetJamfProAPIToken
 fi

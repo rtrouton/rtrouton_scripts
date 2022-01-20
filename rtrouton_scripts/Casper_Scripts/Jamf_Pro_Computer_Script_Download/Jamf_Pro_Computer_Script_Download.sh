@@ -30,6 +30,102 @@ if [[ -z "$ScriptDownloadDirectory" ]]; then
    echo "Downloaded scripts will be stored in $ScriptDownloadDirectory."
 fi
 
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
+
 # If you choose to hardcode API information into the script, set one or more of the following values:
 #
 # The username for an account on the Jamf Pro server with sufficient API privileges
@@ -99,42 +195,54 @@ echo ""
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+# If configured to get one, get a Jamf Pro API Bearer Token
+	
+if [[ -z "$NoBearerToken" ]]; then
+    GetJamfProAPIToken
+fi
+
 # Remove the trailing slash from the ScriptDownloadDirectory variable if needed.
 ScriptDownloadDirectory=${ScriptDownloadDirectory%%/}
-
-xpath() {
-    # xpath in Big Sur changes syntax
-    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
-    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
-        /usr/bin/xpath -e "$@"
-    else
-        /usr/bin/xpath "$@"
-    fi
-}
 
 DownloadScript(){
 
 	# Download the script information as raw XML,
 	# then format it to be readable.
 	echo "Downloading scripts from $jamfpro_url..."
-	FormattedScript=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/${ID}" -X GET | xmllint --format - )
+	
+	if [[ -z "$NoBearerToken" ]]; then
+		CheckAndRenewAPIToken
+		FormattedScript=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/${ID}" -X GET | xmllint --format - ) 
+	else
+		FormattedScript=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/${ID}" -X GET | xmllint --format - )
+	fi
 
 	# Identify and display the script's name.
-	DisplayName=$(echo "$FormattedScript" | xpath "/script/name/text()" 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
+	DisplayName=$(echo "$FormattedScript" | xmllint --xpath "/script/name/text()" - 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
 	echo "Downloaded script is named: $DisplayName"
 	
 	## Save the downloaded script 
 	echo "Saving ${DisplayName} file to $ScriptDownloadDirectory."
-	echo "$FormattedScript" | xpath '/script/script_contents/text()' 2>/dev/null | sed -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&quot;/"/g' -e 's/&amp;/\&/g' > "$ScriptDownloadDirectory/${DisplayName}"
+	echo "$FormattedScript" | xmllint --xpath  '/script/script_contents/text()' - 2>/dev/null | sed -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&quot;/"/g' -e 's/&amp;/\&/g' > "$ScriptDownloadDirectory/${DisplayName}"
 
 }
 
-Script_id_list=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts" | xpath "//id" 2>/dev/null)
+if [[ -z "$NoBearerToken" ]]; then
+	CheckAndRenewAPIToken
+	Script_id_list=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts" | xmllint --xpath "//id" - 2>/dev/null)
+else
+	Script_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts" | xmllint --xpath "//id" - 2>/dev/null)
+fi
 
 Script_id=$(echo "$Script_id_list" | grep -Eo "[0-9]+")
 
-for ID in ${Script_id}; do
+# Download latest version of all advanced computer searches. For performance reasons, we
+# parallelize the execution.
+MaximumConcurrentJobs=10
+ActiveJobs=0
 
-   DownloadScript
+for ID in ${Script_id}; do
+   ((ActiveJobs=ActiveJobs%MaximumConcurrentJobs)); ((ActiveJobs++==0)) && wait
+   DownloadScript &
 
 done

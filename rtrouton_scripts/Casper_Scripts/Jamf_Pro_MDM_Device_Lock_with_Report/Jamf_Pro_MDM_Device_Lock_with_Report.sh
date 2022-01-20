@@ -72,6 +72,102 @@
 #
 # Send Computer Remote Lock Command
 
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
+
 # If you choose to hardcode API information into the script, set one or more of the following values:
 #
 # The username for an account on the Jamf Pro server with sufficient API privileges
@@ -88,24 +184,24 @@ jamfpro_user=""
 jamfpro_password=""	
 
 # If you do not want to hardcode API information into the script, you can also store
-# these values in a ~/Library/Preferences/com.github.jamfpro-info.plist file.
+# these values in a ~/Library/Preferences/corp.sap.jamfpro-info.plist file.
 #
 # To create the file and set the values, run the following commands and substitute
 # your own values where appropriate:
 #
 # To store the Jamf Pro URL in the plist file:
-# defaults write com.github.jamfpro-info jamfpro_url https://jamf.pro.server.goes.here:port_number_goes_here
+# defaults write corp.sap.jamfpro-info jamfpro_url https://jamf.pro.server.goes.here:port_number_goes_here
 #
 # To store the account username in the plist file:
-# defaults write com.github.jamfpro-info jamfpro_user account_username_goes_here
+# defaults write corp.sap.jamfpro-info jamfpro_user account_username_goes_here
 #
 # To store the account password in the plist file:
-# defaults write com.github.jamfpro-info jamfpro_password account_password_goes_here
+# defaults write corp.sap.jamfpro-info jamfpro_password account_password_goes_here
 #
-# If the com.github.jamfpro-info.plist file is available, the script will read in the
+# If the corp.sap.jamfpro-info.plist file is available, the script will read in the
 # relevant information from the plist file.
 
-jamfpro_plist="$HOME/Library/Preferences/com.github.jamfpro-info.plist"
+jamfpro_plist="$HOME/Library/Preferences/corp.sap.jamfpro-info1.plist"
 filename="$1"
 exitCode=0
 report_file="$(mktemp).tsv"
@@ -146,6 +242,12 @@ echo
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+# If configured to get one, get a Jamf Pro API Bearer Token
+	
+if [[ -z "$NoBearerToken" ]]; then
+    GetJamfProAPIToken
+fi
+
 # Verify that the file exists and is readable
 
 if [[ -r $filename ]]; then
@@ -171,8 +273,14 @@ if [[ -r $filename ]]; then
 	  
 	  if [[ "$jamf_pro_id" =~ ^[0-9]+$ ]]; then
 	     if [[ "$pin_code" =~ ^[0-9]{6} ]]; then
-
-	         ComputerRecord=$(curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$jamf_pro_id" -H "Accept: application/xml" 2>/dev/null)
+	         
+	         if [[ -z "$NoBearerToken" ]]; then
+	         	CheckAndRenewAPIToken
+	         	ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computers/id/$jamf_pro_id" -H "Accept: application/xml" 2>/dev/null)
+	         else
+	         	ComputerRecord=$(/usr/bin/curl -sfu "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/JSSResource/computers/id/$jamf_pro_id" -H "Accept: application/xml" 2>/dev/null)
+	         fi
+	         	         
 	         Make=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/make/text()' - 2>/dev/null)
 	         MachineModel=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/model/text()' - 2>/dev/null)
 	         SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
@@ -190,7 +298,12 @@ if [[ -r $filename ]]; then
       # function to enable curl to send out an exit code, which we
       # use to test if the API call was successful.
 
-		     /usr/bin/curl --fail -su ${jamfpro_user}:${jamfpro_password} "$jamfpro_url/JSSResource/computercommands/command/DeviceLock/passcode/$pin_code/id/$jamf_pro_id" -H "Content-Type: application/xml" -X POST
+		     if [[ -z "$NoBearerToken" ]]; then
+		     	CheckAndRenewAPIToken
+		     	/usr/bin/curl --fail -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computercommands/command/DeviceLock/passcode/$pin_code/id/$jamf_pro_id" -H "Content-Type: application/xml" -X POST
+		     else
+		     	/usr/bin/curl --fail -su "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/JSSResource/computercommands/command/DeviceLock/passcode/$pin_code/id/$jamf_pro_id" -H "Content-Type: application/xml" -X POST
+		     fi
 
       # curl's exit status is checked below. If curl has an exit status of zero, 
       # the API call was sent and received successfully. If curl has a non-zero 
@@ -220,7 +333,7 @@ if [[ -r $filename ]]; then
          fi
 
       # If the Jamf Pro ID number is not all positive numbers,
-      # a warning message is displayed that an Jamf Pro ID number
+      # a warning message is displayed that an invalid Jamf Pro ID number
       # has been provided.
 
 	  else

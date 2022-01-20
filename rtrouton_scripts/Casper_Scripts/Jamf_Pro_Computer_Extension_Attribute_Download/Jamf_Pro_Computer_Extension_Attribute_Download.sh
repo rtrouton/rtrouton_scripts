@@ -31,6 +31,102 @@ if [[ -z "$ExtensionAttributeDownloadDirectory" ]]; then
    echo "Downloaded groups will be stored in $ExtensionAttributeDownloadDirectory."
 fi
 
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
+
 # If you choose to hardcode API information into the script, set one or more of the following values:
 #
 # The username for an account on the Jamf Pro server with sufficient API privileges
@@ -101,41 +197,44 @@ echo
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+# If configured to get one, get a Jamf Pro API Bearer Token
+	
+if [[ -z "$NoBearerToken" ]]; then
+    GetJamfProAPIToken
+fi
+
 # Remove the trailing slash from the ExtensionAttributeDownloadDirectory variable if needed.
 ExtensionAttributeDownloadDirectory=${ExtensionAttributeDownloadDirectory%%/}
-
-xpath() {
-    # xpath in Big Sur changes syntax
-    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
-    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
-        /usr/bin/xpath -e "$@"
-    else
-        /usr/bin/xpath "$@"
-    fi
-}
 
 DownloadComputerExtensionAttribute(){
 
 	# Download the extension attribute information as raw XML,
 	# then format it to be readable.
-	ComputerExtensionAttribute=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes/id/${ID}")
+	
+	if [[ -z "$NoBearerToken" ]]; then
+		CheckAndRenewAPIToken
+		ComputerExtensionAttribute=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes/id/${ID}")	   
+	else
+		ComputerExtensionAttribute=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes/id/${ID}")
+	fi
+	
 	FormattedComputerExtensionAttribute=$(echo "$ComputerExtensionAttribute" | xmllint --format -)
 	
 	# Identify and display the extension attribute's name.
-	DisplayName=$(echo "$FormattedComputerExtensionAttribute" | xpath "/computer_extension_attribute/name/text()" 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
+	DisplayName=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "/computer_extension_attribute/name/text()" - 2>/dev/null)
 	echo "Downloaded extension attribute is named: \"$DisplayName\""
 	
 	# Identify the EA type.
-	EAType=$(echo "$FormattedComputerExtensionAttribute" | xpath "/computer_extension_attribute/data_type/text()" 2>/dev/null)
+	EAType=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "/computer_extension_attribute/data_type/text()" - 2>/dev/null)
  	echo "\"$DisplayName\" is a \"$EAType\" extension attribute."
 
 	# get the number of input_type nodes. In some cases an EA may contain scripts for macOS and Windows. So if we find
 	# more than one input_tpye node, we just use the one for macOS
-    EAInputTypeNodeCount=$(echo "$FormattedComputerExtensionAttribute" | xpath "count(/computer_extension_attribute/input_type/type)" 2>/dev/null)
+    EAInputTypeNodeCount=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "count(/computer_extension_attribute/input_type/type)" - 2>/dev/null)
     
     while [[ $EAInputTypeNodeCount -gt 0 ]]; do
         
-    	EAInputType=$(echo "$FormattedComputerExtensionAttribute" | xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/type/text()" 2>/dev/null)
+    	EAInputType=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/type/text()" - 2>/dev/null)
     	FinalAttribute=""
     	FileName=""
 
@@ -148,7 +247,7 @@ DownloadComputerExtensionAttribute(){
 			if [[ "$EAInputType" = "script" ]]; then
 							
 				# get the platform
-				ScriptPlatform=$(echo "$FormattedComputerExtensionAttribute" | xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/platform/text()" 2>/dev/null)
+				ScriptPlatform=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/platform/text()" - 2>/dev/null)
 				
 				if [[ -n "$ScriptPlatform" ]]; then
 					echo "\"$DisplayName\" runs on $ScriptPlatform."
@@ -163,7 +262,7 @@ DownloadComputerExtensionAttribute(){
 					fi
 				fi
 				
-				FinalAttribute=$(echo "$FormattedComputerExtensionAttribute" | xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/script/text()" 2>/dev/null | perl -MHTML::Entities -pe 'decode_entities($_);')
+				FinalAttribute=$(echo "$FormattedComputerExtensionAttribute" | xmllint --xpath "/computer_extension_attribute/input_type[$EAInputTypeNodeCount]/script/text()" - 2>/dev/null | perl -MHTML::Entities -pe 'decode_entities($_);')
 			else
 				FileName="${DisplayName}.xml"
 				FinalAttribute="$FormattedComputerExtensionAttribute"
@@ -186,15 +285,27 @@ DownloadComputerExtensionAttribute(){
 	echo	
 }
 
-ComputerExtensionAttribute_id_list=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes" | xpath "//id" 2>/dev/null)
+if [[ -z "$NoBearerToken" ]]; then
+	CheckAndRenewAPIToken
+	ComputerExtensionAttribute_id_list=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes" | xmllint --xpath '//id' - 2>/dev/null)   
+else
+	ComputerExtensionAttribute_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/computerextensionattributes" | xmllint --xpath '//id' - 2>/dev/null)
+fi
 
 if [[ -n "$ComputerExtensionAttribute_id_list" ]]; then
 
 	echo "Downloading extension attributes from $jamfpro_url..."
 	ComputerExtensionAttribute_id=$(echo "$ComputerExtensionAttribute_id_list" | grep -Eo "[0-9]+")
 
+	# Download latest version of all computer extension attributes. 
+	# For performance reasons, we parallelize the execution.
+
+	MaximumConcurrentJobs=10
+	ActiveJobs=0
+
 	for ID in ${ComputerExtensionAttribute_id}; do
-	   DownloadComputerExtensionAttribute
+	   ((ActiveJobs=ActiveJobs%MaximumConcurrentJobs)); ((ActiveJobs++==0)) && wait
+	   DownloadComputerExtensionAttribute &
 	done
 	
 else

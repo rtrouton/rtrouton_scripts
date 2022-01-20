@@ -23,7 +23,6 @@ ERROR=0
 # please enter the complete directory path into the DockItemDownloadDirectory
 # variable below.
 
-
 DockItemDownloadDirectory=""
 
 # If the DockItemDownloadDirectory isn't specified above, a directory will be
@@ -34,6 +33,102 @@ if [[ -z "$DockItemDownloadDirectory" ]]; then
    echo "A location to store downloaded dock items has not been specified."
    echo "Downloaded dock items will be stored in $DockItemDownloadDirectory."
 fi
+
+# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# yes
+#
+# NoBearerToken="yes"
+#
+# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
+# for Classic API authentication, set the NoBearerToken variable to the following value
+# as shown below:
+#
+# NoBearerToken=""
+
+NoBearerToken=""
+
+GetJamfProAPIToken() {
+
+# This function uses Basic Authentication to get a new bearer token for API authentication.
+
+# Use user account's username and password credentials with Basic Authorization to request a bearer token.
+
+if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+else
+   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url/api/v1/auth/token" | plutil -extract token raw -)
+fi
+
+}
+
+APITokenValidCheck() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+api_authentication_check=$(/usr/bin/curl --write-out %{http_code} --silent --output /dev/null "$jamfpro_url/api/v1/auth" --request GET --header "Authorization: Bearer ${api_token}")
+
+}
+
+CheckAndRenewAPIToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
+# trigger the issuing of a new bearer token and the invalidation of the previous one.
+
+      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
+      else
+         api_token=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
+      fi
+
+else
+
+# If the current bearer token is not valid, this will trigger the issuing of a new bearer token
+# using Basic Authentication.
+
+   GetJamfProAPIToken
+fi
+}
+
+InvalidateToken() {
+
+# Verify that API authentication is using a valid token by running an API command
+# which displays the authorization details associated with the current API user. 
+# The API call will only return the HTTP status code.
+
+APITokenValidCheck
+
+# If the api_authentication_check has a value of 200, that means that the current
+# bearer token is valid and can be used to authenticate an API call.
+
+if [[ ${api_authentication_check} == 200 ]]; then
+
+# If the current bearer token is valid, an API call is sent to invalidate the token.
+
+      authToken=$(/usr/bin/curl "$jamfpro_url/api/v1/auth/invalidate-token" --silent  --header "Authorization: Bearer ${api_token}" -X POST)
+      
+# Explicitly set value for the api_token variable to null.
+
+      api_token=""
+
+fi
+}
 
 # If you choose to hardcode API information into the script, set one or more of the following values:
 #
@@ -104,15 +199,11 @@ echo ""
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
-xpath() {
-    # xpath in Big Sur changes syntax
-    # For details, please see https://scriptingosx.com/2020/10/dealing-with-xpath-changes-in-big-sur/
-    if [[ $(sw_vers -buildVersion) > "20A" ]]; then
-        /usr/bin/xpath -e "$@"
-    else
-        /usr/bin/xpath "$@"
-    fi
-}
+# If configured to get one, get a Jamf Pro API Bearer Token
+	
+if [[ -z "$NoBearerToken" ]]; then
+    GetJamfProAPIToken
+fi
 
 initializeDockItemDownloadDirectory ()
 {
@@ -157,10 +248,16 @@ DownloadDockItem(){
 	# Download the dock item information as raw XML,
 	# then format it to be readable.
 	echo "Downloading dock items from $jamfpro_url..."
-	FormattedDockItem=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems/id/${ID}" -X GET | xmllint --format - )
+	
+	if [[ -z "$NoBearerToken" ]]; then
+		CheckAndRenewAPIToken
+		FormattedDockItem=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems/id/${ID}" -X GET | xmllint --format - )  
+	else
+		FormattedDockItem=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems/id/${ID}" -X GET | xmllint --format - )
+	fi
 
 	# Identify and display the advanced computer search's name.
-	DisplayName=$(echo "$FormattedDockItem" | xpath "/dock_item/name/text()" 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
+	DisplayName=$(echo "$FormattedDockItem" | xmllint --xpath "/dock_item/name/text()" - 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
 	echo "Downloaded dock item is named: $DisplayName"
 
 	# Save the downloaded advanced computer search.
@@ -183,7 +280,12 @@ if [[ $ERROR -eq 0 ]]; then
 
   # Download latest version of all dock items
 
-  DockItem_id_list=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xpath "//id" 2>/dev/null)
+  if [[ -z "$NoBearerToken" ]]; then
+		CheckAndRenewAPIToken
+		DockItem_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xmllint --xpath "//id" - 2>/dev/null) 
+  else
+		DockItem_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xmllint --xpath "//id" - 2>/dev/null)
+  fi
 
   DockItem_id=$(echo "$DockItem_id_list" | grep -Eo "[0-9]+")
 

@@ -6,6 +6,21 @@
 # Set default exit code
 exitCode=0
 
+# If you choose to specify a directory to save the downloaded Self Service icons
+# into, please enter the complete directory path into the SelfServiceIconDownloadDirectory
+# variable below.
+
+SelfServiceIconDownloadDirectory=""
+
+# If the SelfServiceIconDownloadDirectory isn't specified above, a directory will be
+# created and the complete directory path displayed by the script.
+
+if [[ -z "$SelfServiceIconDownloadDirectory" ]]; then
+   SelfServiceIconDownloadDirectory=$(mktemp -d)
+   echo "A location to store downloaded scripts has not been specified."
+   echo "Downloaded Self Service icons will be stored in $SelfServiceIconDownloadDirectory."
+fi
+
 # If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
 # for Classic API authentication, set the NoBearerToken variable to the following value
 # as shown below:
@@ -21,21 +36,6 @@ exitCode=0
 # NoBearerToken=""
 
 NoBearerToken=""
-
-# If you choose to specify a directory to save the downloaded Self Service icons
-# into, please enter the complete directory path into the SelfServiceIconDownloadDirectory
-# variable below.
-
-SelfServiceIconDownloadDirectory=""
-
-# If the SelfServiceIconDownloadDirectory isn't specified above, a directory will be
-# created and the complete directory path displayed by the script.
-
-if [[ -z "$SelfServiceIconDownloadDirectory" ]]; then
-   SelfServiceIconDownloadDirectory=$(mktemp -d)
-   echo "A location to store downloaded scripts has not been specified."
-   echo "Downloaded Self Service icons will be stored in $SelfServiceIconDownloadDirectory."
-fi
 
 GetJamfProAPIToken() {
 
@@ -176,6 +176,8 @@ echo
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
+# If configured to get one, get a Jamf Pro API Bearer Token
+
 if [[ -z "$NoBearerToken" ]]; then
    GetJamfProAPIToken
 fi
@@ -217,7 +219,6 @@ CheckSelfServicePolicyIcons(){
 # Download all Jamf Pro policy ID numbers
 
 if [[ -z "$NoBearerToken" ]]; then
-
    CheckAndRenewAPIToken
    PolicyIDList=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath '//id' - 2>/dev/null)  
 else
@@ -251,9 +252,5 @@ DirectoryCount=$(ls ${SelfServiceIconDownloadDirectory} | wc -l | awk '$1=$1')
 
 echo ""
 echo "$DirectoryCount Self Service icon files downloaded to $SelfServiceIconDownloadDirectory."
-
-if [[ -z "$NoBearerToken" ]]; then
-   InvalidateToken
-fi
 
 exit $exitCode
