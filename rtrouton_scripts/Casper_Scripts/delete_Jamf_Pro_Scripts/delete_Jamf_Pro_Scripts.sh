@@ -187,13 +187,15 @@ if [[ -n $filename && -r $filename ]]; then
 
 	# Remove the trailing slash from the Jamf Pro URL if needed.
 	jamfpro_url=${jamfpro_url%%/}
-	
-	if [[ -z "$NoBearerToken" ]]; then
-		GetJamfProAPIToken
-	fi
 
 	# Set up the Jamf Pro Computer ID URL
 	jamfproIDURL="${jamfpro_url}/JSSResource/scripts/id"
+	
+	# If configured to get one, get a Jamf Pro API Bearer Token
+	
+	if [[ -z "$NoBearerToken" ]]; then
+   	   GetJamfProAPIToken
+	fi
 
 	while read -r ScriptsID
 	do
@@ -210,6 +212,7 @@ if [[ -n $filename && -r $filename ]]; then
 		  fi
 
 		  # Get script display name
+		  
 		  if [[ -z "$NoBearerToken" ]]; then
 		  	  CheckAndRenewAPIToken
 		      ScriptsName=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/scripts/id/$ScriptsID" | xmllint --xpath '//script/name/text()' - 2>/dev/null)
@@ -229,7 +232,7 @@ if [[ -n $filename && -r $filename ]]; then
 		  #	  CheckAndRenewAPIToken
 		  #    /usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ScriptsID" -X DELETE
 		  #else
-		  #	  /usr/bin/curl -su ${jamfpro_user}:${jamfpro_password} "${jamfproIDURL}/$ScriptsID" -X DELETE
+		  #	  /usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" "${jamfproIDURL}/$ScriptsID" -X DELETE
 		  #fi
 		  
 		  if [[ $? -eq 0 ]]; then

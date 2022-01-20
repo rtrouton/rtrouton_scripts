@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # This script uses the Jamf Pro Classic API to detect which
-# Self Service policies do not have icons and displays
-# a list of the relevant policies.
+# Jamf Pro computer inventories have empty check-in and last
+# inventory values. Once identified, the script outputs the
+# URL of the relevant computer inventories.
 
 # Set default exit code
 exitCode=0
@@ -168,87 +169,13 @@ if [[ -z "$NoBearerToken" ]]; then
     GetJamfProAPIToken
 fi
 
-# The following function downloads individual Jamf Pro policy as XML data
-# then mines the policy data for the relevant information.
-
-CheckSelfServicePolicyCheckIcons(){
-
-	local PolicyId="$1"
-
-	if [[ -n "$PolicyId" ]]; then
-		
-		if [[ -z "$NoBearerToken" ]]; then
-		     CheckAndRenewAPIToken
-		     local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/$PolicyId")
-		else
-		     local DownloadedXMLData=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/$PolicyId")
-		fi
-
-		local PolicyName=$( echo "$DownloadedXMLData" | xmllint --xpath '/policy/general/name/text()' - 2>/dev/null)
-		local SelfServicePolicyCheck=$(echo "$DownloadedXMLData" | xmllint --xpath '/policy/self_service/use_for_self_service/text()' - 2>/dev/null)
-		local SelfServiceIcon=$(echo "$DownloadedXMLData" | xmllint --xpath '/policy/self_service/self_service_icon/id/text()' - 2>/dev/null)
-
-		# If a policy is detected as being a Self Service policy without
-		# an icon, the policy name is saved to a temp file.
-
-		if [[ "$SelfServicePolicyCheck" = "true" ]] && [[ -z "$SelfServiceIcon" ]]; then
-			echo "The following Self Service policy does not have an icon: $PolicyName" >> "$PolicyCountFile"
-		fi
-	fi
-}
-
-# Download all Jamf Pro policy ID numbers
-
 if [[ -z "$NoBearerToken" ]]; then
-     CheckAndRenewAPIToken
-     PolicyIDList=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath "//id" - 2>/dev/null)
+	CheckAndRenewAPIToken
+	computerRecords=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "$jamfpro_url"/JSSResource/computers/subset/basic -H "Accept: application/xml" 2>/dev/null)
 else
-     PolicyIDList=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies" | xmllint --xpath "//id" - 2>/dev/null)
+	computerRecords=$(/usr/bin/curl -sfu "${jamfpro_user}:${jamfpro_password}" "$jamfpro_url"/JSSResource/computers/subset/basic -H "Accept: application/xml" 2>/dev/null)
 fi
 
-PolicyIDs=$(echo "$PolicyIDList" | grep -Eo "[0-9]+")
-PoliciesCount=$(echo "$PolicyIDs" | grep -c ^)
+echo "$computerRecords" | xmllint --xpath "//computer[report_date_utc='']/id" - 2>/dev/null | grep -Eo "<id>[0-9]+" | sed -n 's!<id>\([0-9]*\)!'${jamfpro_url}'/computers.html?id=\1!p'
 
-echo "Checking $PoliciesCount policies for Self Service policies for missing icons ..."
-echo
-
-# Download latest version of all computer policies using their ID numbers. 
-# For performance reasons, we parallelize the execution.
-MaximumConcurrentJobs=10
-ActiveJobs=0
-ProcessedJobs=0
-
-# Create temp file for background processes' output
-PolicyCountFile=$(mktemp)
-touch "$PolicyCountFile"
-
-for anID in ${PolicyIDs}; do
-
-   # Run API calls in parallel
-   ((ActiveJobs=ActiveJobs%MaximumConcurrentJobs)); ((ActiveJobs++==0)) && wait
-   CheckSelfServicePolicyCheckIcons $anID &
-   
-    ProcessedJobs=$(( $ProcessedJobs + 1 ))
-    PercentComplete=$(echo "(100/${PoliciesCount})*${ProcessedJobs}" | bc -l | awk '{print int($1+0.5)}')
-    ProgressDone=$(echo "$PercentComplete/2" | bc -l | awk '{print int($1+0.5)}')
-    ProgressLeft=$(( 50 - $ProgressDone ))
-    DonePattern=$(printf "%${ProgressDone}s")
-    LeftPattern=$(printf "%${ProgressLeft}s")
-
-    printf "\rProcessing: [${DonePattern// /#}${LeftPattern// /-}] ${PercentComplete}%%"
-done
-
-PolicyCountNumber=$(grep -c ^ "$PolicyCountFile")
-echo
-echo
-echo "$PolicyCountNumber Self Service policies detected without icons"
-cat "$PolicyCountFile"
-
-echo
-echo "Policy check completed."
-
-# Remove temp file
-
-rm "$PolicyCountFile"
-
-exit $exitCode
+exit "$exitCode"
