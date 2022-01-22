@@ -1,4 +1,4 @@
-These scripts are designed to install Jamf's Jamf Infrastructure Manager (JIM)
+This script is designed to install Jamf's Jamf Infrastructure Manager (JIM)
 onto the following OSs:
 
 * CentOS 7.x
