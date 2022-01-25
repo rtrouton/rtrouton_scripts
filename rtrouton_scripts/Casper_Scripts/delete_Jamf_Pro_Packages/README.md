@@ -1,4 +1,4 @@
-This script is designed to delete installer packages from Jamf Pro using the Jamf Pro API. Four items are required to use this script:
+This script is designed to delete installer packages from Jamf Pro using the Jamf Pro Classic API. Four items are required to use this script:
 
 * A text file containing the Jamf Pro IDs of the installer package(s) you wish to delete.
 * The URL of the appropriate Jamf Pro server.
