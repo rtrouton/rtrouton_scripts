@@ -39,7 +39,7 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 9 ) || ( ${osvers_major} -
 	
 	if (( $(grep -c . <<<"$cmd_line_tools") > 1 )); then
 	   cmd_line_tools_output="$cmd_line_tools"
-	   cmd_line_tools=$(printf "$cmd_line_tools_output" | tail -1)
+	   cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/grep -iv beta | /usr/bin/tail -1)
 	fi
 	
 	#Install the command line tools
