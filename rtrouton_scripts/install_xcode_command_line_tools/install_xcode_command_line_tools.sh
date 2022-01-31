@@ -2,6 +2,8 @@
 
 # Installing the Xcode command line tools on 10.7.x or higher
 
+ignoreBeta="true"	# Setting to true will ignore beta. However, setting to false does not guarantee a beta is available.
+
 # Save current IFS state
 
 OLDIFS=$IFS
@@ -37,9 +39,14 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 9 ) || ( ${osvers_major} -
 	# command line tool installation option. If it has, use the last one listed
 	# as that should be the latest Xcode command line tool installer.
 	
-	if (( $(grep -c . <<<"$cmd_line_tools") > 1 )); then
-	   cmd_line_tools_output="$cmd_line_tools"
-	   cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/grep -iv beta | /usr/bin/tail -1)
+	if (( $(/usr/bin/grep -c . <<<"$cmd_line_tools") > 1 )); then
+		cmd_line_tools_output="$cmd_line_tools"
+
+		if [[ "$ignoreBeta" == "true" ]]; then
+			cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/grep -iv beta | /usr/bin/tail -1)
+		else
+			cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/tail -1)
+		fi
 	fi
 	
 	#Install the command line tools
