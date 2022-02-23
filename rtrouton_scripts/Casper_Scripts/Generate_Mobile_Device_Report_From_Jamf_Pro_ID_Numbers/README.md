@@ -1,7 +1,7 @@
 This script imports a list of Jamf Pro ID numbers from a plaintext file 
 and uses that information to generate a report about the matching mobile devices
 
-Usage: `/path/to/Generate_Mac_Report_From_Jamf_Pro_ID_Numbers.sh jamf_pro_id_numbers.txt`
+Usage: `/path/to/Generate_Mobile_Device_Report_From_Jamf_Pro_ID_Numbers.sh jamf_pro_id_numbers.txt`
 
 Once the Jamf Pro ID numbers are read from in from the plaintext file, the script takes the following actions:
 
