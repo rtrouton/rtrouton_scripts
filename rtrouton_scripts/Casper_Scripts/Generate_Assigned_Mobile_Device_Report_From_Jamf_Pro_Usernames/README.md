@@ -1,4 +1,4 @@
-This script imports a list of usernames from a plaintext file  and uses that information to generate a report about the  assigned to that username.
+This script imports a list of usernames from a plaintext file  and uses that information to generate a report about the mobile devices assigned to that username.
 
 Usage: `./Generate_Assigned_Mobile_Device_Report_From_Jamf_Pro_Usernames.sh usernames.txt`
 
@@ -29,7 +29,7 @@ Once the username(s) are read from in from the plaintext file or from manual inp
 *    Hardware UDID
 
 3. Create a report in tab-separated value (.tsv) format which contains the following information
-   about the deleted Macs
+   about the mobile devices.
 
 *    Jamf Pro ID
 *    Assigned user's username
