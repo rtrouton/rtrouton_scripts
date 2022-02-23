@@ -30,7 +30,7 @@ Once the username(s) are read from in from the plaintext file or from manual inp
 *    Hardware UDID
 
 3. Create a report in tab-separated value (.tsv) format which contains the following information
-   about the deleted Macs
+   about the computers.
 
 *    Jamf Pro ID
 *    Assigned user's username
