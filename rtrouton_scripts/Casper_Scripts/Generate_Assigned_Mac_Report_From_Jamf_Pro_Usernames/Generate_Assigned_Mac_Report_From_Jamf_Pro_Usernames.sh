@@ -265,7 +265,7 @@ xmltempfile=$(mktemp)
 
 # Get all computers that are associated with username
 
-while read -r UserToMatch; do
+while read -r UserToMatch || [ -n "$UserToMatch" ]; do
 
 # Get all computers associated with usernames
 

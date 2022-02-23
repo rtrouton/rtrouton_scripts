@@ -265,7 +265,7 @@ xmltempfile=$(mktemp)
 
 # Get all mobile devices that are associated with username
 
-while read -r UserToMatch; do
+while read -r UserToMatch || [ -n "$UserToMatch" ]; do
 
 # Get all mobile devices associated with usernames
 
