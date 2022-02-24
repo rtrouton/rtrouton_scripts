@@ -10,7 +10,7 @@ IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_ver
 
 IFS=$OLDIFS
 
-if [[ ( ${osvers_major} -eq 10 && ( ${osvers_minor} -gt 7 )) || ${osvers_major} -eq 11 ]]; then
+if [[ ( ${osvers_major} -eq 10 && ( ${osvers_minor} -gt 7 )) || ${osvers_major} -ge 11 ]]; then
  
 # Checks the Apple Push Notification Service certificate identifier
 # on Macs running 10.7.x or higher. If an Apple Push Notification 
