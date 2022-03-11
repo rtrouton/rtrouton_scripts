@@ -2,6 +2,8 @@
 
 # Installing the Xcode command line tools on 10.7.x or higher
 
+ignoreBeta="true"	# Setting to true will ignore beta. However, setting to false does not guarantee a beta is available.
+
 # Save current IFS state
 
 OLDIFS=$IFS
@@ -21,35 +23,40 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 9 ) || ( ${osvers_major} -
 	# Create the placeholder file which is checked by the softwareupdate tool 
 	# before allowing the installation of the Xcode command line tools.
 	
-	touch "$cmd_line_tools_temp_file"
+	/usr/bin/touch "$cmd_line_tools_temp_file"
 	
 	# Identify the correct update in the Software Update feed with "Command Line Tools" in the name for the OS version in question.
 
 	if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 15 ) || ( ${osvers_major} -ge 11 && ${osvers_minor} -ge 0 ) ]]; then
-	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Label: Command Line Tools/ { $1=$1;print }' | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 9-)	
+	   cmd_line_tools=$(/usr/sbin/softwareupdate -l | /usr/bin/awk '/\*\ Label: Command Line Tools/ { $1=$1;print }' | /usr/bin/sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | /usr/bin/cut -c 9-)	
 	elif [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -gt 9 ) ]] && [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 15 ) ]]; then
-	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | grep "$osvers_minor" | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
+	   cmd_line_tools=$(/usr/sbin/softwareupdate -l | /usr/bin/awk '/\*\ Command Line Tools/ { $1=$1;print }' | /usr/bin/grep "$osvers_minor" | /usr/bin/sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | /usr/bin/cut -c 2-)
 	elif [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 9 ) ]]; then
-	   cmd_line_tools=$(softwareupdate -l | awk '/\*\ Command Line Tools/ { $1=$1;print }' | grep "Mavericks" | sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | cut -c 2-)
+	   cmd_line_tools=$(/usr/sbin/softwareupdate -l | /usr/bin/awk '/\*\ Command Line Tools/ { $1=$1;print }' | /usr/bin/grep "Mavericks" | /usr/bin/sed 's/^[[ \t]]*//;s/[[ \t]]*$//;s/*//' | /usr/bin/cut -c 2-)
 	fi
 	
 	# Check to see if the softwareupdate tool has returned more than one Xcode
 	# command line tool installation option. If it has, use the last one listed
 	# as that should be the latest Xcode command line tool installer.
 	
-	if (( $(grep -c . <<<"$cmd_line_tools") > 1 )); then
-	   cmd_line_tools_output="$cmd_line_tools"
-	   cmd_line_tools=$(printf "$cmd_line_tools_output" | tail -1)
+	if (( $(/usr/bin/grep -c . <<<"$cmd_line_tools") > 1 )); then
+		cmd_line_tools_output="$cmd_line_tools"
+
+		if [[ "$ignoreBeta" == "true" ]]; then
+			cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/grep -iv beta | /usr/bin/tail -1)
+		else
+			cmd_line_tools=$(printf "%s\n" "$cmd_line_tools_output" | /usr/bin/tail -1)
+		fi
 	fi
 	
 	#Install the command line tools
 	
-	softwareupdate -i "$cmd_line_tools" --verbose
+	/usr/sbin/softwareupdate -i "$cmd_line_tools" --verbose
 	
 	# Remove the temp file
 	
 	if [[ -f "$cmd_line_tools_temp_file" ]]; then
-	  rm "$cmd_line_tools_temp_file"
+	  /bin/rm "$cmd_line_tools_temp_file"
 	fi
 fi
 
@@ -70,16 +77,16 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -eq 7 ) || ( ${osvers_major} -
 	fi
 
 		TOOLS=cltools.dmg
-		curl "$DMGURL" -o "$TOOLS"
+		/usr/bin/curl "$DMGURL" -o "$TOOLS"
 		TMPMOUNT=`/usr/bin/mktemp -d /tmp/clitools.XXXX`
-		hdiutil attach "$TOOLS" -mountpoint "$TMPMOUNT" -nobrowse
+		/usr/bin/hdiutil attach "$TOOLS" -mountpoint "$TMPMOUNT" -nobrowse
 		# The "-allowUntrusted" flag has been added to the installer
 		# command to accomodate for now-expired certificates used
 		# to sign the downloaded command line tools.
-		installer -allowUntrusted -pkg "$(find $TMPMOUNT -name '*.mpkg')" -target /
-		hdiutil detach "$TMPMOUNT"
-		rm -rf "$TMPMOUNT"
-		rm "$TOOLS"
+		/usr/sbin/installer -allowUntrusted -pkg "$(/usr/bin/find $TMPMOUNT -name '*.mpkg')" -target /
+		/usr/bin/hdiutil detach "$TMPMOUNT"
+		/bin/rm -rf "$TMPMOUNT"
+		/bin/rm "$TOOLS"
 fi
 
 exit 0
