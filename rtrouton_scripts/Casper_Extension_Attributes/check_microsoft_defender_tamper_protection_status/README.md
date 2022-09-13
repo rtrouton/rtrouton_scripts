@@ -1,4 +1,4 @@
-This Jamf Pro Extension Attribute verifies if Microsoft Defender's tamper protection is enabled. Once the `/usr/local/bin/mdatp` command-line tool is verified to be installed and executable, `mdatp` is used to check the tamper protection status. The EA will return one of the following values:
+This Jamf Pro Extension Attribute verifies if Microsoft Defender's tamper protection is enabled. Once the `/usr/local/bin/mdatp` command line tool is verified to be installed and executable, `mdatp` is used to check the tamper protection status. The EA will return one of the following values:
 
 * **000**
 * **001**
