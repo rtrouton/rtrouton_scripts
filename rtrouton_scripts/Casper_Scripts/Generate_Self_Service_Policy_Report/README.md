@@ -1,6 +1,6 @@
 This script uses the Jamf Pro Classic API to detect Jamf Pro policies are Self Service policies and generates a report with information about those policies.
 
-Usage: `/path/to/Generate_Self_Service_Policy_Report`
+Usage: `/path/to/Generate_Self_Service_Policy_Report.sh`
 
 The script takes the following actions:
 
