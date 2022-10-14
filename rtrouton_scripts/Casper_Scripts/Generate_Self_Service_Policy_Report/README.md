@@ -10,7 +10,6 @@ The script takes the following actions:
 4. Pulls the following information out of the policy record data:
 
 *    Jamf Pro ID
-*    If it's a Self Service policy
 *    If the policy is enabled in the Jamf Pro admin console
 *    The policy's name in the Jamf Pro admin console
 *    The name of the policy's category
