@@ -170,17 +170,18 @@ CheckSelfServicePolicies(){
         if [[ "$SelfServicePolicyCheck" = "true" ]]; then
 		  if [[ ! -f "$report_file" ]]; then
 			touch "$report_file"
-			printf "Jamf Pro ID Number\tSelf Service Policy\tPolicy Name\tCategory\tSelf Service Display Name\tJamf Pro URL\n" > "$report_file"
+			printf "Jamf Pro ID Number\tSelf Service Policy\tPolicy Enabled\tPolicy Name\tCategory\tSelf Service Display Name\tJamf Pro URL\n" > "$report_file"
 		  fi
 
 			JamfProID=$(echo "$DownloadedXMLData" | xmllint --xpath '//policy/general/id/text()' - 2>/dev/null)
+			PolicyEnabled=$(echo "$DownloadedXMLData" | xmllint --xpath '//policy/general/enabled/text()' - 2>/dev/null)
 			PolicyName=$(echo "$DownloadedXMLData" | xmllint --xpath '//policy/general/name/text()' - 2>/dev/null)
 			PolicyCategory=$(echo "$DownloadedXMLData" | xmllint --xpath '//policy/general/category/name/text()' - 2>/dev/null)
 			SelfServiceDisplayName=$(echo "$DownloadedXMLData" | xmllint --xpath '//policy/self_service/self_service_display_name/text()' - 2>/dev/null)
 			JamfProURL=$(echo "$jamfpro_url"/policies.html?id="$JamfProID")
 			
 			if [[ $? -eq 0 ]]; then
-			   printf "$JamfProID\t$SelfServicePolicyCheck\t$PolicyName\t$PolicyCategory\t$SelfServiceDisplayName\t${JamfProURL}\n" >> "$report_file"
+			   printf "$JamfProID\t$SelfServicePolicyCheck\t$PolicyEnabled\t$PolicyName\t$PolicyCategory\t$SelfServiceDisplayName\t${JamfProURL}\n" >> "$report_file"
 			else
 			   echo "ERROR! Failed to read policy record with ID $JamfProID"
 			fi
