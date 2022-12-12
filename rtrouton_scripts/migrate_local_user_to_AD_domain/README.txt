@@ -1,6 +1,4 @@
-This script is adapted from Patrick Gallagher's MigrateUserHomeToDomainAcct.sh script. Original script available from here:
-
-http://blog.macadmincorner.com/migrate-local-user-to-domain-account/
+This script is adapted from Patrick Gallagher's MigrateUserHomeToDomainAcct.sh script.
 
 The main thing you should need to edit is the "Verify NetID", as that does a lookup for an AD account. To fix it, you'll need to change the "lookupAccount" value to an account on your AD domain (preferably, an account that nobody should be deleting anytime soon) and do some minor text editing. You may also want to add "| grep -v your_local_admin_account_shortname |" to the listUsers value, as that will prevent your local admin account from showing up as one that can be migrated.
 
