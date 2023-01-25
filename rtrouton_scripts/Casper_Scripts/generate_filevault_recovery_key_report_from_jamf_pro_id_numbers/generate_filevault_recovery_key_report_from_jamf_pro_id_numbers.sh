@@ -27,9 +27,6 @@
 #    about the relevant Macs
 #
 #    Jamf Pro ID
-#    Assigned user's username
-#    Assigned user's name
-#    Assigned user's email address
 #    Manufacturer
 #    Model
 #    Serial Number
