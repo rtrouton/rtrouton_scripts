@@ -1,0 +1,1 @@
+This script uses the `softwareupdate` command on macOS Big Sur and later to display all available macOS installers for a particular Mac and then offers the option to download a selected OS installer.
