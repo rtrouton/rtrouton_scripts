@@ -17,7 +17,7 @@ clear
 
 echo "The following macOS installers are available for this Mac:"
 echo ""
-cat "$available_os_installers" | tail -n +3 | awk -F ': |, |KiB' '($1 == "* Title") { print $2" "$4" Build "$9 ": "(int(($6 / 1000 / 1000) * 10 + 0.5) / 10) " GB" }'
+cat "$available_os_installers" | tail -n +3 | awk -F ': |, |KiB' '($1 == "* Title") { print $2" "$4" Build "$9 ": "(int((($6 * 1024) / 1000000000) * 10 + 0.5) / 10) " GB" }'
 echo ""
 echo "Version numbers:"
 grep -oE '\d+\.(\d|\.)*\d' "$available_os_installers"
