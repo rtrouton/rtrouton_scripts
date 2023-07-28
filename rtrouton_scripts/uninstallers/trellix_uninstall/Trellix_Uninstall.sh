@@ -53,6 +53,9 @@ fi
 			/etc/cma.conf \
 			/var/log/McAfeeSecurity* \
 			/var/log/DLPAgent* \
+			/var/log/DlpAgent* \
+			/var/log/mcupdater* \
+			/var/log/MFEdx* \
 			/var/tmp/.msgbus/ma_* \
 			/var/McAfee \
 			/Library/Logs/DiagnosticReports/masvc* \
@@ -65,6 +68,7 @@ fi
 			/Library/Preferences/.com.mcafee.* \
 			/Library/Frameworks/AVEngine.framework \
 			/Library/Frameworks/VirusScanPreferences.framework \
+			/Library/PrivilegedHelperTools/com.trellix.* \
 			"/Applications/McAfee Endpoint Security for Mac.app" \
 			"/Applications/McAfee Endpoint Protection for Mac.app" \
 			"/Applications/McAfeeSystemExtensions.app" \
@@ -100,7 +104,7 @@ fi
 
 # Forget the Trellix and McAfee installer package receipts
 
-allPackages=$(/usr/sbin/pkgutil --pkgs | /usr/bin/grep -E "(mcafee|trellix)")
+allPackages=$(/usr/sbin/pkgutil --pkgs | /usr/bin/grep -E "(mcafee|trellix|comp.nai.cmamac)")
 for aPackage in ${allPackages}; do
 	/usr/sbin/pkgutil --forget "$aPackage" >/dev/null 2>&1
 done
