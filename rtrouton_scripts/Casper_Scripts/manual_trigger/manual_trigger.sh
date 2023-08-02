@@ -1,29 +1,32 @@
 #!/bin/bash
 
-# This script runs a manual policy trigger to
+# This script runs a manual policy event trigger to
+# allow the policy or policies associated with that
+# trigger to be executed.
+#
+# Script uses a manual trigger name (set as Parameter 4
+# in the script's parameter list in Jamf Pro) to specify 
+# which policy or policies should be run.
+
+eventTrigger="$4"
+
+exitCode=0
+
+RunPolicyWithManualEventTrigger (){
+
+# This function runs a manual policy event trigger to
 # allow the policy or policies associated with that
 # trigger to be executed.
 
-trigger_name="$4"
+if [[ -n "$eventTrigger" ]]; then
+    /usr/local/jamf/bin/jamf policy -event "$eventTrigger"
+else
+    echo "No event trigger specified"
+    exitCode=1
+fi
 
-CheckBinary (){
-
-# Identify location of jamf binary.
-
-jamf_binary=`/usr/bin/which jamf`
-
- if [[ "$jamf_binary" == "" ]] && [[ -x "/usr/sbin/jamf" ]] && [[ ! -x "/usr/local/bin/jamf" ]]; then
-    jamf_binary="/usr/sbin/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ ! -x "/usr/sbin/jamf" ]] && [[ -x "/usr/local/bin/jamf" ]]; then
-    jamf_binary="/usr/local/bin/jamf"
- elif [[ "$jamf_binary" == "" ]] && [[ -x "/usr/sbin/jamf" ]] && [[ -x "/usr/local/bin/jamf" ]]; then
-    jamf_binary="/usr/local/bin/jamf"
- fi
 }
 
-# Run the CheckBinary function to identify the location
-# of the jamf binary for the jamf_binary variable.
+RunPolicyWithManualEventTrigger
 
-CheckBinary
-
-$jamf_binary policy -trigger "$trigger_name"
+exit "$exitCode"
