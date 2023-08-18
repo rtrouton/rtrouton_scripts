@@ -30,7 +30,7 @@ if [[ -n $(ls -A "$installedJDKs") ]]; then
 
   # If it's not empty, check for installed JDKs.
   
-  for aJDKPath in ${installedJDKs}/*; do
+  for aJDKPath in "${installedJDKs}"/*; do
 
 	# If an installed JDK is detected, check to see if it's from Oracle
 
