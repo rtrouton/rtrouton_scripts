@@ -221,10 +221,12 @@ if [[ -n "$ComputerXML" ]]; then
 
 	# get a list of duplicate serials
 	Duplicate_Computer_Serials_List=$(echo "$SortedSerialList" | uniq -d)
-	printf "Found %d serial number(s) with duplicates\n\n" $(echo "$Duplicate_Computer_Serials_List" | grep -Ec "^")
 	
-	# loop through all duplicates and get the respective computer ids
-	for aDuplicateSerial in ${Duplicate_Computer_Serials_List}; do
+	if [[ -n "$Duplicate_Computer_Serials_List" ]]; then
+	  printf "Found %d serial number(s) with duplicates\n\n" $(echo "$Duplicate_Computer_Serials_List" | grep -Ec "^")
+	
+	  # loop through all duplicates and get the respective computer ids
+	  for aDuplicateSerial in ${Duplicate_Computer_Serials_List}; do
 	
 		# check the variable to skip blank serial numbers
 		if [[ -n "$aDuplicateSerial" ]]; then
@@ -310,6 +312,10 @@ if [[ -n "$ComputerXML" ]]; then
   if [[ -f "$report_file" ]]; then
      echo "Report on deleted Macs available here: $report_file"
   fi
+
+ else
+   echo "No duplicate serial numbers detected."
+ fi
 
 fi
 
