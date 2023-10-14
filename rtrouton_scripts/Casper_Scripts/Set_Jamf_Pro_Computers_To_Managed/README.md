@@ -1,9 +1,9 @@
 This script is designed to update the management status in the computer inventory record from `Unmanaged` to `Managed` using the Jamf Pro Classic API. Five items are required to use this script:
 
 * Jamf Pro 10.49.0 or later
-* A text file containing the Jamf Pro IDs of the computer(s) you wish to delete.
+* A text file containing the Jamf Pro IDs of the computer(s) you wish to manage.
 * The URL of the appropriate Jamf Pro server.
-* The username of an account on the Jamf Pro server with sufficient privileges to delete computers from the Jamf Pro server.
+* The username of an account on the Jamf Pro server with sufficient privileges to set computers to `managed`.
 * The password for the relevant account on the Jamf Pro server.
 
 API rights required by account specified in the script's `jamfpro_user` variable:

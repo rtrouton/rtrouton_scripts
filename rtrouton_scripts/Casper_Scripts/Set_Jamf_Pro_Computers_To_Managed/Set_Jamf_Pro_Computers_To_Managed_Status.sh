@@ -3,7 +3,7 @@
 # This script imports a list of Jamf Pro ID numbers from a plaintext file 
 # and uses that information to set the computers' management status to Managed.
 #
-# Usage: /path/to/generate_filevault_recovery_key_report_from_jamf_pro_id_numbers.sh jamf_pro_id_numbers.txt
+# Usage: /path/to/Set_Jamf_Pro_Computers_To_Managed_Status.sh jamf_pro_id_numbers.txt
 #
 # Once the Jamf Pro ID numbers are read from in from the plaintext file, the script takes the following actions:
 #
