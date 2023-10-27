@@ -39,7 +39,7 @@ if [[ "$os_version_check" -ge 14 ]]; then
    #
    # /etc/pam.d/sudo_local_1696683022.bak
 
-     /bin/mv "$touch_id_auth_file" "touch_id_auth_file"_$(date "+%s").bak
+     /bin/mv "$touch_id_auth_file" "$touch_id_auth_file"_$(date "+%s").bak
 
   fi
 
