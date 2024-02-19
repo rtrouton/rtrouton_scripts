@@ -159,12 +159,18 @@ fi
 
 InstallerPackageDownloadURLRetrieval() {
 
+# Replace spaces in filenames with %20, so that
+# curl isn't trying to send a filename with spaces
+# as part of an API command.
+
+PackageNameSpacesSanitized=${PackageName// /%20}
+
 # Retrieves a download URL for an installer package
 GetJamfProAPIToken
 if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
-   InstallerPackageURI=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/api/v1/jcds/files/$PackageName" -H "Accept: application/json" | python -c 'import sys, json; print json.load(sys.stdin)["uri"]')
+   InstallerPackageURI=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/api/v1/jcds/files/${PackageNameSpacesSanitized}" -H "Accept: application/json" | python -c 'import sys, json; print json.load(sys.stdin)["uri"]')
 else
-   InstallerPackageURI=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/api/v1/jcds/files/$PackageName" -H "Accept: application/json" | plutil -extract uri raw -)
+   InstallerPackageURI=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/api/v1/jcds/files/${PackageNameSpacesSanitized}" -H "Accept: application/json" | plutil -extract uri raw -)
 fi
 }
 
