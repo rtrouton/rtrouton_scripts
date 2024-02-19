@@ -269,7 +269,7 @@ DownloadInstallerPackages(){
 		    if [[ -z "$InstallerPackageCheck" ]]; then
 		       echo "Downloading $PackageName to $JCDSInstallerDownloadDirectory."
 		       InstallerPackageDownloadURLRetrieval
-		       curl --progress-bar ${InstallerPackageURI} -X GET > "${JCDSInstallerDownloadDirectory}"/"${PackageName}"
+		       curl --progress-bar ${InstallerPackageURI} -X GET --output "${JCDSInstallerDownloadDirectory}"/"${PackageName}"
 		    else
 		       echo "$PackageName is available in $JCDSInstallerDownloadDirectory."
 		    fi
