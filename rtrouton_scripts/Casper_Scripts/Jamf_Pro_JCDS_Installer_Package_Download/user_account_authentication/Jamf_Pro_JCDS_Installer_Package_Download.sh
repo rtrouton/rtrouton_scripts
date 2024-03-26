@@ -263,7 +263,7 @@ DownloadInstallerPackages(){
 	
 		CheckAndRenewAPIToken
 		local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/packages/id/$InstallerPackageID")
-		local PackageName=$( echo "$DownloadedXMLData" | xmllint --xpath '/package/name/text()' - 2>/dev/null)
+		local PackageName=$( echo "$DownloadedXMLData" | xmllint --xpath '/package/filename/text()' - 2>/dev/null)
 
 		# Download installer packages to the download directory
 
