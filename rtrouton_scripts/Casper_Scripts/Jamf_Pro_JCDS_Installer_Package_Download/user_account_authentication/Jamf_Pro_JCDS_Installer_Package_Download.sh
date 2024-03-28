@@ -250,34 +250,72 @@ fi
 # download URLs for the packages stored in the JCDS distribution point.
 #
 # Once the download URLs are identified, the installer packages are then
-# downloaded to the specified download directory. If there are installer
-# packages already in the download directory which have the same name
-# as an installer package in the JCDS distribution point, download of
-# the installer package with the matching name is skipped.
+# downloaded to the specified download directory.
+#
+# If there are installer packages already in the download directory which
+# have the same name as an installer package in the JCDS distribution point, 
+# the MD5 hash of the existing installer package is checked against the MD5
+# hash of the installer package stored in the JCDS distribution point. If 
+# the MD5 hashes match, the installer package with the matching name is skipped.
+# If the MD5 hashes do not match, the existing installer package in the download 
+# directory is deleted and a fresh copy of the installer package is downloaded.
 
 DownloadInstallerPackages(){
 
 	local InstallerPackageID="$1"
 
 	if [[ -n "$InstallerPackageID" ]]; then
-	
+
 		CheckAndRenewAPIToken
 		local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/packages/id/$InstallerPackageID")
 		local PackageName=$( echo "$DownloadedXMLData" | xmllint --xpath '/package/filename/text()' - 2>/dev/null)
+		local PackageMD5=$( echo "$DownloadedXMLData" | xmllint --xpath '/package/hash_value/text()' - 2>/dev/null)
 
 		# Download installer packages to the download directory
-
+		echo ""
 		if [[ -n "$PackageName" ]]; then
 		    InstallerPackageCheck=$(ls -a "$JCDSInstallerDownloadDirectory" | grep "$PackageName")
 		    
 		    # Only download installer packages that haven't already been downloaded.
 		    
-		    if [[ -z "$InstallerPackageCheck" ]]; then
+		    if [[ -n "$InstallerPackageCheck" ]]; then
+		       echo "$PackageName found in $JCDSInstallerDownloadDirectory."
+		       echo "Checking MD5 hash of $PackageName in $JCDSInstallerDownloadDirectory to verify match with $PackageName on $jamfpro_url..."
+		       # Check MD5 hash of existing package to verify match with installer package on the Jamf Pro server.
+		       InstallerPackageMD5Check=$(md5 -q "${JCDSInstallerDownloadDirectory}"/"${PackageName}")
+		       if [[ "$InstallerPackageMD5Check" == "$PackageMD5" ]]; then
+		       	   echo "MD5 hash of $PackageName in $JCDSInstallerDownloadDirectory matches $PackageName on $jamfpro_url."
+		       	   echo "$PackageName is available in $JCDSInstallerDownloadDirectory."
+		       else
+		       	   echo "MD5 hash of $PackageName in $JCDSInstallerDownloadDirectory does not match $PackageName on $jamfpro_url."
+		       	   echo "Deleting $PackageName from $JCDSInstallerDownloadDirectory."
+		       	   rm -rf "${JCDSInstallerDownloadDirectory}"/"${PackageName}"
+		       	   echo "Downloading $PackageName to $JCDSInstallerDownloadDirectory."
+		       	   InstallerPackageDownloadURLRetrieval
+		       	   curl --progress-bar ${InstallerPackageURI} -X GET --output "${JCDSInstallerDownloadDirectory}"/"${PackageName}"
+		       	   
+		       	   # Verify the package exists following the download.
+		       	   
+		       	   InstallerPackageCheck=$(ls -a "$JCDSInstallerDownloadDirectory" | grep "$PackageName")
+		       	   if [[ -n "$InstallerPackageCheck" ]]; then
+		       	      echo "$PackageName is available in $JCDSInstallerDownloadDirectory."
+		       	   else
+		       	      echo "ERROR: $PackageName not found in $JCDSInstallerDownloadDirectory."
+		       	   fi
+		       fi
+		    elif [[ -z "$InstallerPackageCheck" ]]; then
 		       echo "Downloading $PackageName to $JCDSInstallerDownloadDirectory."
 		       InstallerPackageDownloadURLRetrieval
 		       curl --progress-bar ${InstallerPackageURI} -X GET --output "${JCDSInstallerDownloadDirectory}"/"${PackageName}"
-		    else
-		       echo "$PackageName is available in $JCDSInstallerDownloadDirectory."
+		       
+		       # Verify the package exists following the download.
+		       
+		       InstallerPackageCheck=$(ls -a "$JCDSInstallerDownloadDirectory" | grep "$PackageName")
+		       if [[ -n "$InstallerPackageCheck" ]]; then
+		          echo "$PackageName is available in $JCDSInstallerDownloadDirectory."
+		       else
+		          echo "ERROR: $PackageName not found in $JCDSInstallerDownloadDirectory."
+		       fi
 		    fi
 		fi
 	fi
