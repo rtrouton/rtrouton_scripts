@@ -279,8 +279,6 @@ DownloadComputerPolicy(){
 	else
 		FormattedComputerPolicy=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/${ID}" -X GET | xmllint --format - )		
 	fi
-	
-	FormattedComputerPolicy=$(curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/policies/id/${ID}" -X GET | xmllint --format - )
 
 	# Identify and display the policy's name.
 	DisplayName=$(echo "$FormattedComputerPolicy" | xmllint --xpath "/policy/general/name/text()" - 2>/dev/null | sed -e 's|:|(colon)|g' -e 's/\//\\/g')
