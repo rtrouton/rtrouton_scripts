@@ -282,7 +282,7 @@ if [[ $ERROR -eq 0 ]]; then
 
   if [[ -z "$NoBearerToken" ]]; then
 		CheckAndRenewAPIToken
-		DockItem_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xmllint --xpath "//id" - 2>/dev/null) 
+		DockItem_id_list=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xmllint --xpath "//id" - 2>/dev/null) 
   else
 		DockItem_id_list=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/dockitems" | xmllint --xpath "//id" - 2>/dev/null)
   fi
