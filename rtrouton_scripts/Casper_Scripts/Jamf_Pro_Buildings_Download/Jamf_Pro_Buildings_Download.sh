@@ -13,7 +13,7 @@
 #
 # Jamf Pro Server Objects:
 #
-# Dock Items: Read
+# Buildings: Read
 
 # Set exit error status
 
