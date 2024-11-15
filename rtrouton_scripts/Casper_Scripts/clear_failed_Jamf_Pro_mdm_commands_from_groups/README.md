@@ -3,7 +3,7 @@ These scripts are designed to clear failed MDM commands from specified Jamf Pro 
 `clear_failed_Jamf_Pro_mdm_commands_from_computer_group.sh`
 
 This script is designed to use API client authentication, where the associated API role has the 
-following permission assigned:
+following permissions assigned:
 
 * Flush MDM Commands
 * Read Smart Computer Groups
@@ -12,7 +12,7 @@ following permission assigned:
 `clear_failed_Jamf_Pro_mdm_commands_from_mobile_device_group.sh`
 
 This script is designed to use API client authentication, where the associated API role has the 
-following permission assigned:
+following permissions assigned:
 
 * Flush MDM Commands
 * Read Smart Mobile Device Groups
