@@ -8,4 +8,6 @@ If an Apple Push Notification Service certificate identifier is not returned, th
 
 Otherwise the APNS certificate identifier is returned as the result.
 
-See **Casper_Extension_Attribute_Setup.png** for a screenshot of how the Extension Attribute should be configured.
+See `Jamf_Pro_Extension_Attribute_Setup.png` for a screenshot of how the Extension Attribute should be configured.
+
+![Jamf_Pro_Extension_Attribute_Setup.png](Jamf_Pro_Extension_Attribute_Setup.png)
