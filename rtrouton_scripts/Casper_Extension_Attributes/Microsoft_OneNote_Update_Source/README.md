@@ -5,7 +5,7 @@ If the app was installed using the Mac App Store with a person's Apple Account, 
 
 `MAS`
 
-If the app was installed using the Volume Purchase Program and installed by an MDM, the EA will return the following result:
+If the app was licensed using the Volume Purchase Program and installed by an MDM, the EA will return the following result:
 
 `VPP`
 

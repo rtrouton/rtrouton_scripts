@@ -8,7 +8,7 @@
 #
 # MAS
 #
-# If the app was installed using the Volume Purchase Program and installed by an MDM, 
+# If the app was licensed using the Volume Purchase Program and installed by an MDM, 
 # the EA will return the following result:
 #
 # VPP
