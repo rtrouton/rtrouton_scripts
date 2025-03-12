@@ -5,14 +5,34 @@
 exitCode=0
 
 # This script uses jq, which is a tool for working with JSON files.
-# It is not natively available as part of macOS, so it needs to be
-# installed separately.
+# It is not natively available as part of macOS Sonoma or earlier, 
+# so it needs to be installed separately on those versions of macOS.
 #
 # Pre-built jq binaries for macOS are available via the link below:
 #
 # https://stedolan.github.io/jq/download/
 
-jq="/path/to/jq_binary"
+jq_binary="/path/to/jq_binary"
+
+# Determine OS version
+# Save current IFS state
+
+OLDIFS=$IFS
+
+IFS='.' read osvers_major osvers_minor osvers_dot_version <<< "$(/usr/bin/sw_vers -productVersion)"
+
+# restore IFS to previous state
+
+IFS=$OLDIFS
+
+# Checks to see if the Mac is running macOS 15 or higher. If it is, 
+# jq is installed as /usr/bin/jq and the "jq_binary" variable will be
+# set to use jq at that location.
+
+if [[ ( ${osvers_major} -ge 15 ) ]]; then
+   jq_binary="/usr/bin/jq"
+fi
+
 
 # get the currently logged-in user and go ahead if not root
 CURRENT_USER=$(/bin/ls -l /dev/console | /usr/bin/awk '{ print $3 }')
@@ -24,14 +44,14 @@ if [[ -n "$CURRENT_USER" && "$CURRENT_USER" != "root" ]]; then
   # If jq is executable, proceed with script.
   # Otherwise halt and log an error.
 
-  if [[ -x "$jq" ]]; then
+  if [[ -x "$jq_binary" ]]; then
 
     # If an existing settings.json file exists for Visual Studio Code,
     # update it with the desired telemetry setting.
 
     if [[ -f "$USER_HOME/Library/Application Support/Code/User/settings.json" ]]; then
       vscode_settings="$USER_HOME/Library/Application Support/Code/User/settings.json"
-      updated_vscode_settings=$("$jq" '."telemetry.enableTelemetry" = false' <"$vscode_settings")
+      updated_vscode_settings=$("$jq_binary" '."telemetry.enableTelemetry" = false' <"$vscode_settings")
       echo "${updated_vscode_settings}" >"$vscode_settings"
       /usr/sbin/chown -R "$CURRENT_USER" "$vscode_settings"
     else
@@ -58,7 +78,7 @@ VSCODE_TELEMETRY_DISABLED
   # Verify that the desired setting is in place
 
   vscode_settings="$USER_HOME/Library/Application Support/Code/User/settings.json"
-  if [[ $("$jq" '."telemetry.enableTelemetry"' "$vscode_settings") = "false" ]]; then
+  if [[ $("$jq_binary" '."telemetry.enableTelemetry"' "$vscode_settings") = "false" ]]; then
     echo "Telemetry disabled."
   else
     echo "Unable to verify that telemetry is disabled!"
