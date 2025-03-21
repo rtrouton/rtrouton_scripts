@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh --no-rcs
 
 # This script imports a list of Jamf Pro ID numbers from a plaintext file 
 # and uses that information to generate a report about the matching computers
@@ -26,22 +26,8 @@
 #    Jamf Pro URL for the computer inventory record
 
 report_file="$(mktemp).tsv"
-
-# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# yes
-#
-# NoBearerToken="yes"
-#
-# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# NoBearerToken=""
-
-NoBearerToken=""
+filename="$1"
+ERROR=0
 
 GetJamfProAPIToken() {
 
@@ -49,11 +35,7 @@ GetJamfProAPIToken() {
 
 # Use user account's username and password credentials with Basic Authorization to request a bearer token.
 
-if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
-   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/api/v1/auth/token" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
-else
-   api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/api/v1/auth/token" | plutil -extract token raw -)
-fi
+api_token=$(/usr/bin/curl -X POST --silent -u "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/api/v1/auth/token" | plutil -extract token raw -)
 
 }
 
@@ -84,11 +66,7 @@ if [[ ${api_authentication_check} == 200 ]]; then
 # If the current bearer token is valid, it is used to connect to the keep-alive endpoint. This will
 # trigger the issuing of a new bearer token and the invalidation of the previous one.
 
-      if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
-         api_token=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | python -c 'import sys, json; print json.load(sys.stdin)["token"]')
-      else
-         api_token=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
-      fi
+   api_token=$(/usr/bin/curl "${jamfpro_url}/api/v1/auth/keep-alive" --silent --request POST --header "Authorization: Bearer ${api_token}" | plutil -extract token raw -)
 
 else
 
@@ -122,6 +100,8 @@ if [[ ${api_authentication_check} == 200 ]]; then
 
 fi
 }
+
+if [[ -n $filename && -r $filename ]]; then
 
 # If you choose to hardcode API information into the script, set one or more of the following values:
 #
@@ -177,27 +157,27 @@ fi
 # otherwise, you will be prompted to enter the requested URL or account credentials.
 
 if [[ -z "$jamfpro_url" ]]; then
-     read -p "Please enter your Jamf Pro server URL : " jamfpro_url
+     read "?Please enter your Jamf Pro server URL : " jamfpro_url
 fi
 
 if [[ -z "$jamfpro_user" ]]; then
-     read -p "Please enter your Jamf Pro user account : " jamfpro_user
+     read "?Please enter your Jamf Pro user account : " jamfpro_user
 fi
 
 if [[ -z "$jamfpro_password" ]]; then
-     read -p "Please enter the password for the $jamfpro_user account: " -s jamfpro_password
+     read -s "?Please enter the password for the $jamfpro_user account: " jamfpro_password
 fi
 
-echo
-
-filename="$1"
+echo ""
 
 # Remove the trailing slash from the Jamf Pro URL if needed.
+
 jamfpro_url=${jamfpro_url%%/}
 
-if [[ -z "$NoBearerToken" ]]; then
-    GetJamfProAPIToken
-fi
+# Set up the Jamf Pro Computer ID URL
+jamfproIDURL="${jamfpro_url}/api/v1/computers-inventory-detail"
+
+GetJamfProAPIToken
 
 progress_indicator() {
   spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
@@ -223,22 +203,19 @@ trap "kill -9 $SPIN_PID" $(seq 0 15)
 while read -r ID; do
 			
 	if [[ "$ID" =~ ^[0-9]+$ ]]; then
-		if [[ -z "$NoBearerToken" ]]; then
 			CheckAndRenewAPIToken
-		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computers/id/$ID" -H "Accept: application/xml" 2>/dev/null)
-		else
-		    ComputerRecord=$(/usr/bin/curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$ID" -H "Accept: application/xml" 2>/dev/null)
-		fi	
+		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ID" -H "Accept: application/json" 2>/dev/null)
+		    
 			if [[ ! -f "$report_file" ]]; then
 				touch "$report_file"
 				printf "Jamf Pro ID Number\tMake\tModel\tSerial Number\tUDID\tJamf Pro URL\n" > "$report_file"
 			fi
 
-			Make=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/make/text()' - 2>/dev/null)
-			MachineModel=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/model/text()' - 2>/dev/null)
-			SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
-			UDIDIdentifier=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/udid/text()' - 2>/dev/null)						
-			JamfProURL=$(echo "$jamfpro_url"/computers.html?id="$ID")
+			Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
+			MachineModel=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.model raw - 2>/dev/null)
+			SerialNumber=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.serialNumber raw - 2>/dev/null)
+			UDIDIdentifier=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract udid raw - 2>/dev/null)						
+			JamfProURL=$(printf "$jamfpro_url/computers.html?id=$ID")
 			
 			if [[ $? -eq 0 ]]; then
 				printf "$ID\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${JamfProURL}\n" >> "$report_file"
@@ -255,4 +232,9 @@ if [[ -f "$report_file" ]]; then
      echo "Report on Macs available here: $report_file"
 fi
 
-exit 0
+else
+	echo "Input file does not exist or is not readable"
+	ERROR=1
+fi
+
+exit "$ERROR"
