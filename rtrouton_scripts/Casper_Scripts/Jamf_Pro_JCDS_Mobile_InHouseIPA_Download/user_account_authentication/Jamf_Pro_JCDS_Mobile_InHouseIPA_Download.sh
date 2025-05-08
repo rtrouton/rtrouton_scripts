@@ -255,8 +255,12 @@ fi
 # downloaded to the specified download directory.
 #
 # If there are IPA files already in the download directory which
-# have the same filename as an IPA file in the JCDS distribution point, 
-# downloading the IPA file from the JCDS distribution point is skipped.
+# have the same name as an IPA file in the JCDS distribution point, 
+# the MD5 hash of the existing IPA file is checked against the MD5
+# hash of the IPA file stored in the JCDS distribution point. If 
+# the MD5 hashes match, the IPA file with the matching name is skipped.
+# If the MD5 hashes do not match, the existing IPA file in the download 
+# directory is deleted and a fresh copy of the IPA file is downloaded.
 
 DownloadIPAFiles(){
 
@@ -266,24 +270,49 @@ DownloadIPAFiles(){
 
 		CheckAndRenewAPIToken
 		local DownloadedXMLData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/xml" "${jamfpro_url}/JSSResource/mobiledeviceapplications/id/$IPAID")
+		local DownloadedJSONData=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" -H "Accept: application/json" "${jamfpro_url}/api/v1/jcds/files" )
 		local IPAFilename=$( echo "$DownloadedXMLData" | xmllint --xpath '/mobile_device_application/general/ipa/name/text()' - 2>/dev/null)
 		local IPAInHouse=$( echo "$DownloadedXMLData" | xmllint --xpath '/mobile_device_application/general/internal_app/text()' - 2>/dev/null)
+		local IPAInHouseMD5=$( echo "$DownloadedJSONData" | awk -v IPAFileNameMatch="$IPAFilename" '$0~IPAFileNameMatch {c=NR+2}(NR<=c){print}' - 2>/dev/null | awk '/md5/ {print $3}' | sed -e 's/"//g' -e 's/,//g')
 
 		# Download IPA files to the download directory
-		echo ""
 		if [[ -n "$IPAFilename" ]] && [[ "$IPAInHouse" = "false" ]] ; then
 		    IPACheck=$(ls -a "$JCDSIPADownloadDirectory" | grep "$IPAFilename")
-		    
+		    echo ""
 		    # Only download IPA files that haven't already been downloaded.
 		    
 		    if [[ -n "$IPACheck" ]]; then
 		       echo "$IPAFilename found in $JCDSIPADownloadDirectory."
+		       echo "Checking MD5 hash of $IPAFilename in $JCDSIPADownloadDirectory to verify match with $IPAFilename on $jamfpro_url..."
+		       # Check MD5 hash of existing IPA file to verify match with IPA file on the Jamf Pro server.
+		       IPAMD5Check=$(md5 -q "${JCDSIPADownloadDirectory}"/"${IPAFilename}")
+		       if [[ "$IPAMD5Check" == "$IPAInHouseMD5" ]]; then
+		       	   echo "MD5 hash of $IPAFilename in $JCDSIPADownloadDirectory matches $IPAFilename on $jamfpro_url."
+		       	   echo "$IPAFilename is available in $JCDSIPADownloadDirectory."
+		       else
+		       	   echo "MD5 hash of $IPAFilename in $JCDSIPADownloadDirectory does not match $IPAFilename on $jamfpro_url."
+		       	   echo "Deleting $IPAFilename from $JCDSIPADownloadDirectory."
+		       	   rm -rf "${JCDSIPADownloadDirectory}"/"${IPAFilename}"
+		       	   echo "Downloading $IPAFilename to $JCDSIPADownloadDirectory."
+		       	   IPADownloadURLRetrieval
+		       	   curl --progress-bar ${IPAURI} -X GET --output "${JCDSIPADownloadDirectory}"/"${IPAFilename}"
+		       	   
+		       	   # Verify the IPA file exists following the download.
+		       	   
+		       	   IPACheck=$(ls -a "$JCDSIPADownloadDirectory" | grep "$IPAFilename")
+		       	   if [[ -n "$IPACheck" ]]; then
+		       	      echo "$IPAFilename is available in $JCDSIPADownloadDirectory."
+		       	   else
+		       	      echo "ERROR: $IPAFilename not found in $JCDSIPADownloadDirectory."
+		       	   fi
+		       fi
+
 		    elif [[ -z "$IPACheck" ]]; then
 		       echo "Downloading $IPAFilename to $JCDSIPADownloadDirectory."
 		       IPADownloadURLRetrieval
 		       curl --progress-bar ${IPAURI} -X GET --output "${JCDSIPADownloadDirectory}"/"${IPAFilename}"
 		       
-		       # Verify the package exists following the download.
+		       # Verify the IPA file exists following the download.
 		       
 		       IPACheck=$(ls -a "$JCDSIPADownloadDirectory" | grep "$IPAFilename")
 		       if [[ -n "$IPACheck" ]]; then
