@@ -167,7 +167,7 @@ IPADownloadURLRetrieval() {
 IPAFilenameSpacesSanitized=${IPAFilename// /%20}
 
 # Retrieves a download URL for an IPA file
-
+GetJamfProAPIToken
 if [[ $(/usr/bin/sw_vers -productVersion | awk -F . '{print $1}') -lt 12 ]]; then
    IPAURI=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/api/v1/jcds/files/${IPAFilenameSpacesSanitized}" -H "Accept: application/json" | python -c 'import sys, json; print json.load(sys.stdin)["uri"]')
 else
