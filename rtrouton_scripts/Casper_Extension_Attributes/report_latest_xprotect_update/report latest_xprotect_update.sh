@@ -33,7 +33,7 @@ elif [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 6 ]] && [[ ${osvers_
   last_xprotect_update_human_readable_time=`/bin/date -r "$last_xprotect_update_epoch_time" '+%m-%d-%Y %H:%M:%S'`
   result="$last_xprotect_update_human_readable_time"
   
-elif [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 9 ]]; then
+elif [[ ${osvers_major} -eq 10 ]] && [[ ${osvers_minor} -ge 9 ]] || [[ ${osvers_major} -ge 11 ]]; then
 
    # This section of the function will check the installer package receipts for 
    # XProtect update installer packages for the relevant version of Mac OS X and 
