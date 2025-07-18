@@ -21,7 +21,7 @@ if [[  ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 7 ) ]]; then
   result="NA"
 fi
 
-if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) || ( ${osvers_major} -eq 11 && ${osvers_minor} -ge 0 ) ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) || ( ${osvers_major} -ge 11 ) ]]; then
  
 # Checks the Apple Push Notification Service certificate identifier
 # on Macs running 10.7.x or higher. If an Apple Push Notification 
@@ -35,7 +35,7 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 7 ) || ( ${osvers_major} -
 # Otherwise the Apple Push Notification Service certificate identifier
 # is returned as the result.
 
-  APNS_certificate=`/usr/sbin/system_profiler SPConfigurationProfileDataType | awk '/Topic/{ print $NF }' | sed 's/[";]//g'`
+  APNS_certificate=`/usr/sbin/system_profiler SPConfigurationProfileDataType | awk '/com.apple.mgmt/{ print $NF }' | sed 's/[";]//g'`
 
   if [[ "$APNS_certificate" = "" ]]; then
       result="NA"

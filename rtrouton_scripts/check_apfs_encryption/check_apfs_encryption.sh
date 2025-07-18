@@ -22,7 +22,7 @@ if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -lt 13 ) ]]; then
   echo "APFS Encryption Not Available For This Version Of macOS"
 fi
 
-if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 13 ) || ( ${osvers_major} -eq 11 ) ]]; then
+if [[ ( ${osvers_major} -eq 10 && ${osvers_minor} -ge 13 ) || ( ${osvers_major} -ge 11 ) ]]; then
 
 # If the OS on the Mac is 10.13 or higher, check to see if the
 # boot drive is formatted with APFS or HFS+
