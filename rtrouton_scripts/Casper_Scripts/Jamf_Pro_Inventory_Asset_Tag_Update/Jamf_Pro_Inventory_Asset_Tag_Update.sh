@@ -47,22 +47,6 @@
 #
 # Computers: Read, Update
 
-# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# yes
-#
-# NoBearerToken="yes"
-#
-# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# NoBearerToken=""
-
-NoBearerToken=""
-
 GetJamfProAPIToken() {
 
 # This function uses Basic Authentication to get a new bearer token for API authentication.
@@ -218,24 +202,44 @@ jamfpro_url=${jamfpro_url%%/}
 
 # If configured to get one, get a Jamf Pro API Bearer Token
 	
-if [[ -z "$NoBearerToken" ]]; then
-    GetJamfProAPIToken
-fi
+GetJamfProAPIToken
+
 
 if [[ -n $filename && -r $filename ]]; then
 
 	while IFS=, read serial_number asset_number || [ -n "$serial_number" ]; do
 	
-		if [[ -z "$NoBearerToken" ]]; then
-		   CheckAndRenewAPIToken
-		   apiResponse=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computers/serialnumber/${serial_number}" -w "<http_status>%{http_code}</http_status>" -H "Content-Type: application/xml" -X PUT -d "<computer><general><asset_tag>${asset_number}</asset_tag></general></computer>")
-		else
-		   apiResponse=$(/usr/bin/curl -su "${jamfpro_user}:${jamfpro_password}" "${jamfpro_url}/JSSResource/computers/serialnumber/${serial_number}" -w "<http_status>%{http_code}</http_status>" -H "Content-Type: application/xml" -X PUT -d "<computer><general><asset_tag>${asset_number}</asset_tag></general></computer>")
-		fi		
+		CheckAndRenewAPIToken
+
+		# Set the expected HTTP response code for a successful API call to update the asset tag information.
+		APISuccess="204"
+
+		# Set the correct URL for looking up the computer inventory record associated with the specified serial number.   
+		jamfproSerialURL="${jamfpro_url}/api/v3/computers-inventory?filter=hardware.serialNumber=="
+		
+		# Set the correct URL for looking up the computer associated with the specified Jamf Pro device ID.
+		jamfproIDURL="${jamfpro_url}/api/v3/computers-inventory-detail"
+
+		# Look up the computer inventory record associated with the specified serial number and get the Jamf Pro device ID.
+		jamfproID=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproSerialURL}${serial_number}" -H "Accept: application/json" | /usr/bin/plutil -extract results.0.id raw - 2>/dev/null)
+
+		# Format a block of JSON and use %s to specify where printf should print a specified variable.
+		JSONBlockFormat='{"general":{"assetTag":"%s"}}'
+
+		# Use printf to create the needed JSON block and write the asset_number variable in the correct place in the JSON block.
+		JSONBlock=$(printf "$JSONBlockFormat" "$asset_number")
+		
+		# Send an API command to update the computer inventory record with the specified asset tag information and read back the HTTP response code.
+		apiResponse=$(/usr/bin/curl -s --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$jamfproID" -w "<http_status>%{http_code}</http_status>" -H "Content-Type: application/json" -X PATCH -d "$JSONBlock")
 		 
 		responseCode=$(echo "$apiResponse" | /usr/bin/sed -n 's/.*<http_status>\([^<]*\).*/\1/p')
-	
-		if [[ "$responseCode" != "201" ]]; then
+
+		# If the API call returns an HTTP response which matches the APISuccess variable, the API call succeeded and the asset tag information
+		# should be updated in the computer inventory record. Script reports a successful update.
+		# 
+		# If the HTTP response code does not match the APISuccess variable, script report a failed asset tag update.
+        
+		if [[ "$responseCode" != "$APISuccess" ]]; then
 			echo "Update of computer record with serial number $serial_number failed with http error $responseCode"
 		else
 			echo "Successfully updated computer record with serial number $serial_number with asset number $asset_number"
