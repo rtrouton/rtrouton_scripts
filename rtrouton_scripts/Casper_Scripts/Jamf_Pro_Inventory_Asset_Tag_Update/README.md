@@ -40,6 +40,11 @@ Successfully updated computer record with serial number W89020U8289 with asset n
 Successfully updated computer record with serial number CK1243R4DB6 with asset number 2011
 ```
 
+This script comes in two versions to support the following methods of API authentication:
+
+* API client authentication -  see the `API_client_authentication` directory.
+* User account authentication - see the `user_account_authentication` directory.
+
 If setting up a specific user account with limited rights, here are the required API privileges
 for the account on the Jamf Pro server:
 
