@@ -201,12 +201,12 @@ while read -r SerialNumber; do
 
 			CheckAndRenewAPIToken		    
 
-			jamfproSerialURL="${jamfpro_url}/api/v1/computers-inventory?filter=hardware.serialNumber=="
+			jamfproSerialURL="${jamfpro_url}/api/v3/computers-inventory?filter=hardware.serialNumber=="
 
 			ID=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproSerialURL}${SerialNumber}" -H "Accept: application/json" | /usr/bin/plutil -extract results.0.id raw - 2>/dev/null)
 		    
 		    # Set up the Jamf Pro Computer ID URL
-		    jamfproIDURL="${jamfpro_url}/api/v1/computers-inventory-detail"
+		    jamfproIDURL="${jamfpro_url}/api/v3/computers-inventory-detail"
 		    
 		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ID" -H "Accept: application/json" 2>/dev/null)
 
