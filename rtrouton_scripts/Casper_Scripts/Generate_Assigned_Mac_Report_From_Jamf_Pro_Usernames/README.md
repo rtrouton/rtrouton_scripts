@@ -18,7 +18,7 @@ fourth_username_goes_here
 
 Once the username(s) are read from in from the plaintext file or from manual input, the script takes the following actions:
 
-1. Uses the Jamf Pro API to download all information about the matching computer inventory record in XML format.
+1. Uses the Jamf Pro API to download all information about the matching computer inventory record in JSON format.
 2. Pulls the following information out of the inventory entry:
 
 *    Jamf Pro ID
@@ -50,3 +50,15 @@ Jamf Pro ID Number	Assigned User	Assigned User Email	Make	Model	Serial Number	UD
 
 
 ```
+
+This script comes in two versions to support the following methods of API authentication:
+
+* API client authentication -  see the `API_client_authentication` directory.
+* User account authentication - see the `user_account_authentication` directory.
+
+If setting up a specific user account with limited rights, here are the required API privileges
+for the account on the Jamf Pro server:
+
+Jamf Pro Server Objects:
+
+`Computers: Read`

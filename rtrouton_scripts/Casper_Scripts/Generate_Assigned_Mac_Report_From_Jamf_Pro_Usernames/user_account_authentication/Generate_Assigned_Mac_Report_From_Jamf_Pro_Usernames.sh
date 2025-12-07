@@ -20,7 +20,7 @@
 #
 # Once the username(s) are read from in from the plaintext file or from manual input, the script takes the following actions:
 #
-# 1. Uses the Jamf Pro API to download all information about the matching computer inventory record in XML format.
+# 1. Uses the Jamf Pro API to download all information about the matching computer inventory record in JSON format.
 # 2. Pulls the following information out of the inventory entry:
 #
 #    Jamf Pro ID
@@ -42,24 +42,30 @@
 #    Serial Number
 #    Hardware UDID
 #    Jamf Pro URL for the computer inventory record
+#
+# If setting up a specific user account with limited rights, here are the required API privileges
+# for the account on the Jamf Pro server:
+#
+# Jamf Pro Server Objects:
+#
+# Computers: Read
+
+# Check for the jq command line tool to be installed. It must be installed for this script to work.
+# The jq command line tool is installed by default on macOS Sequoia and later. 
+
+which jq &>/dev/null
+
+if [[ $? -ne 0 ]]; then
+   echo "ERROR: jq command line tool is not installed. Please install the jq command line tool."
+   echo "Downloads available from https://jqlang.org/download/ ."
+   exit 1
+fi
+
+# Get installed jq
+
+jqTool=$(which jq)
 
 report_file="$(mktemp).tsv"
-
-# If you're on Jamf Pro 10.34.2 or earlier, which doesn't support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# yes
-#
-# NoBearerToken="yes"
-#
-# If you're on Jamf Pro 10.35.0 or later, which does support using Bearer Tokens
-# for Classic API authentication, set the NoBearerToken variable to the following value
-# as shown below:
-#
-# NoBearerToken=""
-
-NoBearerToken=""
 
 GetJamfProAPIToken() {
 
@@ -230,9 +236,7 @@ fi
 # Remove the trailing slash from the Jamf Pro URL if needed.
 jamfpro_url=${jamfpro_url%%/}
 
-if [[ -z "$NoBearerToken" ]]; then
-    GetJamfProAPIToken
-fi
+GetJamfProAPIToken
 
 progress_indicator() {
   spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
@@ -259,9 +263,9 @@ trap "kill -9 $SPIN_PID" $(seq 0 15)
 
 idtempfile=$(mktemp)
 
-xmltempfile=$(mktemp)
+jsontempfile=$(mktemp)
 
-/usr/bin/touch "$xmltempfile"
+/usr/bin/touch "$jsontempfile"
 
 # Get all computers that are associated with username
 
@@ -269,41 +273,42 @@ while read -r UserToMatch || [ -n "$UserToMatch" ]; do
 
 # Get all computers associated with usernames
 
-if [[ -z "$NoBearerToken" ]]; then
-	CheckAndRenewAPIToken
-    /usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computers/match/${UserToMatch}" -H "Accept: application/xml" | xmllint --format - >> "$xmltempfile"
-else
-    /usr/bin/curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/match/${UserToMatch}" -H "Accept: application/xml" | xmllint --format - >> "$xmltempfile"
-fi
+CheckAndRenewAPIToken
+
+# Set the correct URL for looking up the computer inventory record associated with the specified username.   
+jamfproUsernameURL="${jamfpro_url}/api/v3/computers-inventory??section=USER_AND_LOCATION&filter=userAndLocation.username=="
+
+# Look up the computer inventory records associated with the specified username and get the Jamf Pro device IDs.
+/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproUsernameURL}${UserToMatch}" -H "Accept: application/json" | "$jqTool" '.' >> $jsontempfile
 
 done < "$filename"
 
 # Extract the Jamf Pro computer IDs
 
-/bin/cat "$xmltempfile" | sed -n 's:.*<id>\(.*\)</id>.*:\1:p' > "$idtempfile"
+/bin/cat "$jsontempfile" | "$jqTool" -r '.results[].id' > "$idtempfile"
 
 while read -r ID; do
 			
 	if [[ "$ID" =~ ^[0-9]+$ ]]; then
-		if [[ -z "$NoBearerToken" ]]; then
+
 			CheckAndRenewAPIToken
-		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfpro_url}/JSSResource/computers/id/$ID" -H "Accept: application/xml" 2>/dev/null)
-		else
-		    ComputerRecord=$(/usr/bin/curl -sfu "$jamfpro_user:$jamfpro_password" "${jamfpro_url}/JSSResource/computers/id/$ID" -H "Accept: application/xml" 2>/dev/null)
-		fi
+		    # Set the correct URL for looking up the computer associated with the specified Jamf Pro device ID.
+		    jamfproIDURL="${jamfpro_url}/api/v3/computers-inventory-detail"
+		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/${ID}" -H "Accept: application/json" 2>/dev/null)
+
 			if [[ ! -f "$report_file" ]]; then
 				/usr/bin/touch "$report_file"
 				printf "Jamf Pro ID Number\tAssigned User\tAssigned User Email\tMake\tModel\tSerial Number\tUDID\tJamf Pro URL\n" > "$report_file"
 			fi
 
-			Make=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/make/text()' - 2>/dev/null)
-			AssignedUser=$(echo "$ComputerRecord" | xmllint --xpath '//computer/location/username/text()' - 2>/dev/null)
-			AssignedUserEmail=$(echo "$ComputerRecord" | xmllint --xpath '//computer/location/email_address/text()' - 2>/dev/null)
-			MachineModel=$(echo "$ComputerRecord" | xmllint --xpath '//computer/hardware/model/text()' - 2>/dev/null)
-			SerialNumber=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/serial_number/text()' - 2>/dev/null)
-			JamfProID=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/id/text()' - 2>/dev/null)
-			UDIDIdentifier=$(echo "$ComputerRecord" | xmllint --xpath '//computer/general/udid/text()' - 2>/dev/null)						
-			JamfProURL=$(echo "$jamfpro_url"/computers.html?id="$JamfProID")
+			Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
+			AssignedUser=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract userAndLocation.username raw - 2>/dev/null)
+			AssignedUserEmail=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract userAndLocation.email raw - 2>/dev/null)
+			MachineModel=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.model raw - 2>/dev/null)
+			SerialNumber=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.serialNumber raw - 2>/dev/null)
+			JamfProID=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract id raw - 2>/dev/null)
+			UDIDIdentifier=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract udid raw - 2>/dev/null)						
+			JamfProURL=$(printf "$jamfpro_url/computers.html?id=$ID")
 			
 			if [[ $? -eq 0 ]]; then
 				printf "$JamfProID\t$AssignedUser\t$AssignedUserEmail\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${JamfProURL}\n" >> "$report_file"
@@ -321,8 +326,8 @@ if [[ -f "$assigned_user_filename" ]]; then
     rm -rf "$assigned_user_filename"
 fi
 
-if [[ -f "$xmltempfile" ]]; then
-   rm -rf "$xmltempfile"
+if [[ -f "$jsontempfile" ]]; then
+   rm -rf "$jsontempfile"
 fi
 
 if [[ -f "$idtempfile" ]]; then
