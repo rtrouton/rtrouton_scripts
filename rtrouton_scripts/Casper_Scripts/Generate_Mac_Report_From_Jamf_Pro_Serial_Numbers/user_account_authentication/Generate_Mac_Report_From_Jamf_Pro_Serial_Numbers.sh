@@ -7,7 +7,7 @@
 #
 # Once the serial numbers are read from in from the plaintext file, the script takes the following actions:
 #
-# 1. Uses the Jamf Pro API to download all information about the matching computer inventory record in XML format.
+# 1. Uses the Jamf Pro API to download all information about the matching computer inventory record in JSON format.
 # 2. Pulls the following information out of the inventory entry:
 #
 #    Jamf Pro ID
@@ -199,34 +199,34 @@ trap "kill -9 $SPIN_PID" $(seq 0 15)
 
 while read -r SerialNumber; do
 
-			CheckAndRenewAPIToken		    
+		    CheckAndRenewAPIToken		    
 
-			jamfproSerialURL="${jamfpro_url}/api/v3/computers-inventory?filter=hardware.serialNumber=="
+		    jamfproSerialURL="${jamfpro_url}/api/v3/computers-inventory?filter=hardware.serialNumber=="
 
-			ID=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproSerialURL}${SerialNumber}" -H "Accept: application/json" | /usr/bin/plutil -extract results.0.id raw - 2>/dev/null)
+		    ID=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproSerialURL}${SerialNumber}" -H "Accept: application/json" | /usr/bin/plutil -extract results.0.id raw - 2>/dev/null)
 		    
 		    # Set up the Jamf Pro Computer ID URL
 		    jamfproIDURL="${jamfpro_url}/api/v3/computers-inventory-detail"
 		    
 		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ID" -H "Accept: application/json" 2>/dev/null)
 
-			if [[ ! -f "$report_file" ]]; then
-				touch "$report_file"
-				printf "Jamf Pro ID Number\tMake\tModel\tSerial Number\tUDID\tJamf Pro URL\n" > "$report_file"
-			fi
+		    if [[ ! -f "$report_file" ]]; then
+		        touch "$report_file"
+		        printf "Jamf Pro ID Number\tMake\tModel\tSerial Number\tUDID\tJamf Pro URL\n" > "$report_file"
+		    fi
 
-			Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
-			MachineModel=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.model raw - 2>/dev/null)
-			SerialNumber=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.serialNumber raw - 2>/dev/null)
-			JamfProID=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract id raw - 2>/dev/null)
-			UDIDIdentifier=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract udid raw - 2>/dev/null)						
-			JamfProURL=$(printf "$jamfpro_url/computers.html?id=$ID")
+		    Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
+		    MachineModel=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.model raw - 2>/dev/null)
+		    SerialNumber=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.serialNumber raw - 2>/dev/null)
+		    JamfProID=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract id raw - 2>/dev/null)
+		    UDIDIdentifier=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract udid raw - 2>/dev/null)						
+		    JamfProURL=$(printf "$jamfpro_url/computers.html?id=$ID")
 			
-			if [[ $? -eq 0 ]]; then
-				printf "$JamfProID\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${JamfProURL}\n" >> "$report_file"
-			else
-				echo "ERROR! Failed to read computer record with serial number $SerialNumber"
-			fi
+		    if [[ $? -eq 0 ]]; then
+		        printf "$JamfProID\t$Make\t$MachineModel\t$SerialNumber\t$UDIDIdentifier\t${JamfProURL}\n" >> "$report_file"
+		    else
+		        echo "ERROR! Failed to read computer record with serial number $SerialNumber"
+		    fi
 				
 done < "$filename"
 

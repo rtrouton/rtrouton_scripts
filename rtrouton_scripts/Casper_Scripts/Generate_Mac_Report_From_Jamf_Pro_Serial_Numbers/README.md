@@ -22,3 +22,15 @@ Once the serial numbers are read from in from the plaintext file, the script tak
 *    Serial Number
 *    Hardware UDID
 *    Jamf Pro URL for the computer inventory record
+
+This script comes in two versions to support the following methods of API authentication:
+
+* API client authentication -  see the `API_client_authentication` directory.
+* User account authentication - see the `user_account_authentication` directory.
+
+If setting up a specific user account with limited rights, here are the required API privileges
+for the account on the Jamf Pro server:
+
+Jamf Pro Server Objects:
+
+`Computers: Read`
