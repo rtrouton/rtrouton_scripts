@@ -24,6 +24,11 @@
 #    Serial Number
 #    Hardware UDID
 #    Jamf Pro URL for the computer inventory record
+#
+# If setting up an API client with limited rights, here are the required API role privileges
+# for the API client on the Jamf Pro server:
+#
+# Read Computers
 
 report_file="$(mktemp).tsv"
 filename="$1"
