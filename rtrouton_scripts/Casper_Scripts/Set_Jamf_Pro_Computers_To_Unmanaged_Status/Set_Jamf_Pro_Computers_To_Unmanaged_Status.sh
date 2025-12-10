@@ -258,7 +258,7 @@ while read -r ID; do
                    echo ""
                    management_status_output="Managed"
                 fi
-			fi
+            fi
            
             Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
             MachineModel=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.model raw - 2>/dev/null)
