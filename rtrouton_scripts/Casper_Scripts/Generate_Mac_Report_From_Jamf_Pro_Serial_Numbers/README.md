@@ -34,3 +34,7 @@ for the account on the Jamf Pro server:
 Jamf Pro Server Objects:
 
 `Computers: Read`
+
+If setting up an API client with limited rights, here are the required API role privileges for the API client on the Jamf Pro server:
+
+* `Computers Read`
