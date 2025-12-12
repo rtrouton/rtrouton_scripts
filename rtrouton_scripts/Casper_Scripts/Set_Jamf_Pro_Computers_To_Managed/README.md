@@ -6,13 +6,26 @@ This script is designed to update the management status in the computer inventor
 * The username of an account on the Jamf Pro server with sufficient privileges to set computers to `managed`.
 * The password for the relevant account on the Jamf Pro server.
 
-API rights required by account specified in the script's `jamfpro_user` variable:
+Once the five specified items are available, the script can be run using the following command:
+
+`/path/to/Set_Jamf_Pro_Computers_To_Managed_Status.sh /path/to/text_filename_here.txt`
+
+This script comes in two versions to support the following methods of API authentication:
+
+* API client authentication -  see the `API_client_authentication` directory.
+* User account authentication - see the `user_account_authentication` directory.
+
+If setting up a specific user account with limited rights, here are the required API privileges
+for the account on the Jamf Pro server:
 
 **Jamf Pro Server Objects**:
 
 * **Computers**: `Read, Update`
 * **Users**: `Update`
 
-Once the five specified items are available, the script can be run using the following command:
+If setting up an API client with limited rights, here are the required API role privileges
+for the API client on the Jamf Pro server:
 
-`/path/to/Set_Jamf_Pro_Computers_To_Managed_Status.sh /path/to/text_filename_here.txt`
+* `Computers Read`
+* `Computers Update`
+* `Users Update`
