@@ -242,6 +242,10 @@ while read -r ID; do
 			
 	if [[ "$ID" =~ ^[0-9]+$ ]]; then
 			CheckAndRenewAPIToken
+			
+			# Set the expected HTTP response code for a successful API call to delete the computer inventory record.
+			APISuccess="204"
+			
 		    ComputerRecord=$(/usr/bin/curl -sf --header "Authorization: Bearer ${api_token}" "${jamfproIDURL}/$ID" -H "Accept: application/json" 2>/dev/null)
 		    
 			if [[ ! -f "$report_file" ]]; then
@@ -267,11 +271,19 @@ while read -r ID; do
 			
 			echo "curl -X DELETE ${jamfproDeleteIDURL}/$ID"
 			
-			# The lines below runs the deletion command.
+			# The lines below run the deletion command.
 			# Comment out the lines below if you want to
 			# only simulate running the deletion command.
 			
-			/usr/bin/curl --header "Authorization: Bearer ${api_token}" -X DELETE "${jamfproDeleteIDURL}/$ID"
+			responseCode=$(/usr/bin/curl --silent --header "Authorization: Bearer ${api_token}" -w "%{http_code}" -X DELETE "${jamfproDeleteIDURL}/$ID")
+			
+			if [[ "$responseCode" == "$APISuccess" ]]; then
+			   echo "Deleted the computer inventory record for $jamfpro_url/computers.html?id=$ID."
+			   echo ""
+			else
+			   echo "ERROR! Failed to delete the computer inventory record for $jamfpro_url/computers.html?id=$ID"
+			   echo ""
+			fi
 	fi
 				
 done < "$filename"
