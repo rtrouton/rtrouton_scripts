@@ -7,6 +7,16 @@ This script comes in two versions to support the following methods of API authen
 
 Here are the required API privileges for the API client or user account on the Jamf Pro server:
 
+API client permissions:
+
+**Privileges:**
+
+* `Read Packages`
+* `Read Jamf Cloud Distribution Service Files`
+
+
+User account permissions:
+
 **Jamf Pro Server Objects:**
 
 * Packages: `Read`
