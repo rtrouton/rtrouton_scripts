@@ -10,7 +10,7 @@
 # 3. Get the download URL for the IPA file
 # 4. Save the IPA file to a specified directory
 
-# If setting up a specific user account with limited rights, here are the required API privileges
+# If setting up an API Role, here are the required API privileges
 # for the account on the Jamf Pro server:
 #
 # API Role permissions:
