@@ -17,7 +17,7 @@
 #
 #    Account Name
 #    Account ID
-#    Account Enabled
+#    Account Enabled / Disabled
 #    Privilege Category
 #    Privilege Name
 #    Assignment Type
