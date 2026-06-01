@@ -1,4 +1,4 @@
-This script connects to the Jamf Pro API on a Jamf Pro server and reports which Jamf Pro user accounts have which permissions assigned, along with how those permissions are assigned (direct assignment to the user account, or via membership in a user group.)
+This script connects to the Jamf Pro Classic API on a Jamf Pro server and reports which Jamf Pro user accounts have which permissions assigned, along with how those permissions are assigned (direct assignment to the user account, or via membership in a user group.)
 
 Usage: `/path/to/Jamf_Pro_Local_Account_Permissions_Report.sh`
 
