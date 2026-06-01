@@ -8,7 +8,7 @@ Usage: `/path/to/Jamf_Pro_Local_Account_Permissions_Report.sh`
 
 * Account Name
 * Account ID
-* Enabled / Disabled
+* Account Enabled / Disabled
 * Privilege Category
 * Privilege Name
 * Assignment Type
