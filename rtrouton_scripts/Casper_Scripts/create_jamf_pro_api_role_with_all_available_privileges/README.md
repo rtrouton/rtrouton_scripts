@@ -9,6 +9,6 @@ Usage: `/path/to/create_jamf_pro_api_role_with_all_available_privileges.sh`
 
 This script supports the following method of API authentication for Jamf Pro:
 
-* Jamf Pro user account
+* User account authentication
 
 **Note:** The Jamf Pro user account used for authentication must have the `Administrator` privileges set assigned to it.
