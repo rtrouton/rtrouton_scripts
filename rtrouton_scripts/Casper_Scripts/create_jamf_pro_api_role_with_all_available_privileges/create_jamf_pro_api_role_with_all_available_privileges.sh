@@ -212,7 +212,7 @@ print "Account holds every privilege in the catalog. Proceeding ..."
 # Prompt for the name of the new API role being created with all API role privileges.
 
 while true; do
-    read "?Name for the new, all-privileges API Role: " new_role_name
+    read "?Name for the new all-privileges API Role: " new_role_name
     [[ -n "$new_role_name" ]] && break
     print "The API Role name cannot be blank."
 done
