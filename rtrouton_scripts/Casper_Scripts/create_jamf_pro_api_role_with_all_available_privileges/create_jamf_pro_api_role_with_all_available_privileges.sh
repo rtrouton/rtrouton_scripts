@@ -161,7 +161,7 @@ priv_response=$(curl -s -w $'\n%{http_code}' --request GET "${jamfpro_url}/api/v
 
 split_curl_response "$priv_response"
 
-# Ver
+# If not able to retrieve the list of available API Role privileges, the script stops and displays an error.
 
 if [[ "$REPLY_CODE" != "200" ]]; then
     stop_on_error "Failed to retrieve API Role privileges. Please try again using a Jamf Pro account which has been assigned the Administrator privileges set. Response from Jamf Pro server: ${REPLY_BODY}"
