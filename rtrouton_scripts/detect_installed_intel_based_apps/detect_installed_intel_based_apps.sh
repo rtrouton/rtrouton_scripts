@@ -6,30 +6,39 @@
 intel_app_logfile="/var/log/intel_apps_installed.log"
 ERROR=0
 
+# Check for the jq command line tool to be installed. It must be installed for this script to work.
+# The jq command line tool is installed by default on macOS Sequoia and later. 
+
+which jq &>/dev/null
+
+if [[ $? -ne 0 ]]; then
+   echo "ERROR: jq command line tool is not installed. Please install the jq command line tool."
+   echo "Downloads available from https://jqlang.org/download/ ."
+   ERROR=1
+   exit "$ERROR"
+fi
+
 # this script must be run with root privileges
 if [[ "$(/usr/bin/id -u)" -eq 0 ]]; then
 
 	# Create log file if not present
 	if [[ -f "$intel_app_logfile" ]]; then
        echo "$intel_app_logfile found. Proceeding..."
-	else   
+	else
        echo "Creating $intel_app_logfile log. Proceeding..."
        touch "$intel_app_logfile"
 	fi
 
-	# Get a list of all installed applications
-	intel_app_list=$(/usr/sbin/system_profiler SPApplicationsDataType)
+	# Get a list of all installed applications exported to JSON format
+	intel_app_list=$(/usr/sbin/system_profiler SPApplicationsDataType -json)
 
 	if [[ -n "$intel_app_list" ]]; then
 
-		# get all non-64 Bit applications from the initial list
-		intel_app_list=$(echo "$intel_app_list" | /usr/bin/grep -A3 "Intel")
+		# Filter to apps whose arch_kind is Intel-only (arch_i64), then output each app's path.
+		intel_app_list=$(echo "$intel_app_list" | jq -r '.SPApplicationsDataType[] | select(.arch_kind=="arch_i64") | .path')
 
-		# filter out all applications in /Applications, /Library and /usr/local
-		intel_app_list=$(echo "$intel_app_list" | /usr/bin/grep -E "Location:[^/]*/(Applications|Library|usr/local)/")
-
-		# remove everything except the path
-		intel_app_list=$(echo "$intel_app_list" | /usr/bin/sed -n 's/.*Location:[[:space:]]*\(.*\)/\1/p')
+		# Filter to only get applications in /Applications, /Library and /usr/local
+		intel_app_list=$(echo "$intel_app_list" | /usr/bin/grep -E "^[^/]*/(Applications|Library|usr/local)/")
 
 		if [[ -n "$intel_app_list" ]]; then
 			echo "$intel_app_list" > "$intel_app_logfile"
@@ -38,10 +47,9 @@ if [[ "$(/usr/bin/id -u)" -eq 0 ]]; then
 		    echo "No Intel-based applications found in /Applications, /Library or /usr/local." > "$intel_app_logfile"
 		fi
 	fi
-
 else
-	log "ERROR! You must be root in order to run this script!"
-	ERROR=1
+echo "ERROR: You must be root in order to run this script!"
+ERROR=1
 fi
 
 exit $ERROR
