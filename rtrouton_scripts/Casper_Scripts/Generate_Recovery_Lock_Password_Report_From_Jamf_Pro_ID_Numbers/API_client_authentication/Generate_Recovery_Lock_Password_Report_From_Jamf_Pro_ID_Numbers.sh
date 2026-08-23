@@ -165,7 +165,7 @@ while read -r ID; do
 		    
 			if [[ ! -f "$report_file" ]]; then
 				touch "$report_file"
-				printf "Jamf Pro ID Number\tMake\tModel\tSerial Number\tUDID\tRecovery Lock Password Available\tRecovery Lock Password\tJamf Pro URL\n" > "$report_file"
+				printf "Jamf Pro ID Number\tManufacturer\tModel\tSerial Number\tUDID\tRecovery Lock Password Available\tRecovery Lock Password\tJamf Pro URL\n" > "$report_file"
 			fi
 
 			Make=$(printf '%s' "$ComputerRecord" | /usr/bin/plutil -extract hardware.make raw - 2>/dev/null)
