@@ -28,7 +28,7 @@ Once the Jamf Pro ID numbers are read from in from the plaintext file, the scrip
 *    Recovery Lock Password (if no password is set,`NA` is reported for the `Recovery Lock Password` column.)
 *    Jamf Pro URL for the computer inventory record
 
-| Jamf Pro ID Number | Make | Model | Serial Number | UDID | Recovery Lock Password Available | Recovery Lock Password | Jamf Pro URL |
+| Jamf Pro ID Number | Manufacturer | Model | Serial Number | UDID | Recovery Lock Password Available | Recovery Lock Password | Jamf Pro URL |
 | ------------------ | ---- | ----- | ------------- | ---- | -------------------------------- | ---------------------- | ------------ |
 | 19 | Apple | MacBook Pro \(13-inch, M1, 2020\) | C02X25CTPSYN | 1B71C903-3BD7-441F-B063-4B49F232123A | No | NA | https://jamf.pro.server.here/computers.html?id=19 | 
 | 55 | Apple | MacBook Pro \(14-inch, 2021\) | INU1GX7R3Y | F5F3E415-7A82-4A10-BF78-EAB6561670DA | No | NA | https://jamf.pro.server.here/computers.html?id=55 | 
